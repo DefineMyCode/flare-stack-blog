@@ -94,7 +94,7 @@ function DashboardOverview() {
   return (
     <div className="space-y-8 animate-in fade-in duration-500 max-w-300 mx-auto">
       {/* Header */}
-      <header className="flex justify-between items-end gap-4 border-b border-border/30 pb-6">
+      <header className="flex flex-col md:flex-row justify-between md:items-end gap-4 border-b border-border/30 pb-6">
         <div className="space-y-1">
           <h1 className="text-3xl font-serif font-medium tracking-tight text-foreground">
             仪表盘
@@ -106,7 +106,7 @@ function DashboardOverview() {
           </div>
         </div>
 
-        <div className="flex items-center gap-6">
+        <div className="flex items-center gap-4 md:gap-6 self-start md:self-auto">
           <Tabs
             value={range}
             onValueChange={(val) =>
@@ -118,7 +118,7 @@ function DashboardOverview() {
               })
             }
           >
-            <TabsList className="bg-transparent border-none p-0 gap-6">
+            <TabsList className="bg-transparent border-none p-0 gap-4 md:gap-6">
               {Object.entries(rangeLabel).map(([key, label]) => (
                 <TabsTrigger
                   key={key}
