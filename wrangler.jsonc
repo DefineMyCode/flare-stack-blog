@@ -7,6 +7,7 @@
   "observability": {
     "enabled": true,
   },
+  "keep_vars": true,
   "routes": [
     {
       "pattern": "faito.top",
