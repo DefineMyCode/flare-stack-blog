@@ -1,10 +1,15 @@
+import { handleEmailMessage } from "@/features/email/api/email.consumer";
+import { handleWebhookMessage } from "@/features/webhook/api/webhook.consumer";
 import { app } from "@/lib/hono";
+import { queueMessageSchema } from "@/lib/queue/queue.schema";
 
 export { CommentModerationWorkflow } from "@/features/comments/workflows/comment-moderation";
+export { ExportWorkflow } from "@/features/import-export/workflows/export.workflow";
+export { ImportWorkflow } from "@/features/import-export/workflows/import.workflow";
 export { PostProcessWorkflow } from "@/features/posts/workflows/post-process";
 export { ScheduledPublishWorkflow } from "@/features/posts/workflows/scheduled-publish";
-export { SendEmailWorkflow } from "@/features/email/workflows/send-email";
-export { RateLimiter } from "@/lib/rate-limiter";
+export { RateLimiter } from "@/lib/do/rate-limiter";
+export { PasswordHasher } from "@/lib/do/password-hasher";
 
 declare module "@tanstack/react-start" {
   interface Register {
@@ -20,5 +25,55 @@ declare module "@tanstack/react-start" {
 export default {
   fetch(request, env, ctx) {
     return app.fetch(request, env, ctx);
+  },
+  async queue(batch, env, ctx) {
+    for (const message of batch.messages) {
+      const parsed = queueMessageSchema.safeParse(message.body);
+      if (!parsed.success) {
+        console.error(
+          JSON.stringify({
+            message: "queue invalid message",
+            body: message.body,
+            error: parsed.error.message,
+          }),
+        );
+        message.ack();
+        continue;
+      }
+
+      try {
+        const event = parsed.data;
+        switch (event.type) {
+          case "EMAIL":
+            await handleEmailMessage(
+              {
+                env,
+                executionCtx: ctx,
+              },
+              {
+                ...event.data,
+                idempotencyKey: message.id,
+              },
+            );
+            break;
+          case "WEBHOOK":
+            await handleWebhookMessage(event.data, message.id);
+            break;
+          default:
+            event satisfies never;
+            throw new Error("Unknown queue message type");
+        }
+        message.ack();
+      } catch (error) {
+        console.error(
+          JSON.stringify({
+            message: "queue processing failed",
+            attempt: message.attempts,
+            error: error instanceof Error ? error.message : "unknown error",
+          }),
+        );
+        message.retry();
+      }
+    }
   },
 } satisfies ExportedHandler<Env>;

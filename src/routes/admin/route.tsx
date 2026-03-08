@@ -10,6 +10,10 @@ import { sessionQuery } from "@/features/auth/queries";
 import { SideBar } from "@/components/admin/side-bar";
 import { CACHE_CONTROL } from "@/lib/constants";
 import { Breadcrumbs } from "@/components/breadcrumbs";
+import Toaster from "@/components/ui/toaster";
+// 管理后台固定使用 default 主题样式，不随 THEME 变量切换
+import "@/features/theme/themes/default/styles/index.css";
+import "@/styles/admin.css";
 
 export const Route = createFileRoute("/admin")({
   beforeLoad: async ({ context }) => {
@@ -45,7 +49,7 @@ function AdminLayout() {
   const closeMobileSidebar = () => setIsMobileSidebarOpen(false);
 
   return (
-    <div className="min-h-screen bg-background text-foreground flex relative font-sans">
+    <div className="min-h-screen bg-background text-foreground flex relative font-sans admin-layout">
       <SideBar
         isMobileSidebarOpen={isMobileSidebarOpen}
         closeMobileSidebar={closeMobileSidebar}
@@ -58,7 +62,7 @@ function AdminLayout() {
           <div className="flex items-center gap-4">
             <button
               onClick={() => setIsMobileSidebarOpen(true)}
-              className="md:hidden p-2 hover:bg-muted/50 rounded-sm transition-colors text-foreground"
+              className="lg:hidden p-2 hover:bg-muted/50 rounded-sm transition-colors text-foreground"
             >
               <Menu size={20} strokeWidth={1.5} />
             </button>
@@ -99,6 +103,7 @@ function AdminLayout() {
           </div>
         </div>
       </main>
+      <Toaster />
     </div>
   );
 }

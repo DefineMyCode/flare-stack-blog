@@ -3,12 +3,15 @@ import type {
   Auth as AuthType,
   Session as SessionType,
 } from "@/lib/auth/auth.server";
+import type { QueueMessage } from "@/lib/queue/queue.schema";
+import type { ThemeRouterConfig } from "@/features/theme/registry";
 
 declare global {
   interface PostProcessWorkflowParams {
     postId: number;
     isPublished: boolean;
     publishedAt?: string;
+    isFuturePost?: boolean;
   }
 
   interface ScheduledPublishWorkflowParams {
@@ -20,18 +23,25 @@ declare global {
     commentId: number;
   }
 
-  interface SendEmailWorkflowParams {
-    to: string;
-    subject: string;
-    html: string;
-    headers?: Record<string, string>;
+  interface ExportWorkflowParams {
+    taskId: string;
+    postIds?: Array<number>;
+    status?: "draft" | "published";
+  }
+
+  interface ImportWorkflowParams {
+    taskId: string;
+    r2Key: string;
+    mode: "native" | "markdown";
   }
 
   interface Env extends Cloudflare.Env {
     POST_PROCESS_WORKFLOW: Workflow<PostProcessWorkflowParams>;
     COMMENT_MODERATION_WORKFLOW: Workflow<CommentModerationWorkflowParams>;
-    SEND_EMAIL_WORKFLOW: Workflow<SendEmailWorkflowParams>;
     SCHEDULED_PUBLISH_WORKFLOW: Workflow<ScheduledPublishWorkflowParams>;
+    EXPORT_WORKFLOW: Workflow<ExportWorkflowParams>;
+    IMPORT_WORKFLOW: Workflow<ImportWorkflowParams>;
+    QUEUE: Queue<QueueMessage>;
   }
 
   type DB = DBType;
@@ -54,4 +64,7 @@ declare global {
   type AuthContext = Omit<SessionContext, "session"> & {
     session: Session;
   };
+
+  const __APP_VERSION__: string;
+  const __THEME_CONFIG__: ThemeRouterConfig;
 }

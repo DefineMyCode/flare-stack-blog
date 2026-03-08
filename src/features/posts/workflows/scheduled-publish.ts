@@ -1,5 +1,6 @@
 import { WorkflowEntrypoint } from "cloudflare:workers";
 import type { WorkflowEvent, WorkflowStep } from "cloudflare:workers";
+import { toUTCMidnight } from "@/features/posts/utils/date";
 import {
   fetchPost,
   invalidatePostCaches,
@@ -17,7 +18,7 @@ export class ScheduledPublishWorkflow extends WorkflowEntrypoint<Env, Params> {
 
     await step.sleepUntil(
       "sleep until publish date",
-      new Date(event.payload.publishedAt),
+      toUTCMidnight(new Date(event.payload.publishedAt)),
     );
 
     const post = await step.do("verify post status", async () => {

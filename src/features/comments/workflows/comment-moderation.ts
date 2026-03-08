@@ -2,11 +2,16 @@ import { WorkflowEntrypoint } from "cloudflare:workers";
 import type { WorkflowEvent, WorkflowStep } from "cloudflare:workers";
 import * as CommentService from "@/features/comments/comments.service";
 import * as AiService from "@/features/ai/ai.service";
+import * as CommentRepo from "@/features/comments/data/comments.data";
 import * as PostService from "@/features/posts/posts.service";
 import { sendReplyNotification } from "@/features/comments/workflows/helpers";
+import { publishNotificationEvent } from "@/features/notification/service/notification.publisher";
 import { getDb } from "@/lib/db";
-import { convertToPlainText } from "@/features/posts/utils/content";
-import { isNotInProduction } from "@/lib/env/server.env";
+import { isNotInProduction, serverEnv } from "@/lib/env/server.env";
+import {
+  buildContentPreview,
+  convertToPlainText,
+} from "@/features/posts/utils/content";
 
 interface Params {
   commentId: number;
@@ -26,14 +31,23 @@ export class CommentModerationWorkflow extends WorkflowEntrypoint<Env, Params> {
     });
 
     if (!comment) {
-      console.log(`Comment ${commentId} not found, skipping moderation`);
+      console.log(
+        JSON.stringify({
+          message: "comment not found, skipping moderation",
+          commentId,
+        }),
+      );
       return;
     }
 
     // Skip if comment is already processed or deleted
     if (comment.status !== "verifying") {
       console.log(
-        `Comment ${commentId} is already processed (status: ${comment.status}), skipping`,
+        JSON.stringify({
+          message: "comment already processed, skipping moderation",
+          commentId,
+          status: comment.status,
+        }),
       );
       return;
     }
@@ -47,12 +61,45 @@ export class CommentModerationWorkflow extends WorkflowEntrypoint<Env, Params> {
     });
 
     if (!post) {
-      console.log(`Post ${comment.postId} not found, skipping moderation`);
+      console.log(
+        JSON.stringify({
+          message: "post not found, skipping moderation",
+          postId: comment.postId,
+        }),
+      );
       return;
     }
 
+    const threadContext = await step.do("fetch thread context", async () => {
+      const db = getDb(this.env);
+      const [rootComment, replyToComment] = await Promise.all([
+        comment.rootId
+          ? CommentService.findCommentById(
+              { db, env: this.env },
+              comment.rootId,
+            )
+          : null,
+        comment.replyToCommentId
+          ? CommentService.findCommentById(
+              { db, env: this.env },
+              comment.replyToCommentId,
+            )
+          : null,
+      ]);
+
+      return {
+        rootCommentText: rootComment
+          ? convertToPlainText(rootComment.content).trim()
+          : "",
+        replyToCommentText: replyToComment
+          ? convertToPlainText(replyToComment.content).trim()
+          : "",
+      };
+    });
+
     // Extract plain text from JSONContent
     const plainText = convertToPlainText(comment.content);
+    const postContentPreview = buildContentPreview(post.contentJson);
 
     if (!plainText || plainText.trim().length === 0) {
       // Empty comment, mark as pending for manual review
@@ -93,12 +140,24 @@ export class CommentModerationWorkflow extends WorkflowEntrypoint<Env, Params> {
               post: {
                 title: post.title,
                 summary: post.summary ?? "",
+                contentPreview: postContentPreview,
+              },
+              thread: {
+                isReply: Boolean(comment.replyToCommentId),
+                rootComment: threadContext.rootCommentText,
+                replyToComment: threadContext.replyToCommentText,
               },
             },
           );
         } catch (error) {
           // If AI service is not configured, mark as pending for manual review
-          console.error("AI moderation failed:", error);
+          console.error(
+            JSON.stringify({
+              message: "ai moderation failed",
+              commentId,
+              error: error instanceof Error ? error.message : String(error),
+            }),
+          );
           return {
             safe: false,
             reason: "AI 审核服务暂时不可用，等待人工审核",
@@ -128,20 +187,49 @@ export class CommentModerationWorkflow extends WorkflowEntrypoint<Env, Params> {
       }
     });
 
+    // Step 3.5: Notify admin when comment is flagged for review
+    if (!moderationResult.safe) {
+      await step.do("notify admin pending comment", async () => {
+        const db = getDb(this.env);
+        const commenter = await CommentRepo.getCommentAuthorWithEmail(
+          db,
+          comment.id,
+        );
+        const { ADMIN_EMAIL, DOMAIN } = serverEnv(this.env);
+        const commentPreview = plainText.slice(0, 100);
+        await publishNotificationEvent(
+          { db, env: this.env, executionCtx: this.ctx },
+          {
+            type: "comment.admin_pending_review",
+            data: {
+              to: ADMIN_EMAIL,
+              postTitle: post.title,
+              commenterName: commenter?.name ?? "匿名用户",
+              commentPreview: `${commentPreview}${commentPreview.length >= 100 ? "..." : ""}`,
+              reviewUrl: `https://${DOMAIN}/admin/comments`,
+            },
+          },
+        );
+      });
+    }
+
     // Step 4: Send reply notification if comment was approved and is a reply
     if (moderationResult.safe && comment.replyToCommentId) {
       await step.do("send reply notification", async () => {
         const db = getDb(this.env);
-        await sendReplyNotification(db, this.env, {
-          comment: {
-            id: comment.id,
-            rootId: comment.rootId,
-            replyToCommentId: comment.replyToCommentId,
-            userId: comment.userId,
-            content: comment.content,
+        await sendReplyNotification(
+          { db, env: this.env, executionCtx: this.ctx },
+          {
+            comment: {
+              id: comment.id,
+              rootId: comment.rootId,
+              replyToCommentId: comment.replyToCommentId,
+              userId: comment.userId,
+              content: comment.content,
+            },
+            post: { slug: post.slug, title: post.title },
           },
-          post: { slug: post.slug, title: post.title },
-        });
+        );
       });
     }
   }

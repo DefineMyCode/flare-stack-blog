@@ -1,6 +1,11 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { testRequest } from "tests/test-utils";
+
 import { app } from "@/lib/hono";
+
+vi.mock("@/lib/turnstile", () => ({
+  verifyTurnstileToken: vi.fn(() => Promise.resolve({ success: true })),
+}));
 
 describe("Hono Integration Test", () => {
   beforeEach(() => {
@@ -16,12 +21,13 @@ describe("Hono Integration Test", () => {
       method: "POST",
       headers: {
         "cf-connecting-ip": "bad-ip",
+        "X-Turnstile-Token": "test-token",
       },
     };
 
     const url = "/api/auth/sign-in/email";
 
-    for (let i = 0; i < 10; i++) {
+    for (let i = 0; i < 5; i++) {
       const res = await testRequest(app, url, reqInit);
       expect(res.status).not.toBe(429);
     }
@@ -35,19 +41,19 @@ describe("Hono Integration Test", () => {
   describe("Security Shield", () => {
     it("should block malicious extension (.php) with 404", async () => {
       const res = await testRequest(app, "/index.php");
-      expect(res.status).toBe(403);
-      expect(await res.text()).toBe("Forbidden");
+      expect(res.status).toBe(404);
+      expect(await res.text()).toBe("Not Found");
     });
 
     it("should block suspicious AWS config path with 404", async () => {
       const res = await testRequest(app, "/.aws/config");
-      expect(res.status).toBe(403);
+      expect(res.status).toBe(404);
     });
 
     it("should block unknown paths with 404 before triggering loader", async () => {
       const res = await testRequest(app, "/random-bad-path");
-      expect(res.status).toBe(403);
-      expect(await res.text()).toBe("Forbidden");
+      expect(res.status).toBe(404);
+      expect(await res.text()).toBe("Not Found");
     });
 
     it("should allow home page", async () => {

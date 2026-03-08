@@ -1,4 +1,3 @@
-import { renderToStaticMarkup } from "react-dom/server";
 import type {
   CreateCommentInput,
   DeleteCommentInput,
@@ -10,11 +9,11 @@ import type {
 } from "@/features/comments/comments.schema";
 import * as CommentRepo from "@/features/comments/data/comments.data";
 import * as PostService from "@/features/posts/posts.service";
-import { AdminNotificationEmail } from "@/features/email/templates/AdminNotificationEmail";
+import { publishNotificationEvent } from "@/features/notification/service/notification.publisher";
 import { convertToPlainText } from "@/features/posts/utils/content";
 import { sendReplyNotification } from "@/features/comments/workflows/helpers";
 import { serverEnv } from "@/lib/env/server.env";
-import { err, ok } from "@/lib/error";
+import { err, ok } from "@/lib/errors";
 
 // ============ Public Service Methods ============
 
@@ -79,7 +78,7 @@ export async function getRepliesByRootId(
 // ============ Authed User Service Methods ============
 
 export async function createComment(
-  context: AuthContext,
+  context: AuthContext & { executionCtx: ExecutionContext },
   data: CreateCommentInput,
 ) {
   // Validation: ensure 2-level structure
@@ -152,7 +151,7 @@ export async function createComment(
       id: data.postId,
     });
     if (post) {
-      await sendReplyNotification(context.db, context.env, {
+      await sendReplyNotification(context, {
         comment: {
           id: comment.id,
           rootId: comment.rootId,
@@ -175,21 +174,14 @@ export async function createComment(
       const { ADMIN_EMAIL, DOMAIN } = serverEnv(context.env);
       const commentPreview = convertToPlainText(data.content).slice(0, 100);
       const commenterName = context.session.user.name;
-
-      const emailHtml = renderToStaticMarkup(
-        AdminNotificationEmail({
+      await publishNotificationEvent(context, {
+        type: "comment.admin_root_created",
+        data: {
+          to: ADMIN_EMAIL,
           postTitle: post.title,
           commenterName,
           commentPreview: `${commentPreview}${commentPreview.length >= 100 ? "..." : ""}`,
           commentUrl: `https://${DOMAIN}/post/${post.slug}?highlightCommentId=${comment.id}&rootId=${comment.id}#comment-${comment.id}`,
-        }),
-      );
-
-      await context.env.SEND_EMAIL_WORKFLOW.create({
-        params: {
-          to: ADMIN_EMAIL,
-          subject: `[新评论] ${post.title}`,
-          html: emailHtml,
         },
       });
     }
@@ -205,13 +197,13 @@ export async function deleteComment(
   const comment = await CommentRepo.findCommentById(context.db, data.id);
 
   if (!comment) {
-    throw new Error("COMMENT_NOT_FOUND");
+    return err({ reason: "COMMENT_NOT_FOUND" });
   }
 
   // Only allow deleting own comments (unless admin)
   const userRole = context.session.user.role;
   if (comment.userId !== context.session.user.id && userRole !== "admin") {
-    throw new Error("PERMISSION_DENIED");
+    return err({ reason: "PERMISSION_DENIED" });
   }
 
   // Soft delete by setting status to deleted
@@ -219,14 +211,14 @@ export async function deleteComment(
     status: "deleted",
   });
 
-  return { success: true };
+  return ok({ success: true });
 }
 
 export async function getMyComments(
   context: AuthContext,
   data: GetMyCommentsInput,
 ) {
-  const comments = await CommentRepo.getCommentsByUserId(
+  return await CommentRepo.getCommentsByUserId(
     context.db,
     context.session.user.id,
     {
@@ -235,8 +227,6 @@ export async function getMyComments(
       status: data.status,
     },
   );
-
-  return comments;
 }
 
 // ============ Admin Service Methods ============
@@ -266,13 +256,14 @@ export async function getAllComments(
 }
 
 export async function moderateComment(
-  context: DbContext,
+  context: DbContext & { executionCtx: ExecutionContext },
   data: ModerateCommentInput,
+  moderatorUserId?: string,
 ) {
   const comment = await CommentRepo.findCommentById(context.db, data.id);
 
   if (!comment) {
-    throw new Error("COMMENT_NOT_FOUND");
+    return err({ reason: "COMMENT_NOT_FOUND" });
   }
 
   const updatedComment = await CommentRepo.updateComment(context.db, data.id, {
@@ -290,7 +281,7 @@ export async function moderateComment(
       id: comment.postId,
     });
     if (post) {
-      await sendReplyNotification(context.db, context.env, {
+      await sendReplyNotification(context, {
         comment: {
           id: comment.id,
           rootId: comment.rootId,
@@ -299,11 +290,12 @@ export async function moderateComment(
           content: comment.content,
         },
         post: { slug: post.slug, title: post.title },
+        skipNotifyUserId: moderatorUserId,
       });
     }
   }
 
-  return updatedComment;
+  return ok(updatedComment);
 }
 
 export async function adminDeleteComment(
@@ -313,13 +305,13 @@ export async function adminDeleteComment(
   const comment = await CommentRepo.findCommentById(context.db, data.id);
 
   if (!comment) {
-    throw new Error("COMMENT_NOT_FOUND");
+    return err({ reason: "COMMENT_NOT_FOUND" });
   }
 
   // Hard delete for admin
   await CommentRepo.deleteComment(context.db, data.id);
 
-  return { success: true };
+  return ok({ success: true });
 }
 
 // ============ Workflow Methods ============

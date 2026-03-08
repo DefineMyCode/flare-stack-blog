@@ -18,6 +18,8 @@ GITHUB_CLIENT_SECRET=your-github-client-secret
 CLOUDFLARE_ZONE_ID=your-zone-id
 CLOUDFLARE_PURGE_API_TOKEN=your-purge-api-token
 DOMAIN=blog.example.com
+# 可选：若使用独立 CDN 域名，设置后 purge 时优先使用此域名
+# CDN_DOMAIN=cdn.example.com
 
 # --- Umami 统计（可选） ---
 # Umami Cloud: 设置 UMAMI_SRC=https://cloud.umami.is 并提供 UMAMI_API_KEY
@@ -33,3 +35,12 @@ UMAMI_API_KEY=your-cloud-api-key
 # UMAMI_SRC=https://umami.example.com
 # UMAMI_USERNAME=your-username
 # UMAMI_PASSWORD=your-password
+
+# --- Turnstile 人机验证 ---
+# 测试key见：https://developers.cloudflare.com/turnstile/troubleshooting/testing/
+# TURNSTILE_SECRET_KEY=your-turnstile-secret-key
+
+# --- GitHub API（可选，用于版本更新检查） ---
+# 未认证请求限流 60 次/小时/IP，Cloudflare Workers 共享 IP 容易触发限流
+# 创建无权限的 Fine-grained token: https://github.com/settings/personal-access-tokens
+# GITHUB_TOKEN=your-github-token

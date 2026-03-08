@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { toast } from "sonner";
-import { Trash2 } from "lucide-react";
+import { Flame, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import ConfirmationModal from "@/components/ui/confirmation-modal";
 import { invalidateSiteCacheFn } from "@/features/cache/cache.api";
@@ -10,38 +10,47 @@ export function CacheMaintenance() {
 
   const handleInvalidate = () => {
     setIsModalOpen(false);
-    toast.promise(invalidateSiteCacheFn, {
-      loading: "正在重置全站缓存...",
-      success: "全站缓存重置成功",
-      error: "缓存重置失败",
-    });
+    toast.promise(
+      async () => {
+        await invalidateSiteCacheFn();
+      },
+      {
+        loading: "正在重置全站缓存...",
+        success: "全站缓存重置成功",
+        error: (error) => error.message || "缓存重置失败",
+      },
+    );
   };
   return (
-    <div className="group flex flex-col sm:flex-row py-6 gap-6 sm:gap-8 border-b border-border/30">
-      <div className="w-40 shrink-0 flex flex-col gap-1.5">
-        <span className="text-[9px] font-mono uppercase tracking-widest text-muted-foreground">
-          全站缓存
-        </span>
-      </div>
-      <div className="flex-1 space-y-8">
-        <div className="max-w-xl">
-          <div className="flex items-center gap-2 mb-2">
-            <h4 className="text-sm font-serif font-medium text-foreground tracking-tight">
-              全站缓存重置
-            </h4>
-            <div className="w-1.5 h-1.5 bg-red-500 animate-pulse" />
+    <div className="flex flex-col overflow-hidden border border-border/30 bg-background/50">
+      <div className="flex-1 p-6 space-y-4">
+        <div className="flex items-center gap-3">
+          <div className="rounded-sm bg-red-500/10 p-2">
+            <Flame size={16} className="text-red-500/70" />
           </div>
-          <p className="text-[10px] font-mono text-muted-foreground leading-relaxed">
-            清除全站 CDN 缓存及 KV
-            数据缓存。硬重置操作，请仅在数据严重不同步时使用。
-          </p>
+          <div className="space-y-1">
+            <h4 className="text-base font-serif font-medium text-foreground tracking-tight">
+              重置全站缓存
+            </h4>
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              清除 CDN 和 KV 缓存，适合在内容严重不同步时执行。
+            </p>
+          </div>
         </div>
+
+        <p className="text-sm text-muted-foreground leading-relaxed">
+          执行后，首页、文章页和其他缓存内容会重新回源生成。通常只在发布后页面长时间未更新、资源版本异常，或手动修复数据后仍然显示旧内容时使用。
+        </p>
+      </div>
+
+      <div className="px-6 pb-6 mt-auto">
         <Button
           type="button"
           onClick={() => setIsModalOpen(true)}
-          className="h-8 px-4 text-[10px] font-mono uppercase tracking-widest rounded-none gap-2 bg-red-600 hover:bg-red-700 text-white"
+          className="h-10 w-full gap-3 rounded-none bg-red-600 px-4 font-mono text-[10px] uppercase tracking-[0.2em] text-white transition-all hover:bg-red-700"
         >
-          <Trash2 size={12} />[ 重置缓存 ]
+          <Trash2 size={12} />
+          重置缓存
         </Button>
       </div>
 
@@ -50,7 +59,7 @@ export function CacheMaintenance() {
         onClose={() => setIsModalOpen(false)}
         onConfirm={handleInvalidate}
         title="确认重置全站缓存"
-        message="该操作将清除 CDN 及 KV 中的所有缓存数据。是否确认执行？"
+        message="该操作将清除 CDN 及 KV 中的所有缓存数据。执行后前台加载速度可能会暂时变慢。是否确认执行？"
         confirmLabel="立即重置"
       />
     </div>

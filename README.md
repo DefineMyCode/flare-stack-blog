@@ -2,7 +2,9 @@
 
 > **注意**：本项目专为 Cloudflare Workers 生态设计，深度集成 D1、R2、KV、Workflows 等服务，**仅支持部署在 Cloudflare Workers**。
 
-[部署指南](#部署指南) | [本地开发](#本地开发)
+[部署指南](#部署指南) | [本地开发](#本地开发) | [错误处理开发规范](./docs/error-handling-quickstart.md)
+
+> 建了个 Telegram 群组，欢迎交流本项目相关问题 [Telegram 群](https://t.me/+vWuQYybv1kgxMDkx)
 
 基于 Cloudflare Workers 的现代化全栈博客 CMS。
 
@@ -15,26 +17,30 @@
 - **文章管理** — 富文本编辑器，支持代码高亮、图片上传、草稿/发布流程
 - **标签系统** — 灵活的文章分类
 - **评论系统** — 支持嵌套回复、邮件通知、审核机制
+- **友情链接** — 用户申请、管理员审核、邮件通知
 - **全文搜索** — 基于 Orama 的高性能搜索
 - **媒体库** — R2 对象存储，图片管理与优化
 - **用户认证** — GitHub OAuth 登录，权限控制
 - **数据统计** — Umami 集成，访问分析与热门文章
 - **AI 辅助** — Cloudflare Workers AI 集成
+- **主题系统** — 可扩展的主题模板，支持完整替换所有页面和布局
+- **导入导出** — 支持Markdown导入导出，保留图片以及Frontmatter
 
 ## 技术栈
 
 ### Cloudflare 生态
 
-| 服务            | 用途                         |
-| :-------------- | :--------------------------- |
-| Workers         | 边缘计算与托管               |
-| D1              | SQLite 数据库                |
-| R2              | 对象存储（媒体文件）         |
-| KV              | 缓存层                       |
-| Durable Objects | 分布式限流                   |
-| Workflows       | 异步任务（邮件、内容审核等） |
-| Workers AI      | AI 能力                      |
-| Images          | 图片优化                     |
+| 服务            | 用途                           |
+| :-------------- | :----------------------------- |
+| Workers         | 边缘计算与托管                 |
+| D1              | SQLite 数据库                  |
+| R2              | 对象存储（媒体文件）           |
+| KV              | 缓存层                         |
+| Durable Objects | 分布式限流                     |
+| Workflows       | 异步任务（内容审核、定时发布） |
+| Queues          | 消息队列（邮件通知）           |
+| Workers AI      | AI 能力                        |
+| Images          | 图片优化                       |
 
 ### 前端
 
@@ -76,6 +82,10 @@ src/
 │   ├── email/       # 邮件通知（Resend）
 │   ├── cache/       # KV 缓存服务
 │   ├── config/      # 博客配置
+│   ├── friend-links/# 友情链接（申请、审核）
+│   ├── import-export/# Markdown 导入导出
+│   ├── version/     # 版本更新检查
+│   ├── theme/       # 主题系统（契约、注册表、各主题实现）
 │   └── ai/          # Workers AI 集成
 ├── routes/
 │   ├── _public/     # 公开页面（首页、文章列表/详情、搜索）
@@ -89,6 +99,33 @@ src/
 ├── lib/             # 基础设施（db/, auth/, hono/, middlewares）
 └── hooks/           # 自定义 Hooks
 ```
+
+### 主题系统
+
+Flare Stack Blog 的所有面向用户的页面与布局均通过 **主题契约（Theme Contract）** 与业务逻辑解耦。你可以在不修改任何路由或数据逻辑的前提下，完整替换博客的视觉表现层。
+
+→ **[主题开发教程](./docs/theme-guide.md)** — 了解如何从零创建你的第一个自定义主题。
+
+#### 可用主题
+
+各个主题的配置项，请前往`src/blog.config.ts`里查看
+
+<table>
+  <tr>
+    <th>主题</th>
+    <th>预览</th>
+  </tr>
+  <tr>
+    <td><code>default</code>（默认）</td>
+    <td><img src="docs/assets/home.png" alt="Default theme preview" /></td>
+  </tr>
+  <tr>
+    <td><code>fuwari</code></td>
+    <td><img src="docs/assets/fuwari.png" alt="Fuwari theme preview" /></td>
+  </tr>
+</table>
+
+> 欢迎提交你的自定义主题！参考 [主题开发教程](./docs/theme-guide.md) 完成开发后，可以通过 PR 将你的主题添加到这里。
 
 ### 请求流程
 
@@ -111,49 +148,22 @@ src/
 
 ## 部署指南
 
-> **推荐阅读**：[Flare Stack Blog 详细图文部署教程](https://blog.dukda.com/post/flare-stack-blog%E9%83%A8%E7%BD%B2%E6%95%99%E7%A8%8B) —— 包含所有凭证获取指引及常见问题排查。
+请参考 **[Flare Stack Blog 部署教程](https://blog.dukda.com/post/flare-stack-blog%E9%83%A8%E7%BD%B2%E6%95%99%E7%A8%8B)**，包含 Cloudflare 资源创建、凭证获取、GitHub OAuth 配置、两种部署方式的详细图文步骤及常见问题排查。
 
-本项目支持两种 CI/CD 部署方式，选择其一即可：
-
-| 方式       | 平台                      | 免费额度     | 特点               |
-| :--------- | :------------------------ | :----------- | :----------------- |
-| **方式一** | GitHub Actions            | 2000 分钟/月 | 自动清除 CDN 缓存  |
-| **方式二** | Cloudflare Workers Builds | 3000 分钟/月 | 无需创建部署 Token |
-
-### 前置准备
-
-以下步骤两种方式通用：
-
-1. **Cloudflare 账号** — 需绑定付款方式以启用 R2、Workers AI、Images 等服务（免费额度充足，个人博客基本用不完）
-2. **创建 Cloudflare 资源**：
-   - R2 存储桶（记录名称）
-   - D1 数据库（记录 Database ID）
-   - KV 命名空间（记录 Namespace ID）
-3. **域名托管** — 将域名 DNS 托管到 Cloudflare 以使用免费 CDN
-4. **获取 Cloudflare 凭证**：
-   - Dashboard 中获取 Zone ID 和 Account ID
-   - 创建 API Token（需要 Purge CDN 权限）
-   - 创建 API Token（需要 Worker 部署 + D1 读写权限）— **仅方式一需要**
-5. **GitHub OAuth App** — 在 GitHub Developer Settings 创建 OAuth App，获取 Client ID 和 Secret
-   - Authorization callback URL：`https://<your-domain>/api/auth/callback/github`
-6. **图片优化（可选）** — 在 Cloudflare Dashboard 中为你的域名开启 [Cloudflare Images](https://developers.cloudflare.com/images/)，每月 5000 次 unique transformations 免费额度
-7. **邮件通知（可选）** — 注册 [Resend](https://resend.com) 并绑定域名，在博客后台「设置」页面配置 API Key。每月 3000 封免费额度。配置后可启用密码登录、验证码、回复通知、找回密码等功能
+**[视频教程](https://www.bilibili.com/video/BV1R4fnBhEs4?p=2)** 已上线
 
 ---
 
-### 方式一：GitHub Actions 自动部署
+## 环境变量参考
 
-> 使用 GitHub Actions CI/CD（每月 2000 分钟免费额度）。后续更新只需 Sync Fork 即可自动触发部署。
+| 文件        | 用途                                   |
+| :---------- | :------------------------------------- |
+| `.env`      | 客户端变量（`VITE_*`），Vite 读取      |
+| `.dev.vars` | 服务端变量，Wrangler 注入 Worker `env` |
 
-1. Fork 本仓库
-2. 在 GitHub 仓库 **Settings → Secrets and variables → Actions** 中配置变量
-3. 进入 Actions 页面，手动触发 `Deploy` 工作流
+### 必填
 
-CI/CD 会自动完成数据库迁移、构建、部署和 CDN 缓存清理。
-
-#### GitHub Secrets（必填）
-
-| 变量名                       | 类型   | 说明                                              |
+| 变量名                       | 用途   | 说明                                              |
 | :--------------------------- | :----- | :------------------------------------------------ |
 | `CLOUDFLARE_API_TOKEN`       | CI/CD  | Cloudflare API Token（Worker 部署 + D1 读写权限） |
 | `CLOUDFLARE_ACCOUNT_ID`      | CI/CD  | Cloudflare Account ID                             |
@@ -162,97 +172,35 @@ CI/CD 会自动完成数据库迁移、构建、部署和 CDN 缓存清理。
 | `BUCKET_NAME`                | CI/CD  | R2 存储桶名称                                     |
 | `BETTER_AUTH_SECRET`         | 运行时 | 会话加密密钥，运行 `openssl rand -hex 32` 生成    |
 | `BETTER_AUTH_URL`            | 运行时 | 应用 URL（如 `https://blog.example.com`）         |
-| `ADMIN_EMAIL`                | 运行时 | 管理员邮箱，注册的用户会按照该邮箱授予管理员权限  |
-| `GH_CLIENT_ID`               | 运行时 | GitHub OAuth Client ID                            |
-| `GH_CLIENT_SECRET`           | 运行时 | GitHub OAuth Client Secret                        |
+| `ADMIN_EMAIL`                | 运行时 | 管理员邮箱                                        |
+| `GITHUB_CLIENT_ID`           | 运行时 | GitHub OAuth Client ID                            |
+| `GITHUB_CLIENT_SECRET`       | 运行时 | GitHub OAuth Client Secret                        |
 | `CLOUDFLARE_ZONE_ID`         | 运行时 | Cloudflare Zone ID                                |
 | `CLOUDFLARE_PURGE_API_TOKEN` | 运行时 | 具有 Purge CDN 权限的 API Token                   |
 | `DOMAIN`                     | 运行时 | 博客域名（如 `blog.example.com`）                 |
 
-> **类型说明**：
->
-> - **CI/CD**：仅用于 GitHub Actions 构建部署，方式二用户无需配置
-> - **运行时**：Worker 运行时使用，方式二用户在 Worker Settings 中配置
+### 可选
 
-#### GitHub Secrets（可选，Umami 统计）
-
-| 变量名           | 类型   | 说明                                 |
-| :--------------- | :----- | :----------------------------------- |
-| `UMAMI_SRC`      | 运行时 | Umami 基础 URL（见下方配置说明）     |
-| `UMAMI_API_KEY`  | 运行时 | Umami Cloud API key（仅 Cloud 版本） |
-| `UMAMI_USERNAME` | 运行时 | Umami 用户名（仅自部署版本）         |
-| `UMAMI_PASSWORD` | 运行时 | Umami 密码（仅自部署版本）           |
-
-##### Umami Cloud 配置示例：
-
-```bash
-UMAMI_SRC=https://cloud.umami.is
-UMAMI_API_KEY=your-cloud-api-key
-VITE_UMAMI_WEBSITE_ID=your-website-id
-# 不需要设置 UMAMI_USERNAME 和 UMAMI_PASSWORD
-```
-
-##### 自部署 Umami 配置示例：
-
-```bash
-UMAMI_SRC=https://umami.yourdomain.com
-UMAMI_USERNAME=your-username
-UMAMI_PASSWORD=your-password
-VITE_UMAMI_WEBSITE_ID=your-website-id
-# 不需要设置 UMAMI_API_KEY
-```
-
-> **检测逻辑**：系统会自动检测 `UMAMI_API_KEY` 是否设置来判断使用 Cloud 还是自部署模式。
-
-#### GitHub Variables（可选，客户端配置）
-
-| 变量名                  | 类型   | 说明                       |
-| :---------------------- | :----- | :------------------------- |
-| `VITE_UMAMI_WEBSITE_ID` | 构建时 | Umami Website ID           |
-| `VITE_BLOG_TITLE`       | 构建时 | 博客标题                   |
-| `VITE_BLOG_NAME`        | 构建时 | 博客短名称，显示在导航栏上 |
-| `VITE_BLOG_AUTHOR`      | 构建时 | 作者名称                   |
-| `VITE_BLOG_DESCRIPTION` | 构建时 | 博客描述，显示在主页上     |
-| `VITE_BLOG_GITHUB`      | 构建时 | GitHub 主页链接            |
-| `VITE_BLOG_EMAIL`       | 构建时 | 联系邮箱                   |
-
-> **构建时变量**：在 Vite 构建时注入到客户端代码，方式二用户在 Build Variables 中配置
-
----
-
-### 方式二：Cloudflare Dashboard 自动部署
-
-> 使用 Cloudflare Workers Builds CI/CD（每月 3000 分钟免费额度）。后续更新 Sync Fork 后会自动触发部署，`wrangler.jsonc` 通常可自动合并无冲突。
-
-1. Fork 本仓库
-2. 复制 `wrangler.example.jsonc` 为 `wrangler.jsonc`，替换其中的占位符：
-
-   ```jsonc
-   {
-     "routes": [{ "pattern": "blog.example.com", ... }],  // ← 你的域名
-     "d1_databases": [{ "database_id": "xxxxxxxx-xxxx-...", ... }],  // ← D1 ID
-     "r2_buckets": [{ "bucket_name": "my-blog-bucket", ... }],  // ← R2 存储桶名称
-     "kv_namespaces": [{ "id": "xxxxxxxx...", ... }],  // ← KV ID
-     "env": { "test": { ... } }  // ← 测试环境配置，无需修改
-   }
-   ```
-
-3. 在 Cloudflare Dashboard 创建 Worker，连接你的 GitHub 仓库
-4. 配置构建设置：
-   - Build command: `bun run build`
-   - Deploy command: `bun run deploy`
-   - 构建时变量：`BUN_VERSION`: `1.3.5`
-   - 构建时变量：所有 `VITE_*` 开头的客户端变量
-5. 部署完成后，在 **Worker Settings → Variables and Secrets** 中配置运行时变量
-
-> **注意**：运行时变量名与方式一略有不同：
->
-> - `GH_CLIENT_ID` → `GITHUB_CLIENT_ID`
-> - `GH_CLIENT_SECRET` → `GITHUB_CLIENT_SECRET`
->
-> 其余变量名保持一致。Cloudflare 会自动创建带 D1 权限的 API Token，数据库迁移会在部署时自动执行。
->
-> **CDN 缓存**：方式二不会自动清除 CDN 缓存，部署后可在博客后台「设置」页面手动清除。
+| 变量名                    | 用途   | 说明                                                                                                      |
+| :------------------------ | :----- | :-------------------------------------------------------------------------------------------------------- |
+| `THEME`                   | 构建时 | 主题名称，默认 `default`，详见 [可用主题](#可用主题)                                                      |
+| `TURNSTILE_SECRET_KEY`    | 运行时 | Cloudflare Turnstile 人机验证 Secret Key                                                                  |
+| `VITE_TURNSTILE_SITE_KEY` | 构建时 | Cloudflare Turnstile Site Key                                                                             |
+| `GITHUB_TOKEN`            | 运行时 | GitHub API Token（版本更新检查，避免限流）                                                                |
+| `CDN_DOMAIN`              | 运行时 | 独立 CDN 域名（如 `cdn.example.com`），purge 时优先使用；须为当前 Zone 下通过 SaaS CNAME 接入的自定义域名 |
+| `UMAMI_SRC`               | 运行时 | Umami 基础 URL（Cloud: `https://cloud.umami.is`）                                                         |
+| `UMAMI_API_KEY`           | 运行时 | Umami Cloud API key（仅 Cloud 版本）                                                                      |
+| `UMAMI_USERNAME`          | 运行时 | Umami 用户名（仅自部署版本）                                                                              |
+| `UMAMI_PASSWORD`          | 运行时 | Umami 密码（仅自部署版本）                                                                                |
+| `VITE_UMAMI_WEBSITE_ID`   | 构建时 | Umami Website ID                                                                                          |
+| `VITE_BLOG_TITLE`         | 构建时 | 博客标题                                                                                                  |
+| `VITE_BLOG_NAME`          | 构建时 | 博客短名称                                                                                                |
+| `VITE_BLOG_AUTHOR`        | 构建时 | 作者名称                                                                                                  |
+| `VITE_BLOG_DESCRIPTION`   | 构建时 | 博客描述                                                                                                  |
+| `VITE_BLOG_GITHUB`        | 构建时 | GitHub 主页链接                                                                                           |
+| `VITE_BLOG_EMAIL`         | 构建时 | 联系邮箱                                                                                                  |
+| `VITE_FUWARI_HOME_BG`     | 构建时 | Fuwari 主题首页背景图路径，默认 `/images/home-bg.webp`                                                    |
+| `VITE_FUWARI_AVATAR`      | 构建时 | Fuwari 主题头像图片路径，默认 `/images/avatar.png`                                                        |
 
 ---
 
@@ -281,6 +229,20 @@ cp wrangler.example.jsonc wrangler.jsonc
 bun dev
 ```
 
+### 登录管理后台
+
+**方式一：邮箱密码注册（无需第三方服务）**
+
+1. 访问 `http://localhost:3000` 注册页面，使用 `.dev.vars` 中配置的 `ADMIN_EMAIL` 注册账号
+2. 开发环境下验证邮件不会真正发送，验证链接会打印到控制台，复制访问即可完成验证
+3. 验证后自动登录，系统根据 `ADMIN_EMAIL` 自动赋予管理员权限
+
+**方式二：GitHub OAuth**
+
+1. 前往 [GitHub Developer Settings](https://github.com/settings/developers) 创建一个 OAuth App
+2. Homepage URL 填 `http://localhost:3000`，Authorization callback URL 填 `http://localhost:3000/api/auth/callback/github`
+3. 将 Client ID 和 Client Secret 填入 `.dev.vars`
+
 ### 常用命令
 
 | 命令            | 说明                        |
@@ -299,13 +261,6 @@ bun dev
 | `bun db:generate` | 生成迁移文件                        |
 | `bun db:migrate`  | 应用迁移到远程 D1                   |
 
-### 环境变量
-
-| 文件        | 用途                                   |
-| :---------- | :------------------------------------- |
-| `.env`      | 客户端变量（`VITE_*`），Vite 读取      |
-| `.dev.vars` | 服务端变量，Wrangler 注入 Worker `env` |
-
 ### 本地模拟 Cloudflare 资源
 
 默认配置使用远程 D1/R2/KV 资源。如需完全本地开发，可在 `wrangler.jsonc` 中移除 `remote: true`，Miniflare 会自动模拟这些服务：
@@ -323,3 +278,9 @@ bun dev
 > ```bash
 > wrangler d1 migrations apply DB
 > ```
+
+## 贡献
+
+欢迎贡献代码、报告问题或提出建议！请查看 [CONTRIBUTING.md](./CONTRIBUTING.md) 了解开发指南和代码规范。
+
+开始改动业务前，建议先阅读 [错误处理与 Result 模式快速上手](./docs/error-handling-quickstart.md)。

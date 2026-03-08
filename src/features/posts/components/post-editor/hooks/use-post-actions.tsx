@@ -10,6 +10,7 @@ import {
   startPostProcessWorkflowFn,
 } from "@/features/posts/api/posts.admin.api";
 import { useDebounce } from "@/hooks/use-debounce";
+import { toLocalDateString } from "@/lib/utils";
 import { convertToPlainText, slugify } from "@/features/posts/utils/content";
 import { createTagFn, generateTagsFn } from "@/features/tags/api/tags.api";
 import { TAGS_KEYS } from "@/features/tags/queries";
@@ -111,18 +112,7 @@ export function usePostActions({
 
   const processDataMutation = useMutation({
     mutationFn: startPostProcessWorkflowFn,
-  });
-
-  const handleProcessData = () => {
-    if (processState !== "IDLE") return;
-
-    setProcessState("PROCESSING");
-
-    setTimeout(() => {
-      processDataMutation.mutate({
-        data: { id: postId, status: post.status },
-      });
-
+    onSuccess: () => {
       // Feedback: Notify user task is running
       toast("发布流启动", {
         description: "后台正在进行内容处理与部署分析。",
@@ -142,6 +132,26 @@ export function usePostActions({
       setTimeout(() => {
         setProcessState("IDLE");
       }, 3000);
+    },
+    onSettled: (_data, error) => {
+      if (!error) return;
+      setProcessState("IDLE");
+    },
+  });
+
+  const handleProcessData = () => {
+    if (processState !== "IDLE") return;
+
+    setProcessState("PROCESSING");
+
+    setTimeout(() => {
+      processDataMutation.mutate({
+        data: {
+          id: postId,
+          status: post.status,
+          clientToday: toLocalDateString(new Date()),
+        },
+      });
     }, 800);
   };
 
@@ -162,7 +172,8 @@ export function usePostActions({
         });
       }
     },
-    onError: (error) => {
+    onSettled: (_data, error) => {
+      if (!error) return;
       console.error("Slug生成失败:", error);
       setError("Slug生成失败");
       const fallbackSlug = slugify(post.title) || "untitled-log";
@@ -179,11 +190,6 @@ export function usePostActions({
       }),
     onSuccess: (result) => {
       setPost((prev) => ({ ...prev, summary: result.summary }));
-    },
-    onError: (error) => {
-      toast.error("摘要生成失败", {
-        description: error.message,
-      });
     },
   });
 
@@ -322,17 +328,8 @@ export function usePostActions({
         } else {
           const result = await createTagFn({ data: { name } });
           if (result.error) {
-            const reason = result.error.reason;
-            switch (reason) {
-              // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-              case "TAG_NAME_ALREADY_EXISTS":
-                // 重名时跳过，不中断流程
-                continue;
-              default: {
-                reason satisfies never;
-                throw new Error("未知错误");
-              }
-            }
+            // 当前仅会返回 TAG_NAME_ALREADY_EXISTS，直接跳过即可
+            continue;
           }
           newTagIds.push(result.data.id);
           currentTagIds.add(result.data.id);

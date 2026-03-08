@@ -14,11 +14,6 @@ export function getRouter() {
     routeTree,
     context: { ...rqContext },
     defaultPreload: "intent",
-    // 客户端导航时立即显示 pendingComponent（skeleton），让点击感觉"跟手"
-    // 默认值是 1000ms，会导致 loader 执行期间用户看到白屏
-    defaultPendingMs: 0,
-    // skeleton 至少显示 300ms，避免数据返回太快时闪烁
-    defaultPendingMinMs: 300,
     Wrap: (props: { children: React.ReactNode }) => {
       return (
         <TanstackQuery.Provider {...rqContext}>
@@ -28,7 +23,7 @@ export function getRouter() {
     },
     defaultNotFoundComponent: NotFound,
     defaultErrorComponent: ErrorPage,
-    defaultViewTransition: true,
+    defaultViewTransition: __THEME_CONFIG__.viewTransition,
     scrollRestoration: true,
   });
 

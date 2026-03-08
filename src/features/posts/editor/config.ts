@@ -1,5 +1,6 @@
 import { toast } from "sonner";
 import FileHandler from "@tiptap/extension-file-handler";
+import Mathematics from "@tiptap/extension-mathematics";
 import Placeholder from "@tiptap/extension-placeholder";
 import StarterKit from "@tiptap/starter-kit";
 import TableOfContents from "@tiptap/extension-table-of-contents";
@@ -16,8 +17,12 @@ import {
   OrderedListExtension,
 } from "@/features/posts/editor/extensions/typography/list";
 import { ImageUpload } from "@/features/posts/editor/extensions/upload-image";
-import { uploadImageFn } from "@/features/media/media.api";
+import { uploadImageFn } from "@/features/media/api/media.api";
 import { slugify } from "@/features/posts/utils/content";
+import {
+  getActiveFormulaModalOpenerKey,
+  openFormulaModalForEdit,
+} from "@/components/tiptap-editor/formula-modal-store";
 
 const ALLOWED_IMAGE_MIME_TYPES = [
   "image/png",
@@ -51,14 +56,17 @@ async function handleImageUpload(file: File): Promise<ImageUploadResult> {
     formData.append("height", dimensions.height.toString());
 
   const result = await uploadImageFn({ data: formData });
+  if (result.error) {
+    throw new Error("图片入库失败，请重试");
+  }
   toast.success("图片上传成功", {
     description: `${file.name} 已归档保存`,
   });
 
   return {
-    url: result.url,
-    width: result.width || dimensions.width || undefined,
-    height: result.height || dimensions.height || undefined,
+    url: result.data.url,
+    width: result.data.width || dimensions.width || undefined,
+    height: result.data.height || dimensions.height || undefined,
   };
 }
 
@@ -121,6 +129,29 @@ export const extensions = [
   }),
   BlockQuoteExtension,
   CodeBlockExtension,
+  Mathematics.configure({
+    katexOptions: { throwOnError: false },
+    inlineOptions: {
+      onClick: (node, pos) => {
+        openFormulaModalForEdit({
+          latex: node.attrs.latex ?? "",
+          pos,
+          type: "inline",
+          instanceKey: getActiveFormulaModalOpenerKey() ?? undefined,
+        });
+      },
+    },
+    blockOptions: {
+      onClick: (node, pos) => {
+        openFormulaModalForEdit({
+          latex: node.attrs.latex ?? "",
+          pos,
+          type: "block",
+          instanceKey: getActiveFormulaModalOpenerKey() ?? undefined,
+        });
+      },
+    },
+  }),
   ...TableBlockExtension,
   ImageExtension,
   ImageUpload.configure({

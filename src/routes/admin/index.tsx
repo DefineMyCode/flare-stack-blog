@@ -23,17 +23,18 @@ import type {
   DashboardRange,
 } from "@/features/dashboard/dashboard.schema";
 import { dashboardStatsQuery } from "@/features/dashboard/queries";
+import { useVersionCheck } from "@/features/version/hooks/use-version-check";
 import {
+  Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-  Tooltip as UITooltip,
 } from "@/components/ui/tooltip";
 
 import { DashboardSkeleton } from "@/features/dashboard/components/dashboard-skeleton";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { formatBytes, formatTimeAgo } from "@/lib/utils";
-import { refreshDashboardCacheFn } from "@/features/dashboard/dashboard.api";
+import { refreshDashboardCacheFn } from "@/features/dashboard/api/dashboard.api";
 import { StatCard } from "@/features/dashboard/components/stat-card";
 import { TrafficChart } from "@/features/dashboard/components/traffic-chart";
 import { MetricItem } from "@/features/dashboard/components/metric-item";
@@ -43,6 +44,7 @@ const SearchSchema = z.object({
 });
 
 export const Route = createFileRoute("/admin/")({
+  ssr: "data-only",
   component: DashboardOverview,
   pendingComponent: DashboardSkeleton,
   validateSearch: (search) => SearchSchema.parse(search),
@@ -65,14 +67,15 @@ function DashboardOverview() {
   const queryClient = useQueryClient();
   const { data, isFetching } = useSuspenseQuery(dashboardStatsQuery);
   const { stats, activities, trafficByRange, umamiUrl } = data;
+
+  // 检查版本更新
+  useVersionCheck();
+
   const refreshDashboardCacheMutation = useMutation({
     mutationFn: refreshDashboardCacheFn,
     onSuccess: () => {
       queryClient.invalidateQueries(dashboardStatsQuery);
       toast.success("数据已刷新");
-    },
-    onError: () => {
-      toast.error("刷新失败，请重试");
     },
   });
 
@@ -137,7 +140,7 @@ function DashboardOverview() {
           </Tabs>
 
           <TooltipProvider>
-            <UITooltip>
+            <Tooltip>
               <TooltipTrigger asChild>
                 <button
                   onClick={() => refreshDashboardCacheMutation.mutate({})}
@@ -153,7 +156,7 @@ function DashboardOverview() {
               <TooltipContent>
                 <p>刷新数据</p>
               </TooltipContent>
-            </UITooltip>
+            </Tooltip>
           </TooltipProvider>
         </div>
       </header>

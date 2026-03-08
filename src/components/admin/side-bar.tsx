@@ -4,6 +4,7 @@ import {
   FileText,
   Image as ImageIcon,
   LayoutDashboard,
+  Link2,
   LogOut,
   MessageSquare,
   Tag,
@@ -96,13 +97,19 @@ export function SideBar({
       label: "评论管理",
       exact: false,
     },
+    {
+      path: "/admin/friend-links",
+      icon: Link2,
+      label: "友链管理",
+      exact: false,
+    },
   ] satisfies Array<NavItem>;
 
   return (
     <>
       {isMobileSidebarOpen && (
         <div
-          className="fixed inset-0 bg-background/80 z-60 md:hidden backdrop-blur-sm animate-in fade-in duration-500"
+          className="fixed inset-0 bg-background/80 z-60 lg:hidden backdrop-blur-sm animate-in fade-in duration-500"
           onClick={closeMobileSidebar}
         />
       )}
@@ -110,10 +117,10 @@ export function SideBar({
       {/* Sidebar */}
       <aside
         className={cn(
-          "fixed inset-y-0 left-0 z-70 w-72 md:w-64 border-r border-border/30 flex flex-col bg-background transform transition-transform duration-300 ease-in-out md:sticky md:top-0 md:h-screen md:translate-x-0",
+          "fixed inset-y-0 left-0 z-70 w-72 lg:w-64 border-r border-border/30 flex flex-col bg-background transform transition-transform duration-300 ease-in-out lg:sticky lg:top-0 lg:h-screen lg:translate-x-0",
           isMobileSidebarOpen
             ? "translate-x-0 shadow-2xl"
-            : "-translate-x-full md:translate-x-0",
+            : "-translate-x-full lg:translate-x-0",
         )}
       >
         {/* Logo Area */}
@@ -125,7 +132,7 @@ export function SideBar({
           </Link>
           <button
             onClick={closeMobileSidebar}
-            className="md:hidden p-2 text-muted-foreground hover:text-foreground"
+            className="lg:hidden p-2 text-muted-foreground hover:text-foreground"
           >
             <X size={20} strokeWidth={1.5} />
           </button>

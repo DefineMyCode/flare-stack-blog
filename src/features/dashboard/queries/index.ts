@@ -1,5 +1,5 @@
 import { queryOptions } from "@tanstack/react-query";
-import { getDashboardStatsFn } from "../dashboard.api";
+import { getDashboardStatsFn } from "../api/dashboard.api";
 
 export const DASHBOARD_KEYS = {
   all: ["dashboard"] as const,
@@ -8,5 +8,5 @@ export const DASHBOARD_KEYS = {
 
 export const dashboardStatsQuery = queryOptions({
   queryKey: DASHBOARD_KEYS.stats,
-  queryFn: getDashboardStatsFn,
+  queryFn: () => getDashboardStatsFn(),
 });

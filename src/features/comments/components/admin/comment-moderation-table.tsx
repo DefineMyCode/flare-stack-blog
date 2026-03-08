@@ -6,11 +6,11 @@ import { toast } from "sonner";
 import { COMMENTS_KEYS, allCommentsQuery } from "../../queries";
 import { useAdminComments } from "../../hooks/use-comments";
 
-import { ExpandableContent } from "../view/expandable-content";
 import { CommentModerationActions } from "./comment-moderation-actions";
 import { UserHoverCard } from "./user-hover-card";
 import type { JSONContent } from "@tiptap/react";
 import type { CommentStatus } from "@/lib/db/schema";
+import { ExpandableContent } from "@/features/theme/themes/default/components/comments/view/expandable-content";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { AdminPagination } from "@/components/admin/admin-pagination";
@@ -33,7 +33,12 @@ export const CommentModerationTable = ({
   page = 1,
 }: CommentModerationTableProps) => {
   const navigate = routeApi.useNavigate();
-  const { data: response, isLoading } = useQuery(
+  const {
+    data: response,
+    isLoading,
+    isError,
+    error,
+  } = useQuery(
     allCommentsQuery({
       status,
       postId,
@@ -45,7 +50,7 @@ export const CommentModerationTable = ({
   );
 
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
-  const { moderate } = useAdminComments();
+  const { moderateAsync } = useAdminComments();
   const queryClient = useQueryClient();
 
   const handleSelectAll = () => {
@@ -73,14 +78,16 @@ export const CommentModerationTable = ({
     try {
       await Promise.all(
         Array.from(selectedIds).map((id) =>
-          moderate({ data: { id, status: "published" } }),
+          moderateAsync({ data: { id, status: "published" } }),
         ),
       );
       toast.success("批量批准完成", { id: toastId });
       setSelectedIds(new Set());
       queryClient.invalidateQueries({ queryKey: COMMENTS_KEYS.all });
-    } catch (error) {
-      toast.error("部分操作失败", { id: toastId });
+    } catch (caughtError) {
+      toast.error("部分操作失败", {
+        id: toastId,
+      });
     }
   };
 
@@ -92,14 +99,16 @@ export const CommentModerationTable = ({
     try {
       await Promise.all(
         Array.from(selectedIds).map((id) =>
-          moderate({ data: { id, status: "deleted" } }),
+          moderateAsync({ data: { id, status: "deleted" } }),
         ),
       );
       toast.success("已移入垃圾箱", { id: toastId });
       setSelectedIds(new Set());
       queryClient.invalidateQueries({ queryKey: COMMENTS_KEYS.all });
-    } catch (error) {
-      toast.error("部分操作失败", { id: toastId });
+    } catch (caughtError) {
+      toast.error("部分操作失败", {
+        id: toastId,
+      });
     }
   };
 
@@ -107,6 +116,15 @@ export const CommentModerationTable = ({
     return (
       <div className="py-24 flex items-center justify-center">
         <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <div className="py-24 flex flex-col items-center justify-center text-muted-foreground font-serif italic gap-4 border-t border-border">
+        <AlertTriangle size={40} strokeWidth={1} className="opacity-30" />
+        <p>{error.message}</p>
       </div>
     );
   }
@@ -170,17 +188,17 @@ export const CommentModerationTable = ({
           />
         </div>
         <div className="col-span-2 text-[9px] font-mono uppercase tracking-[0.2em] text-muted-foreground">
-          AUTHOR
+          作者
         </div>
         <div className="col-span-1"></div>
         <div className="col-span-5 text-[9px] font-mono uppercase tracking-[0.2em] text-muted-foreground">
-          CONTENT / CONTEXT
+          内容 / 上下文
         </div>
         <div className="col-span-1 text-[9px] font-mono uppercase tracking-[0.2em] text-muted-foreground">
-          STATUS
+          状态
         </div>
         <div className="col-span-2 text-right text-[9px] font-mono uppercase tracking-[0.2em] text-muted-foreground">
-          ACTIONS
+          操作
         </div>
       </div>
 
@@ -218,7 +236,7 @@ export const CommentModerationTable = ({
                       {comment.user?.image ? (
                         <img
                           src={comment.user.image}
-                          className="w-full h-full object-cover grayscale group-hover/user:grayscale-0 transition-all"
+                          className="w-full h-full object-cover"
                         />
                       ) : (
                         <span className="text-[10px] font-mono">
@@ -310,7 +328,7 @@ export const CommentModerationTable = ({
                     className="rounded-none border-border"
                   />
                   <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-none bg-muted flex items-center justify-center border border-border shrink-0 grayscale">
+                    <div className="w-8 h-8 rounded-none bg-muted flex items-center justify-center border border-border shrink-0">
                       {comment.user?.image ? (
                         <img
                           src={comment.user.image}

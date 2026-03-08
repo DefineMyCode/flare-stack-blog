@@ -3,6 +3,8 @@ import type { z } from "zod";
 import type { CacheKey, CacheNamespace } from "./types";
 import type { Duration } from "@/lib/duration";
 import { ms } from "@/lib/duration";
+import { TAGS_CACHE_KEYS } from "@/features/tags/tags.schema";
+import { purgeSiteCDNCache } from "@/lib/invalidate";
 
 /**
  * 缓存数据
@@ -20,13 +22,19 @@ export async function get<T extends z.ZodTypeAny>(
   const serializedKey = serializeKey(key);
 
   const kvData = await env.KV.get(serializedKey, "json").catch((err) =>
-    console.error(`[Cache] Failed to get key ${serializedKey}:`, err),
+    console.error(
+      JSON.stringify({
+        message: "cache get failed",
+        key: serializedKey,
+        error: String(err),
+      }),
+    ),
   );
 
   if (kvData !== null && kvData !== undefined) {
     const result = schema.safeParse(kvData);
     if (result.success) {
-      console.log(`[Cache] HIT: ${serializedKey}`);
+      console.log(JSON.stringify({ message: "cache hit", key: serializedKey }));
       return result.data;
     }
   }
@@ -39,7 +47,7 @@ export async function get<T extends z.ZodTypeAny>(
     set(context, key, JSON.stringify(data), { ttl }),
   );
 
-  console.log(`[Cache] MISS: ${serializedKey}`);
+  console.log(JSON.stringify({ message: "cache miss", key: serializedKey }));
   return data;
 }
 
@@ -52,7 +60,13 @@ export async function getRaw(
 ): Promise<string | null> {
   const serializedKey = serializeKey(key);
   const value = await context.env.KV.get(serializedKey).catch((err) => {
-    console.error(`[Cache] Failed to get key ${serializedKey}:`, err);
+    console.error(
+      JSON.stringify({
+        message: "cache get raw failed",
+        key: serializedKey,
+        error: String(err),
+      }),
+    );
     return null;
   });
   return value;
@@ -74,9 +88,17 @@ export async function set(
     : undefined;
 
   await context.env.KV.put(serializedKey, value, putOptions)
-    .then(() => console.log(`[Cache] SET: ${serializedKey}`))
+    .then(() =>
+      console.log(JSON.stringify({ message: "cache set", key: serializedKey })),
+    )
     .catch((err) =>
-      console.error(`[Cache] Failed to set key ${serializedKey}:`, err),
+      console.error(
+        JSON.stringify({
+          message: "cache set failed",
+          key: serializedKey,
+          error: String(err),
+        }),
+      ),
     );
 }
 
@@ -89,7 +111,13 @@ export async function deleteKey(
   await Promise.all(
     serializedKeys.map((key) =>
       context.env.KV.delete(key).catch((err) =>
-        console.error(`[Cache] Failed to delete key ${key}:`, err),
+        console.error(
+          JSON.stringify({
+            message: "cache delete failed",
+            key,
+            error: String(err),
+          }),
+        ),
       ),
     ),
   );
@@ -106,7 +134,13 @@ export async function getVersion(
   // 统一前缀 ver:，保持视觉整洁
   const key = `ver:${namespace}`;
   const v = await context.env.KV.get(key).catch((err) =>
-    console.error(`[Cache] Failed to get version ${key}:`, err),
+    console.error(
+      JSON.stringify({
+        message: "cache get version failed",
+        key,
+        error: String(err),
+      }),
+    ),
   );
   // 返回 "v1", "v2" 这种格式，方便直接拼到 Key 数组里
   if (v && !Number.isNaN(Number.parseInt(v))) {
@@ -124,7 +158,13 @@ export async function bumpVersion(
 ): Promise<void> {
   const key = `ver:${namespace}`;
   const current = await context.env.KV.get(key).catch((err) =>
-    console.error(`[Cache] Failed to get version ${key}:`, err),
+    console.error(
+      JSON.stringify({
+        message: "cache get version failed",
+        key,
+        error: String(err),
+      }),
+    ),
   );
 
   let next = 1;
@@ -136,7 +176,29 @@ export async function bumpVersion(
   }
 
   await context.env.KV.put(key, next.toString()).catch((err) =>
-    console.error(`[Cache] Failed to bump version ${key}:`, err),
+    console.error(
+      JSON.stringify({
+        message: "cache bump version failed",
+        key,
+        error: String(err),
+      }),
+    ),
   );
-  console.log(`[Cache] Bumped version ${key} to ${next}`);
+  console.log(
+    JSON.stringify({ message: "cache version bumped", key, version: next }),
+  );
+}
+
+export async function invalidateSiteCache(
+  context: BaseContext & { executionCtx: ExecutionContext },
+) {
+  const purgeTask = purgeSiteCDNCache(context.env);
+  const kvTasks = [
+    bumpVersion(context, "posts:list"),
+    bumpVersion(context, "posts:detail"),
+    deleteKey(context, TAGS_CACHE_KEYS.publicList),
+  ];
+
+  await Promise.all([purgeTask, ...kvTasks]);
+  return { success: true };
 }

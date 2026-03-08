@@ -97,6 +97,7 @@ export const PreviewSummaryInputSchema = PostSelectSchema.pick({
 export const StartPostProcessInputSchema = z.object({
   id: z.number(),
   status: z.enum(POST_STATUSES),
+  clientToday: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
 });
 
 export type GenerateSlugInput = z.infer<typeof GenerateSlugInputSchema>;
@@ -113,11 +114,13 @@ export type PostListItem = Omit<Post, "contentJson"> & {
 
 export type PostListResponse = z.infer<typeof PostListResponseSchema>;
 export type PostItem = z.infer<typeof PostItemSchema>;
+export type PostWithToc = z.infer<typeof PostWithTocSchema>;
 
 export const POSTS_CACHE_KEYS = {
   list: (version: string, limit: number, cursor: number, tagName: string) =>
     ["posts", "list", version, limit, cursor, tagName] as const,
   detail: (version: string, slug: string) => [version, "post", slug] as const,
-  related: (slug: string) => ["posts", "related-ids", slug] as const,
+  related: (slug: string, limit?: number) =>
+    ["posts", "related-ids", slug, limit] as const,
   syncHash: (id: number) => `post_hash:${id}` as const,
 } as const;

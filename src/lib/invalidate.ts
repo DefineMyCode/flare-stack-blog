@@ -6,15 +6,18 @@ interface PurgeOptions {
 }
 
 export async function purgeCDNCache(env: Env, options: PurgeOptions) {
-  const { CLOUDFLARE_ZONE_ID, CLOUDFLARE_PURGE_API_TOKEN, DOMAIN } =
+  const { CLOUDFLARE_ZONE_ID, CLOUDFLARE_PURGE_API_TOKEN, DOMAIN, CDN_DOMAIN } =
     serverEnv(env);
 
   if (isNotInProduction(env)) {
-    console.log("Skipping CDN cache purge in development environment");
+    console.log(
+      JSON.stringify({ message: "cdn cache purge skipped in development" }),
+    );
     return;
   }
 
-  const baseUrl = `https://${DOMAIN}`;
+  const domain = CDN_DOMAIN ?? DOMAIN;
+  const baseUrl = `https://${domain}`;
 
   const payload: { files?: Array<string>; prefixes?: Array<string> } = {};
 
@@ -31,9 +34,9 @@ export async function purgeCDNCache(env: Env, options: PurgeOptions) {
     payload.prefixes = options.prefixes.map((path) => {
       const cleanPath = path.startsWith("/") ? path : `/${path}`;
       if (cleanPath === "/") {
-        return DOMAIN;
+        return domain;
       }
-      return `${DOMAIN}${cleanPath}`;
+      return `${domain}${cleanPath}`;
     });
   }
 
@@ -53,7 +56,13 @@ export async function purgeCDNCache(env: Env, options: PurgeOptions) {
 
   if (!response.ok) {
     const errorText = await response.text();
-    console.error("Cloudflare Purge API failed:", response.status, errorText);
+    console.error(
+      JSON.stringify({
+        message: "cloudflare purge api failed",
+        status: response.status,
+        error: errorText,
+      }),
+    );
     throw new Error(`Cloudflare Purge API failed: ${errorText}`);
   }
 }
