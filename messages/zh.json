@@ -43,6 +43,7 @@
   "post_edit": "编辑文章",
   "post_summary_title": "摘要",
   "post_back_to_top": "返回顶部",
+  "post_toc": "目录",
   "post_word_count": [
     {
       "declarations": ["input count", "local formattedCountZh = count: number"],
