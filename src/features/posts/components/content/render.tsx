@@ -13,6 +13,7 @@ import {
 } from "@/features/posts/utils/toc";
 import { CodeBlock } from "@/features/posts/components/content/code-block";
 import { ImageDisplay } from "@/features/posts/components/content/image-display";
+import { m } from "@/paraglide/messages";
 
 // Only posts with a Mermaid code block load the diagram renderer (ADR 0027).
 const MermaidCodeBlock = lazy(() => import("./mermaid-code-block"));
@@ -33,7 +34,20 @@ export function renderReact(
           const attrs = node.attrs as { level?: number; id?: string };
           const level = clampHeadingLevel(attrs.level);
           const Tag = `h${level}` as const;
-          return <Tag id={attrs.id}>{children}</Tag>;
+          return (
+            <Tag id={attrs.id}>
+              {children}
+              {attrs.id ? (
+                <a
+                  href={`#${attrs.id}`}
+                  className="anchor no-styling"
+                  aria-label={m.post_heading_link()}
+                >
+                  #
+                </a>
+              ) : null}
+            </Tag>
+          );
         },
         image: ({ node }) => {
           const attrs = node.attrs as {
