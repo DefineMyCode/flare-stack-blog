@@ -45,6 +45,9 @@
   "post_summary_title": "Summary",
   "post_back_to_top": "Back to top",
   "post_toc": "Table of contents",
+  "post_heading_link": "Copy link to this section",
+  "post_heading_link_copied": "Link to this section copied",
+  "post_heading_link_copy_failed": "Couldn't copy the link. Copy it from the address bar instead.",
   "post_word_count": [
     {
       "declarations": ["input count", "local formattedCountEn = count: number"],

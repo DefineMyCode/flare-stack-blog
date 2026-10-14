@@ -8,6 +8,7 @@ import type { PostWithToc } from "@/features/posts/schema/posts.schema";
 import { authClient } from "@/lib/auth/auth.client";
 import { m } from "@/paraglide/messages";
 import { usePhotoSwipeGallery } from "./content/photo-swipe";
+import { useHeadingAnchors } from "./content/use-heading-anchors";
 import ZoomableImage from "./content/zoomable-image";
 import { PostAdjacentNav } from "./post-adjacent-nav";
 import { PostMeta } from "./post-meta";
@@ -29,6 +30,7 @@ export function PostPage({ post }: PostPageProps) {
   const contentRef = useRef<HTMLDivElement>(null);
   usePhotoSwipeGallery(coverRef, post.id);
   usePhotoSwipeGallery(contentRef, post.id);
+  useHeadingAnchors(contentRef);
   // Approximate word count
   const wordCount = post.readTimeInMinutes * 300;
 

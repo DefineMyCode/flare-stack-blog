@@ -1,4 +1,3 @@
-import { useNavigate } from "@tanstack/react-router";
 import { TableOfContents as TocIcon } from "lucide-react";
 import {
   useCallback,
@@ -15,6 +14,7 @@ import {
   useFloatingActionsSlot,
 } from "@/components/layout/floating-actions";
 import { FloatingPopover } from "@/components/ui/floating-popover";
+import { useJumpToHeading } from "@/features/posts/components/content/use-jump-to-heading";
 import type { TableOfContentsItem } from "@/features/posts/utils/toc";
 import { cn, isSSR } from "@/lib/utils";
 import { m } from "@/paraglide/messages";
@@ -35,7 +35,6 @@ export default function TableOfContents({
 }: {
   headers: Array<TableOfContentsItem>;
 }) {
-  const navigate = useNavigate();
   const visibleHeaders = useMemo(() => {
     if (headers.length === 0) return [];
     let minDepth = 10;
@@ -202,33 +201,18 @@ export default function TableOfContents({
     scroller.scrollTo({ top: scrollTarget, behavior: "smooth" });
   }, [activeIndices, visibleHeaders]);
 
+  const jumpToHeading = useJumpToHeading();
   const jumpTo = useCallback(
     async (id: string) => {
-      const element = document.getElementById(id);
-      if (!element) return;
       anchorTarget.current = id;
-      await navigate({
-        hash: id,
-        replace: true,
-        resetScroll: false,
-        hashScrollIntoView: false,
-        state: (previous) => previous,
-      });
-      if (anchorTarget.current !== id || !element.isConnected) return;
-      const top = element.getBoundingClientRect().top + window.scrollY - 80;
-      window.scrollTo({
-        top,
-        behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches
-          ? "instant"
-          : "smooth",
-      });
+      await jumpToHeading(id, () => anchorTarget.current === id);
       window.setTimeout(() => {
         if (anchorTarget.current === id) {
           anchorTarget.current = null;
         }
       }, 600);
     },
-    [navigate],
+    [jumpToHeading],
   );
 
   if (visibleHeaders.length === 0) return null;
