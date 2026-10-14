@@ -1,12 +1,7 @@
 import { Link } from "@tanstack/react-router";
-import {
-  ArrowLeft,
-  ChevronDown,
-  Loader2,
-  LogOut,
-  UserRound,
-} from "lucide-react";
+import { ArrowLeft, ChevronDown, LogOut, UserRound } from "lucide-react";
 import { lazy, Suspense, useRef, useState } from "react";
+import { Button } from "@/components/ui/button";
 import { FormField } from "@/components/ui/form-field";
 import { Input } from "@/components/ui/input";
 import { PasswordInput } from "@/components/ui/password-input";
@@ -93,14 +88,14 @@ export function ProfilePage({
             error={profileForm.errors.image?.message}
             action={
               user.role === "admin" && (
-                <button
+                <Button
                   ref={pickAvatarRef}
-                  type="button"
-                  className="account-field-action"
+                  variant="text"
+                  size="sm"
                   onClick={() => setPickingAvatar(true)}
                 >
                   {m.account_avatar_pick_media()}
-                </button>
+                </Button>
               )
             }
           >
@@ -115,16 +110,15 @@ export function ProfilePage({
             <p>{user.email}</p>
           </div>
           <div className="account-save">
-            <button
+            <Button
               type="submit"
-              className="fuwari-btn-primary"
-              disabled={!profileForm.isDirty || profileForm.isSubmitting}
+              variant="primary"
+              size="lg"
+              disabled={!profileForm.isDirty}
+              loading={profileForm.isSubmitting}
             >
-              {profileForm.isSubmitting && (
-                <Loader2 size={16} className="animate-spin" />
-              )}
               {m.account_save()}
-            </button>
+            </Button>
             {profileForm.feedback &&
               (profileForm.feedback.error || !profileForm.isDirty) && (
                 <p
@@ -169,13 +163,9 @@ export function ProfilePage({
             </p>
           </div>
           {notification.isError ? (
-            <button
-              type="button"
-              className="account-text-button"
-              onClick={notification.reload}
-            >
+            <Button variant="text" onClick={notification.reload}>
               {m.account_retry()}
-            </button>
+            </Button>
           ) : (
             <Switch
               checked={notification.enabled === true}
@@ -194,9 +184,11 @@ export function ProfilePage({
       </section>
       {passwordForm && <PasswordSection form={passwordForm} />}
       <footer className="account-footer">
-        <button
-          type="button"
+        <Button
+          variant="plain"
+          tone="danger"
           disabled={loggingOut}
+          icon={<LogOut size={16} />}
           onClick={async () => {
             setLoggingOut(true);
             try {
@@ -206,9 +198,8 @@ export function ProfilePage({
             }
           }}
         >
-          <LogOut size={16} />
           {m.profile_logout_fuwari()}
-        </button>
+        </Button>
       </footer>
     </section>
   );
@@ -232,9 +223,9 @@ function PasswordSection({
           <h2>{m.profile_password_security()}</h2>
           <p>{m.account_password_hint()}</p>
         </div>
-        <button
+        <Button
           ref={triggerRef}
-          type="button"
+          variant="text"
           className="account-text-button"
           aria-expanded={open}
           aria-controls="account-password-fields"
@@ -246,7 +237,7 @@ function PasswordSection({
             size={16}
             className={open ? "account-chevron-open" : ""}
           />
-        </button>
+        </Button>
       </div>
       <div
         id="account-password-fields"
@@ -295,12 +286,14 @@ function PasswordSection({
                 </FormField>
               </div>
               <div className="account-save">
-                <button type="submit" className="fuwari-btn-primary">
-                  {form.isSubmitting && (
-                    <Loader2 size={16} className="animate-spin" />
-                  )}
+                <Button
+                  type="submit"
+                  variant="primary"
+                  size="lg"
+                  loading={form.isSubmitting}
+                >
                   {m.profile_update_password_fuwari()}
-                </button>
+                </Button>
               </div>
               {form.feedback && (
                 <p

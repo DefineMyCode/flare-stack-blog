@@ -1,6 +1,9 @@
 .media-workspace,
 .media-inspector {
   --admin-unit: clamp(1px, 0.07vw, 1.5px);
+  --fuwari-button-height: calc(40 * var(--admin-unit));
+  --fuwari-button-font-size: calc(14 * var(--admin-unit));
+  --fuwari-button-padding-x: calc(18 * var(--admin-unit));
 }
 .media-workspace {
   --media-layout-duration: 420ms;
@@ -29,13 +32,6 @@
   margin-top: calc(8 * var(--admin-unit));
   font-size: calc(13 * var(--admin-unit));
   color: var(--fuwari-fg-50);
-}
-.media-workspace-header > button {
-  height: calc(42 * var(--admin-unit));
-  padding: 0 calc(18 * var(--admin-unit));
-  border-radius: calc(12 * var(--admin-unit));
-  gap: calc(8 * var(--admin-unit));
-  font-size: calc(14 * var(--admin-unit));
 }
 .media-workspace-toolbar {
   display: flex;
@@ -246,16 +242,8 @@
   font-size: calc(12 * var(--admin-unit));
   color: var(--fuwari-fg-50);
 }
-.media-browser-footer > button:not(.media-cleanup),
-.media-empty button {
-  padding: calc(10 * var(--admin-unit)) calc(16 * var(--admin-unit));
-  border-radius: calc(10 * var(--admin-unit));
-  font-size: calc(14 * var(--admin-unit));
-}
 .media-cleanup {
   margin-left: auto;
-  color: var(--fuwari-danger-fg);
-  padding: calc(10 * var(--admin-unit)) 0;
 }
 .media-empty {
   min-height: calc(360 * var(--admin-unit));
@@ -312,20 +300,6 @@ aside.media-inspector {
   font-weight: 600;
   color: var(--fuwari-fg-90);
 }
-.media-inspector-header button,
-.media-inspector-name button {
-  display: grid;
-  place-items: center;
-  width: calc(34 * var(--admin-unit));
-  height: calc(34 * var(--admin-unit));
-  flex-shrink: 0;
-  border-radius: calc(8 * var(--admin-unit));
-}
-.media-inspector-header button:hover,
-.media-inspector-name button:hover {
-  color: var(--fuwari-primary);
-  background: var(--fuwari-btn-regular-bg);
-}
 .media-inspector-preview {
   display: flex;
   justify-content: center;
@@ -369,9 +343,6 @@ aside.media-inspector {
   font-size: calc(13 * var(--admin-unit));
   color: var(--fuwari-fg-50);
 }
-.media-inspector-usage > p button {
-  color: var(--fuwari-primary);
-}
 .media-reference {
   display: flex;
   align-items: center;
@@ -397,17 +368,8 @@ aside.media-inspector {
   flex-wrap: wrap;
   margin-top: calc(22 * var(--admin-unit));
 }
-.media-inspector-actions button {
-  gap: calc(8 * var(--admin-unit));
-  padding: calc(11 * var(--admin-unit)) calc(14 * var(--admin-unit));
-  border-radius: calc(10 * var(--admin-unit));
-  font-size: calc(13 * var(--admin-unit));
-}
 .media-inspector-delete {
   margin-top: calc(20 * var(--admin-unit));
-  padding: calc(10 * var(--admin-unit)) 0;
-  font-size: calc(13 * var(--admin-unit));
-  color: var(--fuwari-danger-fg);
 }
 .media-inspector-dialog {
   position: fixed;
@@ -431,13 +393,10 @@ aside.media-inspector {
   background: #0005;
   backdrop-filter: blur(3px);
 }
-:is(.media-workspace, .media-inspector) :is(button, a, input):focus-visible {
+:is(.media-workspace, .media-inspector)
+  :is(button:not(.fuwari-button, .fuwari-icon-button), a, input):focus-visible {
   outline: 2px solid var(--fuwari-primary);
   outline-offset: 3px;
-}
-:is(.media-workspace, .media-inspector) button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
 }
 .media-skeleton-image {
   aspect-ratio: 1.12;

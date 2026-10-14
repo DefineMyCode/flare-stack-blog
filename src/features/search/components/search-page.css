@@ -93,8 +93,12 @@
   opacity: 1;
   transform: none;
 }
-.public-search a:focus-visible,
-.public-search button:not(.fuwari-field-button):focus-visible {
+.public-search
+  :is(a, button):not(
+    .fuwari-field-button,
+    .fuwari-button,
+    .fuwari-icon-button
+  ):focus-visible {
   outline: 2px solid var(--fuwari-primary);
   outline-offset: 3px;
 }
@@ -120,12 +124,6 @@
   font-size: 14px;
   line-height: 1.7;
   overflow-wrap: anywhere;
-}
-.public-search-empty button {
-  min-height: 44px;
-  padding: 10px 20px;
-  border-radius: 12px;
-  font-size: 14px;
 }
 .public-search-skeleton {
   display: grid;

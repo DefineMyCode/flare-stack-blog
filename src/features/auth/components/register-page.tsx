@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
-import { Loader2 } from "lucide-react";
 import type { ReactNode } from "react";
+import { Button, buttonClass } from "@/components/ui/button";
 import { FormField } from "@/components/ui/form-field";
 import { Input } from "@/components/ui/input";
 import { PasswordInput } from "@/components/ui/password-input";
@@ -23,7 +23,14 @@ export function RegisterPage({
         title={m.register_success_title()}
         description={m.register_success_desc()}
       >
-        <Link to="/login" className="auth-action fuwari-btn-primary">
+        <Link
+          to="/login"
+          className={buttonClass({
+            variant: "primary",
+            size: "lg",
+            className: "auth-action",
+          })}
+        >
           {m.register_back_to_login()}
         </Link>
       </AuthStatus>
@@ -93,14 +100,16 @@ export function RegisterPage({
           </p>
         )}
         <div className="auth-verification">{turnstileElement}</div>
-        <button
+        <Button
           type="submit"
-          className="auth-action fuwari-btn-primary"
-          disabled={form.isSubmitting || form.turnstilePending}
+          variant="primary"
+          size="lg"
+          className="auth-action"
+          disabled={form.turnstilePending}
+          loading={form.isSubmitting}
         >
-          {form.isSubmitting && <Loader2 size={16} className="animate-spin" />}
           {form.isSubmitting ? m.register_submitting() : m.register_submit()}
-        </button>
+        </Button>
       </form>
       <footer className="auth-register">
         {m.register_have_account()}{" "}

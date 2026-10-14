@@ -49,15 +49,6 @@
   color: var(--fuwari-fg-50);
   font-size: calc(12 * var(--settings-unit, 1px));
 }
-.settings-key-revoke {
-  padding: 8px 12px;
-  border-radius: 9px;
-  color: var(--fuwari-fg-50);
-}
-.settings-key-revoke:hover {
-  color: var(--fuwari-danger-fg);
-  background: var(--fuwari-danger-bg);
-}
 .settings-key-footer {
   display: flex;
   justify-content: space-between;

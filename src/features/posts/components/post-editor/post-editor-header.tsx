@@ -1,8 +1,11 @@
 import { Link } from "@tanstack/react-router";
-import { ArrowLeft, Check, Loader2, MoreHorizontal } from "lucide-react";
+import { ArrowLeft, Check, MoreHorizontal } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { usePostEditorReturn } from "./post-editor-return";
+import { Button } from "@/components/ui/button";
 import ConfirmationModal from "@/components/ui/confirmation-modal";
+import { iconButtonClass } from "@/components/ui/icon-button";
+import { Spinner } from "@/components/ui/spinner";
 import { readPostListLocation } from "../post-manager/list-position";
 import { m } from "@/paraglide/messages";
 import { cn } from "@/lib/utils";
@@ -107,42 +110,35 @@ export function PostEditorHeader({
         )}
       >
         {saveStatus === "SAVING" ? (
-          <Loader2 size={15} className="animate-spin" />
+          <Spinner size={15} />
         ) : saveStatus === "SYNCED" ? (
           <Check size={15} />
         ) : null}
         <span>{saveLabel(saveStatus, lastSaved)}</span>
       </p>
       <div className="post-editor-header-actions">
-        <button
-          type="button"
+        <Button
+          variant="plain"
           onClick={onOpenInfo}
           aria-expanded={infoOpen}
           className={cn(
-            "post-editor-text-button",
             infoOpen && "bg-(--fuwari-btn-regular-bg) text-(--fuwari-primary)",
           )}
         >
           {m.editor_info_title()}
-        </button>
-        <button
-          type="button"
-          onClick={onOpenHistory}
-          className="post-editor-text-button"
-        >
+        </Button>
+        <Button variant="plain" onClick={onOpenHistory}>
           {m.editor_history_list_title()}
-        </button>
-        <button
-          type="button"
+        </Button>
+        <Button
+          variant="primary"
           onClick={onPublish}
           disabled={busy || !canPublish}
-          className="hidden h-9 items-center rounded-lg px-5 text-sm font-medium fuwari-btn-primary disabled:opacity-40 lg:inline-flex"
+          loading={processState === "PROCESSING"}
+          className="hidden lg:inline-flex"
         >
-          {processState === "PROCESSING" ? (
-            <Loader2 size={14} className="mr-1.5 animate-spin" />
-          ) : null}
           {publishLabel}
-        </button>
+        </Button>
         {hasPublicSnapshot && (
           <details
             ref={menuRef}
@@ -155,7 +151,7 @@ export function PostEditorHeader({
             }}
           >
             <summary
-              className="post-editor-icon-button"
+              className={iconButtonClass({ size: "md" })}
               aria-label={m.editor_more_actions()}
               title={m.editor_more_actions()}
             >

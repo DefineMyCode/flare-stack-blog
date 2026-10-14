@@ -3,6 +3,7 @@ import { useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { useAdminChrome } from "@/components/admin/admin-chrome";
 import { AdminPagination } from "@/components/admin/admin-pagination";
+import { Button } from "@/components/ui/button";
 import ConfirmationModal from "@/components/ui/confirmation-modal";
 import type {
   FriendLinkStatusCounts,
@@ -116,13 +117,7 @@ export function FriendLinkManager({
           <h1>{m.friend_links_admin_title()}</h1>
           <p>{m.friend_review_hint()}</p>
         </div>
-        <button
-          type="button"
-          onClick={openCreate}
-          className="fuwari-btn-regular friend-button"
-        >
-          {m.friend_links_admin_add()}
-        </button>
+        <Button onClick={openCreate}>{m.friend_links_admin_add()}</Button>
       </header>
       <nav className="friend-tabs" aria-label={m.friend_links_admin_title()}>
         {STATUSES.map((item) => (

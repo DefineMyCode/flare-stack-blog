@@ -1,9 +1,11 @@
 import { useQuery, type UseQueryResult } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
-import { BookOpen, Hash, Loader2 } from "lucide-react";
+import { BookOpen, Hash } from "lucide-react";
 import { useEffect, useRef, type ReactNode, type RefObject } from "react";
+import { Button, buttonClass } from "@/components/ui/button";
 import DropdownMenu from "@/components/ui/dropdown-menu";
 import { SearchField } from "@/components/ui/search-field";
+import { Spinner } from "@/components/ui/spinner";
 import { PostRow } from "@/features/posts/components/post-manager/components/post-row";
 import { PostManagerSkeleton } from "@/features/posts/components/post-manager/post-manager-skeleton";
 import type {
@@ -201,7 +203,7 @@ function TaxonomyPostControls({
           {m.taxonomy_scope_public()}{" "}
           <span>{selected?.publicPostCount ?? "—"}</span>
         </button>
-        {isFetching ? <Loader2 size={14} className="animate-spin" /> : null}
+        {isFetching ? <Spinner size={14} /> : null}
       </div>
       <p className="taxonomy-scope-hint">
         {state.scope === "current"
@@ -283,9 +285,9 @@ function TaxonomyPostList({
       ) : query.isError ? (
         <div className="taxonomy-empty" role="alert">
           <p>{m.error_desc()}</p>
-          <button type="button" onClick={() => void query.refetch()}>
+          <Button variant="text" onClick={() => void query.refetch()}>
             {m.error_retry()}
-          </button>
+          </Button>
         </div>
       ) : (
         <>
@@ -335,11 +337,16 @@ function TaxonomyPostList({
                     : m.taxonomy_public_empty()}
               </p>
               {state.search ? (
-                <button type="button" onClick={onClearSearch}>
+                <Button variant="text" onClick={onClearSearch}>
                   {m.admin_posts_clear_filters()}
-                </button>
+                </Button>
               ) : (
-                <Link to="/admin/posts">{m.admin_posts_title()}</Link>
+                <Link
+                  to="/admin/posts"
+                  className={buttonClass({ variant: "text" })}
+                >
+                  {m.admin_posts_title()}
+                </Link>
               )}
             </div>
           ) : null}

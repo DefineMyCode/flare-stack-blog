@@ -1,6 +1,7 @@
 import katex from "katex";
 import type { Ref } from "react";
 import { useMemo, useState } from "react";
+import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { m } from "@/paraglide/messages";
@@ -134,20 +135,12 @@ export function MathEditorPanel({
         <span className="mr-auto hidden text-xs fuwari-text-50 sm:inline">
           {m.editor_formula_shortcut()}
         </span>
-        <button
-          type="button"
-          onClick={onCancel}
-          className="fuwari-btn-regular h-7 rounded-lg px-2.5 text-xs font-medium"
-        >
+        <Button size="sm" onClick={onCancel}>
           {m.editor_formula_cancel()}
-        </button>
-        <button
-          type="button"
-          onClick={apply}
-          className="fuwari-btn-primary h-7 rounded-lg px-2.5 text-xs font-medium"
-        >
+        </Button>
+        <Button variant="primary" size="sm" onClick={apply}>
           {m.editor_formula_apply()}
-        </button>
+        </Button>
       </div>
     </div>
   );

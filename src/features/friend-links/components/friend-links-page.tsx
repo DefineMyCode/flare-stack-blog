@@ -1,4 +1,5 @@
 import { Link } from "@tanstack/react-router";
+import { buttonClass } from "@/components/ui/button";
 import type { FriendLinkWithUser } from "@/features/friend-links/friend-links.schema";
 import { m } from "@/paraglide/messages";
 import { FriendCard } from "./friend-card";
@@ -15,7 +16,7 @@ export function FriendLinksPage({ links }: FriendLinksPageProps) {
         <h1>{m.friend_links_title()}</h1>
         <Link
           to="/submit-friend-link"
-          className="friends-apply fuwari-btn-regular"
+          className={buttonClass({ size: "lg", className: "friends-apply" })}
         >
           {m.friend_links_fuwari_apply()}
         </Link>

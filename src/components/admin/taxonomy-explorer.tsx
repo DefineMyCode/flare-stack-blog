@@ -1,7 +1,8 @@
-import { Loader2 } from "lucide-react";
 import { useState, type ReactNode } from "react";
+import { Button } from "@/components/ui/button";
 import { SearchField } from "@/components/ui/search-field";
 import { Select } from "@/components/ui/select";
+import { Spinner } from "@/components/ui/spinner";
 import { m } from "@/paraglide/messages";
 import type { TaxonomyState } from "./taxonomy-state";
 import type {
@@ -92,14 +93,14 @@ export function TaxonomyExplorer({
       <div className="taxonomy-nav-scroll custom-scrollbar">
         {pending ? (
           <div className="taxonomy-loading">
-            <Loader2 size={18} className="animate-spin" />
+            <Spinner size={18} />
           </div>
         ) : navError ? (
           <div className="taxonomy-empty" role="alert">
             <p>{m.error_desc()}</p>
-            <button type="button" onClick={onRetry}>
+            <Button variant="text" onClick={onRetry}>
               {m.error_retry()}
-            </button>
+            </Button>
           </div>
         ) : (
           <>

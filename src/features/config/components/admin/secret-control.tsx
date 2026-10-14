@@ -1,6 +1,7 @@
 import { SettingsDisclosure } from "./settings-disclosure";
 import { useEffect, useRef, useState } from "react";
 import { useFormContext } from "react-hook-form";
+import { Button } from "@/components/ui/button";
 import ConfirmationModal from "@/components/ui/confirmation-modal";
 import { PasswordInput } from "@/components/ui/password-input";
 import type { ConfigFormValues } from "./config-editing";
@@ -56,51 +57,47 @@ export function SecretControl({
       ) : (
         <div className="settings-secret-summary">
           <span>{m.settings_design_secret_configured()}</span>
-          <button
+          <Button
             ref={triggerRef}
-            type="button"
-            className="settings-text-action"
+            variant="text"
+            size="sm"
             onClick={() => setEditing(true)}
           >
             {m.settings_design_replace_secret()}
-          </button>
+          </Button>
         </div>
       )}
       {cleared && (
-        <button
-          type="button"
-          className="settings-text-action"
+        <Button
+          variant="text"
+          size="sm"
           onClick={() => {
             setValue(clearName, false, { shouldDirty: true });
             setEditing(true);
           }}
         >
           {m.settings_design_replace_secret()}
-        </button>
+        </Button>
       )}
       {canGenerate && !cleared && showInput && (
-        <button
-          type="button"
-          className="settings-text-action"
+        <Button
+          variant="text"
+          size="sm"
           onClick={() =>
             setValue(name, crypto.randomUUID(), { shouldDirty: true })
           }
         >
           {m.settings_config_secret_generate()}
-        </button>
+        </Button>
       )}
       {stored && !cleared && (
         <SettingsDisclosure
           className="settings-secret-more"
           title={m.settings_design_credential_actions()}
         >
-          <button
-            type="button"
-            className="settings-text-action"
-            onClick={() => setRemoving(true)}
-          >
+          <Button variant="text" size="sm" onClick={() => setRemoving(true)}>
             {m.settings_design_remove_secret()}
-          </button>
+          </Button>
         </SettingsDisclosure>
       )}
       <ConfirmationModal

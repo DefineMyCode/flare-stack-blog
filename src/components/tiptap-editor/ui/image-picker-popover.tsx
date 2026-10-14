@@ -1,8 +1,9 @@
 import type { Editor } from "@tiptap/react";
-import { CornerDownLeft, Loader2, Upload } from "lucide-react";
+import { CornerDownLeft, Upload } from "lucide-react";
 import type { KeyboardEvent } from "react";
 import { useId, useRef, useState } from "react";
 import { IconButton } from "@/components/ui/icon-button";
+import { Spinner } from "@/components/ui/spinner";
 import { MediaPickerGrid } from "@/features/media/components/media-library/components";
 import {
   useMediaPicker,
@@ -187,11 +188,7 @@ function LinkPanel({
         onClick={() => void submit()}
         disabled={importing || !url.trim()}
       >
-        {importing ? (
-          <Loader2 size={14} className="animate-spin" />
-        ) : (
-          <CornerDownLeft size={14} />
-        )}
+        {importing ? <Spinner size={14} /> : <CornerDownLeft size={14} />}
       </IconButton>
     </div>
   );

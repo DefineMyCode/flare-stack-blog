@@ -12,6 +12,8 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { useFieldArray, useFormContext, useWatch } from "react-hook-form";
+import { Button } from "@/components/ui/button";
+import { IconButton } from "@/components/ui/icon-button";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { OverlayUpload } from "@/features/config/components/admin/overlay-upload";
@@ -309,14 +311,14 @@ function NavLinksEditor() {
                     />
                   ) : null}
                 </div>
-                <button
-                  type="button"
+                <IconButton
+                  size="md"
+                  tone="danger"
                   onClick={() => remove(index)}
-                  className="h-10 w-10 rounded-xl fuwari-text-50 hover:text-(--fuwari-danger-fg) grid place-items-center shrink-0"
-                  aria-label={m.settings_site_nav_remove()}
+                  label={m.settings_site_nav_remove()}
                 >
                   <Trash2 size={16} />
-                </button>
+                </IconButton>
               </div>
               {labelError || hrefError ? (
                 <p className="text-xs text-(--fuwari-danger-fg)">
@@ -329,14 +331,15 @@ function NavLinksEditor() {
       </div>
 
       {fields.length < NAV_LINKS_MAX ? (
-        <button
-          type="button"
+        <Button
+          variant="text"
+          size="sm"
           onClick={() => append({ label: "", href: "" })}
+          icon={<Plus size={14} />}
           className="site-add-link"
         >
-          <Plus size={14} />
           {m.settings_site_nav_add()}
-        </button>
+        </Button>
       ) : null}
     </section>
   );
@@ -369,14 +372,12 @@ function SocialPills() {
           const Icon = preset?.icon;
           const iconSrc = watch(`site.social.${index}.icon`);
           return (
-            <button
+            <IconButton
               key={field.id}
-              type="button"
               onClick={() =>
                 setSelected((current) => (current === index ? null : index))
               }
-              className={cn("site-social-icon", selected === index && "active")}
-              aria-label={preset?.label ?? field.label ?? ""}
+              label={preset?.label ?? field.label ?? ""}
               aria-expanded={selected === index}
             >
               {Icon ? (
@@ -386,23 +387,23 @@ function SocialPills() {
               ) : (
                 <Plus size={16} />
               )}
-            </button>
+            </IconButton>
           );
         })}
         {unused.length > 0 ? (
-          <button
-            type="button"
+          <Button
+            variant="text"
+            size="sm"
             onClick={() => {
               const next = unused[0];
               if (!next) return;
               append({ platform: next, url: "" });
               setSelected(fields.length);
             }}
-            className="site-add-link"
+            icon={<Plus size={14} />}
           >
-            <Plus size={14} />
             {m.settings_social_add()}
-          </button>
+          </Button>
         ) : null}
       </div>
 
@@ -442,17 +443,17 @@ function SocialPills() {
                     {...register(`site.social.${selected}.url`)}
                     placeholder={urlPlaceholder}
                   />
-                  <button
-                    type="button"
+                  <IconButton
+                    size="md"
+                    tone="danger"
                     onClick={() => {
                       remove(selected);
                       setSelected(null);
                     }}
-                    className="h-10 w-10 rounded-xl fuwari-text-50 hover:text-(--fuwari-danger-fg) grid place-items-center shrink-0"
-                    aria-label={m.settings_social_remove()}
+                    label={m.settings_social_remove()}
                   >
                     <X size={16} />
-                  </button>
+                  </IconButton>
                 </div>
                 {platform === "custom" ? (
                   <div className="flex gap-2">
@@ -465,7 +466,7 @@ function SocialPills() {
                       name={`site.social.${selected}.icon`}
                       assetPath={`social/custom-${selected}`}
                       accept=".svg,.png,.webp"
-                      className="relative bg-(--fuwari-btn-regular-bg) text-(--fuwari-btn-content)"
+                      variant="regular"
                       label={
                         watch(`site.social.${selected}.icon`)
                           ? m.settings_replace()

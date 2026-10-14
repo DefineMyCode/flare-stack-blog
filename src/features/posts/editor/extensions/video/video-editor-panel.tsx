@@ -1,5 +1,6 @@
 import type { Ref } from "react";
 import { useId, useMemo, useState } from "react";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { videoProviderName } from "@/features/posts/components/content/video-embed";
 import type { VideoSource } from "@/features/posts/utils/video-source";
@@ -91,21 +92,12 @@ export function VideoEditorPanel({
         >
           {status}
         </p>
-        <button
-          type="button"
-          onClick={onCancel}
-          className="fuwari-btn-regular h-7 rounded-lg px-2.5 text-xs font-medium"
-        >
+        <Button size="sm" onClick={onCancel}>
           {m.common_cancel()}
-        </button>
-        <button
-          type="button"
-          onClick={apply}
-          disabled={!source}
-          className="fuwari-btn-primary h-7 rounded-lg px-2.5 text-xs font-medium disabled:opacity-50"
-        >
+        </Button>
+        <Button variant="primary" size="sm" onClick={apply} disabled={!source}>
           {inserted ? m.editor_video_insert() : m.editor_video_update()}
-        </button>
+        </Button>
       </div>
     </div>
   );

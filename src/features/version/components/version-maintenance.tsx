@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
 import { updateCheckQuery } from "@/features/version/queries";
 import { recordUpdateNoticeShown } from "@/features/version/update-notice";
 import { orpcClient } from "@/lib/orpc";
@@ -78,19 +78,14 @@ export function VersionMaintenance() {
           </p>
         )}
       </div>
-      <button
-        type="button"
+      <Button
         onClick={() => checkUpdateMutation.mutate()}
-        disabled={checkUpdateMutation.isPending}
-        className="fuwari-btn-regular rounded-xl h-9 px-3 text-sm font-medium shrink-0 inline-flex items-center gap-1.5 disabled:opacity-50"
+        loading={checkUpdateMutation.isPending}
       >
-        {checkUpdateMutation.isPending ? (
-          <Loader2 size={14} className="animate-spin" />
-        ) : null}
         {checkUpdateMutation.isPending
           ? m.settings_maintenance_version_checking()
           : m.settings_maintenance_version_check_btn()}
-      </button>
+      </Button>
     </div>
   );
 }

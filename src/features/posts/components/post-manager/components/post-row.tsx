@@ -9,6 +9,7 @@ import {
   type CSSProperties,
 } from "react";
 import { createPortal } from "react-dom";
+import { IconButton } from "@/components/ui/icon-button";
 import { MOTION, useMotionPresence } from "@/hooks/use-motion";
 import { formatDate } from "@/lib/utils";
 import { m } from "@/paraglide/messages";
@@ -146,16 +147,15 @@ function PostRowMenu({
   }, [open, position]);
   return (
     <div className="post-list-menu">
-      <button
+      <IconButton
         ref={triggerRef}
-        type="button"
-        aria-label={m.admin_posts_more_named({ title })}
+        label={m.admin_posts_more_named({ title })}
         aria-haspopup="menu"
         aria-expanded={open}
         onClick={() => setOpen((value) => !value)}
       >
         <MoreHorizontal size={18} />
-      </button>
+      </IconButton>
       {present && position
         ? createPortal(
             <div

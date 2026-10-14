@@ -1,7 +1,9 @@
 import { Link } from "@tanstack/react-router";
-import { ChevronRight, Loader2, Search } from "lucide-react";
+import { ChevronRight, Search } from "lucide-react";
 import { useEffect, useRef } from "react";
+import { Button } from "@/components/ui/button";
 import { SearchField } from "@/components/ui/search-field";
+import { Spinner } from "@/components/ui/spinner";
 import { useContentMotion } from "@/hooks/use-motion";
 import { m } from "@/paraglide/messages";
 import "./search-page.css";
@@ -77,7 +79,7 @@ export function SearchPage({
         {hasQuery ? (
           isSearching ? (
             <>
-              <Loader2 size={14} className="animate-spin" />
+              <Spinner size={14} />
               {m.search_loading()}
             </>
           ) : hasError ? (
@@ -98,13 +100,9 @@ export function SearchPage({
         ) : hasError ? (
           <div className="public-search-empty">
             <p>{m.search_retry_hint()}</p>
-            <button
-              type="button"
-              className="fuwari-btn-regular"
-              onClick={onRetry}
-            >
+            <Button size="lg" onClick={onRetry}>
               {m.search_retry()}
-            </button>
+            </Button>
           </div>
         ) : results.length ? (
           <ul className="public-search-results" data-updating={isSearching}>

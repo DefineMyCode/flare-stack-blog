@@ -3,6 +3,9 @@
   --admin-unit: var(--taxonomy-unit);
   --fuwari-field-height: calc(42 * var(--taxonomy-unit));
   --fuwari-field-font-size: calc(14 * var(--taxonomy-unit));
+  --fuwari-button-height: calc(40 * var(--taxonomy-unit));
+  --fuwari-button-font-size: calc(14 * var(--taxonomy-unit));
+  --fuwari-button-padding-x: calc(18 * var(--taxonomy-unit));
   --taxonomy-rule: color-mix(in srgb, var(--fuwari-fg-50) 20%, transparent);
   display: flex;
   flex-direction: column;
@@ -34,14 +37,6 @@
   font-size: calc(13 * var(--taxonomy-unit));
   color: var(--fuwari-fg-50);
   line-height: 1.6;
-}
-.taxonomy-create {
-  min-height: calc(42 * var(--taxonomy-unit));
-  padding: 0 calc(17 * var(--taxonomy-unit));
-  gap: 8px;
-  border-radius: 12px;
-  font-size: calc(14 * var(--taxonomy-unit));
-  flex-shrink: 0;
 }
 .taxonomy-browser {
   display: grid;
@@ -167,19 +162,6 @@
   color: var(--fuwari-fg-90);
   overflow-wrap: anywhere;
 }
-.taxonomy-context-action {
-  display: grid;
-  place-items: center;
-  width: calc(34 * var(--taxonomy-unit));
-  height: calc(34 * var(--taxonomy-unit));
-  border-radius: 8px;
-  color: var(--fuwari-fg-50);
-  flex-shrink: 0;
-}
-.taxonomy-context-action:hover {
-  color: var(--fuwari-primary);
-  background: var(--fuwari-btn-regular-bg);
-}
 .taxonomy-scope-tabs {
   display: flex;
   align-items: center;
@@ -304,20 +286,21 @@
   line-height: 1.7;
   text-align: center;
 }
-.taxonomy-empty :is(button, a) {
-  color: var(--fuwari-primary);
-}
 .taxonomy-loading {
   display: grid;
   place-items: center;
   min-height: 120px;
   color: var(--fuwari-fg-50);
 }
-.taxonomy-workspace :is(button:not(.fuwari-field-button), a):focus-visible {
+.taxonomy-workspace
+  :is(
+    button:not(.fuwari-field-button, .fuwari-button, .fuwari-icon-button),
+    a:not(.fuwari-button, .fuwari-icon-button)
+  ):focus-visible {
   outline: 2px solid var(--fuwari-primary);
   outline-offset: 3px;
 }
-.taxonomy-workspace button:disabled {
+.taxonomy-workspace button:not(.fuwari-button, .fuwari-icon-button):disabled {
   opacity: 0.45;
   cursor: not-allowed;
 }
@@ -427,13 +410,6 @@
   font-weight: 600;
   color: var(--fuwari-fg-90);
 }
-.taxonomy-name-dialog header button {
-  display: grid;
-  place-items: center;
-  width: 32px;
-  height: 32px;
-  border-radius: 8px;
-}
 .taxonomy-name-dialog p {
   margin-top: 10px;
   color: var(--fuwari-fg-50);
@@ -450,21 +426,6 @@
   gap: 10px;
   margin-top: 24px;
 }
-.taxonomy-name-dialog footer button {
-  min-height: 40px;
-  padding: 8px 14px;
-  border-radius: 10px;
-  font-size: 14px;
-}
 .taxonomy-delete {
   margin-right: auto;
-  color: var(--fuwari-danger-fg);
-}
-.taxonomy-name-dialog button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-.taxonomy-name-dialog button:focus-visible {
-  outline: 2px solid var(--fuwari-primary);
-  outline-offset: 2px;
 }

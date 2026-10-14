@@ -1,5 +1,6 @@
-import { AlertCircle, CheckCircle2, Loader2, MailCheck } from "lucide-react";
+import { AlertCircle, CheckCircle2, MailCheck } from "lucide-react";
 import type { ReactNode } from "react";
+import { Spinner } from "@/components/ui/spinner";
 
 export function AuthHeading({
   title,
@@ -31,17 +32,15 @@ export function AuthStatus({
       ? MailCheck
       : state === "success"
         ? CheckCircle2
-        : state === "error"
-          ? AlertCircle
-          : Loader2;
+        : AlertCircle;
   return (
     <div className="auth-page auth-status fuwari-content-enter">
       <div className="auth-status-icon" data-error={state === "error"}>
-        <Icon
-          size={28}
-          strokeWidth={1.5}
-          className={state === "loading" ? "animate-spin" : undefined}
-        />
+        {state === "loading" ? (
+          <Spinner size={28} />
+        ) : (
+          <Icon size={28} strokeWidth={1.5} />
+        )}
       </div>
       <div role={state === "error" ? "alert" : "status"}>
         <AuthHeading title={title} description={description} />

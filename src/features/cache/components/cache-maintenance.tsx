@@ -1,6 +1,7 @@
 import { useMutation } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
 import ConfirmationModal from "@/components/ui/confirmation-modal";
 import { orpcClient } from "@/lib/orpc";
 import { m } from "@/paraglide/messages";
@@ -44,16 +45,14 @@ export function CacheMaintenance() {
             </p>
           )}
         </div>
-        <button
-          type="button"
+        <Button
           onClick={() => setIsModalOpen(true)}
-          disabled={mutation.isPending}
-          className="fuwari-btn-regular rounded-xl h-9 px-3 text-sm font-medium shrink-0"
+          loading={mutation.isPending}
         >
           {mutation.isPending
             ? m.common_processing()
             : m.settings_maintenance_cache_btn()}
-        </button>
+        </Button>
       </div>
       <ConfirmationModal
         isOpen={isModalOpen}

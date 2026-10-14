@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
 import { postPopularityStatusQuery } from "@/features/post-popularity/queries";
 import { orpcClient } from "@/lib/orpc";
 import { formatDate } from "@/lib/utils";
@@ -54,19 +54,14 @@ export function PostPopularityMaintenance() {
           </p>
         ) : null}
       </div>
-      <button
-        type="button"
+      <Button
         onClick={() => syncMutation.mutate()}
-        disabled={syncMutation.isPending}
-        className="fuwari-btn-regular rounded-xl h-9 px-3 text-sm font-medium shrink-0 inline-flex items-center gap-1.5 disabled:opacity-50"
+        loading={syncMutation.isPending}
       >
-        {syncMutation.isPending ? (
-          <Loader2 size={14} className="animate-spin" />
-        ) : null}
         {syncMutation.isPending
           ? m.settings_maintenance_popularity_syncing()
           : m.settings_maintenance_popularity_sync_btn()}
-      </button>
+      </Button>
     </div>
   );
 }

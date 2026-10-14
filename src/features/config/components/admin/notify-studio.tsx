@@ -2,7 +2,7 @@ import { SettingsDisclosure } from "./settings-disclosure";
 import { useMediaQuery } from "@/hooks/use-motion";
 import { SecretControl } from "./secret-control";
 import { useConfigEditing, type ConfigFormValues } from "./config-editing";
-import { Loader2, MessageCircle, Search, Send } from "lucide-react";
+import { MessageCircle, Search, Send } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { useFormContext, useFormState, useWatch } from "react-hook-form";
@@ -24,6 +24,7 @@ import {
   type WebhookEndpoint,
   type WebhookProvider,
 } from "@/features/webhook/webhook.schema";
+import { Button } from "@/components/ui/button";
 import { FormField } from "@/components/ui/form-field";
 import { Input, Textarea } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
@@ -229,19 +230,14 @@ function EmailChannel() {
           </FormField>
         </div>
 
-        <button
-          type="button"
+        <Button
           onClick={() => void handleTest()}
-          disabled={!configured || testing}
-          className="fuwari-btn-regular rounded-xl h-9 px-3 text-sm font-medium gap-1.5 disabled:opacity-50"
+          disabled={!configured}
+          loading={testing}
+          icon={<Send size={14} />}
         >
-          {testing ? (
-            <Loader2 size={14} className="animate-spin" />
-          ) : (
-            <Send size={14} />
-          )}
           {m.settings_email_test_btn_send()}
-        </button>
+        </Button>
         <p className="settings-muted notify-test-hint">
           {m.settings_design_test_hint()}
         </p>
@@ -575,19 +571,15 @@ function WebhookChannel() {
                 />
               </FormField>
               <div className="flex flex-wrap items-center gap-2">
-                <button
-                  type="button"
+                <Button
+                  size="sm"
                   onClick={() => void handleFindChats()}
-                  disabled={!hasSecret || isFindingChats}
-                  className="fuwari-btn-regular rounded-xl h-8 px-3 text-sm font-medium gap-1.5 disabled:opacity-50"
+                  disabled={!hasSecret}
+                  loading={isFindingChats}
+                  icon={<Search size={14} />}
                 >
-                  {isFindingChats ? (
-                    <Loader2 size={14} className="animate-spin" />
-                  ) : (
-                    <Search size={14} />
-                  )}
                   {m.settings_webhook_find_chats()}
-                </button>
+                </Button>
                 {chats?.map((chat) => (
                   <button
                     key={chat.id}
@@ -662,19 +654,14 @@ function WebhookChannel() {
           </FormField>
         ) : null}
 
-        <button
-          type="button"
+        <Button
           onClick={() => void handleTest()}
-          disabled={!canTest || isTesting}
-          className="fuwari-btn-regular rounded-xl h-9 px-3 text-sm font-medium gap-1.5 disabled:opacity-50"
+          disabled={!canTest}
+          loading={isTesting}
+          icon={<Send size={14} />}
         >
-          {isTesting ? (
-            <Loader2 size={14} className="animate-spin" />
-          ) : (
-            <Send size={14} />
-          )}
           {m.settings_webhook_endpoint_btn_test()}
-        </button>
+        </Button>
 
         <div className="fuwari-card-base p-4 space-y-2">
           <p className="text-xs fuwari-text-50">

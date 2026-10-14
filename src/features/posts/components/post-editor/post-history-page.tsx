@@ -1,8 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
 import { Link, useNavigate } from "@tanstack/react-router";
-import { ArrowLeft, Loader2, LockKeyhole, Trash2 } from "lucide-react";
+import { ArrowLeft, LockKeyhole, Trash2 } from "lucide-react";
 import { useEffect, useRef } from "react";
 import { useAdminChrome } from "@/components/admin/admin-chrome";
+import { Button, buttonClass } from "@/components/ui/button";
 import ConfirmationModal from "@/components/ui/confirmation-modal";
 import { postRevisionListQuery } from "@/features/posts/queries";
 import { formatMonthDayTime } from "@/lib/utils";
@@ -77,19 +78,18 @@ export function PostHistoryPage({
   }, [setMobileTitle, setPrimaryAction]);
 
   const deleteAction = (
-    <button
-      type="button"
+    <Button
+      variant="plain"
+      tone="danger"
+      size="sm"
       onClick={history.requestDelete}
       disabled={!canRestore}
+      loading={history.isDeleting}
+      icon={<Trash2 size={15} />}
       className="post-history-delete"
     >
-      {history.isDeleting ? (
-        <Loader2 size={15} className="animate-spin" />
-      ) : (
-        <Trash2 size={15} />
-      )}
       {m.editor_history_delete_action()}
-    </button>
+    </Button>
   );
 
   return (
@@ -134,21 +134,22 @@ export function PostHistoryPage({
           <Link
             to="/admin/posts/edit/$id/history"
             params={{ id: String(postId) }}
-            className="post-editor-text-button lg:hidden"
+            className={buttonClass({
+              variant: "plain",
+              className: "lg:hidden",
+            })}
           >
             {m.editor_history_list_title()}
           </Link>
-          <button
-            type="button"
+          <Button
+            variant="primary"
             onClick={history.requestRestore}
             disabled={!canRestore}
-            className="hidden h-9 items-center rounded-lg px-5 text-sm font-medium fuwari-btn-primary disabled:opacity-40 lg:inline-flex"
+            loading={history.isRestoring}
+            className="hidden lg:inline-flex"
           >
-            {history.isRestoring && (
-              <Loader2 size={14} className="mr-1.5 animate-spin" />
-            )}
             {m.editor_history_restore_this()}
-          </button>
+          </Button>
         </div>
       </header>
       <div className="post-history-body">

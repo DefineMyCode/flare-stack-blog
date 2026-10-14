@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
-import { Loader2, Plus, Search } from "lucide-react";
+import { Plus, Search } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { useAdminChrome } from "@/components/admin/admin-chrome";
@@ -10,7 +10,9 @@ import { ADMIN_ITEMS_PER_PAGE } from "@/lib/constants";
 import { useContentMotion } from "@/hooks/use-motion";
 import { m } from "@/paraglide/messages";
 import { PostRow, PostsToolbar } from "./components";
+import { Button } from "@/components/ui/button";
 import ConfirmationModal from "@/components/ui/confirmation-modal";
+import { Spinner } from "@/components/ui/spinner";
 import { useListScroll } from "./hooks/use-list-scroll";
 import { useDeletePost, usePosts } from "./hooks";
 import { PostManagerSkeleton } from "./post-manager-skeleton";
@@ -153,24 +155,18 @@ export function PostManager({
                   count: statusCounts.draft + statusCounts.published,
                 })
               : "—"}
-            {isFetching && (
-              <Loader2
-                size={14}
-                className="ml-2 inline animate-spin"
-                aria-hidden="true"
-              />
-            )}
+            {isFetching && <Spinner size={14} className="ml-2 inline" />}
           </p>
         </div>
-        <button
-          type="button"
-          className="post-list-create fuwari-btn-primary"
+        <Button
+          variant="primary"
+          className="post-list-create"
           onClick={() => createPost()}
-          disabled={isCreating}
+          loading={isCreating}
+          icon={<Plus size={19} />}
         >
-          <Plus size={19} />
           {createLabel}
-        </button>
+        </Button>
       </header>
       <PostsToolbar
         searchTerm={searchInput}
@@ -193,9 +189,13 @@ export function PostManager({
         {error ? (
           <div className="post-list-empty">
             <p>{m.error_desc()}</p>
-            <button type="button" onClick={() => void refetch()}>
+            <Button
+              variant="text"
+              className="post-list-empty-action"
+              onClick={() => void refetch()}
+            >
               {m.error_retry()}
-            </button>
+            </Button>
           </div>
         ) : (
           <>
@@ -246,15 +246,16 @@ export function PostManager({
                     ? m.admin_posts_empty_library()
                     : m.admin_posts_no_match()}
                 </p>
-                <button
-                  type="button"
+                <Button
+                  variant="text"
+                  className="post-list-empty-action"
                   disabled={isCreating}
                   onClick={() =>
                     isEmptyLibrary ? createPost() : resetFilters()
                   }
                 >
                   {isEmptyLibrary ? createLabel : m.admin_posts_clear_filters()}
-                </button>
+                </Button>
               </div>
             )}
           </>
@@ -279,13 +280,9 @@ export function PostManager({
             />
           )}
           {hasActiveFilters && (
-            <button
-              type="button"
-              className="post-list-reset"
-              onClick={resetFilters}
-            >
+            <Button variant="text" size="sm" onClick={resetFilters}>
               {m.admin_posts_clear_filters()}
-            </button>
+            </Button>
           )}
         </footer>
       )}

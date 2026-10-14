@@ -1,8 +1,9 @@
-import { Loader2, RefreshCw } from "lucide-react";
+import { RefreshCw } from "lucide-react";
 import type { ComponentProps } from "react";
 import TextareaAutosize from "react-textarea-autosize";
 import DatePicker from "@/components/ui/date-picker";
 import { FormField } from "@/components/ui/form-field";
+import { Spinner } from "@/components/ui/spinner";
 import { Switch } from "@/components/ui/switch";
 import { CategorySelect } from "@/features/categories/components/category-select";
 import { TagSelector } from "@/features/tags/components/tag-selector";
@@ -119,11 +120,7 @@ function SlugInput({
         className="fuwari-field-button"
         aria-label={m.editor_meta_auto_generate()}
       >
-        {generating ? (
-          <Loader2 size={14} className="animate-spin" />
-        ) : (
-          <RefreshCw size={14} />
-        )}
+        {generating ? <Spinner size={14} /> : <RefreshCw size={14} />}
       </button>
     </div>
   );

@@ -20,6 +20,7 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { ThemeToggle } from "@/components/common/theme-toggle";
 import ConfirmationModal from "@/components/ui/confirmation-modal";
+import { IconButton } from "@/components/ui/icon-button";
 import { resetAuthBoundQueries } from "@/features/auth/queries";
 import { authClient } from "@/lib/auth/auth-client";
 import { m } from "@/paraglide/messages";
@@ -155,14 +156,14 @@ export function SideBar({
             </span>
             <span className="admin-sidebar-label">{siteConfig.title}</span>
           </Link>
-          <button
-            type="button"
+          <IconButton
+            size="md"
             onClick={closeMobileSidebar}
             className="admin-sidebar-mobile-close"
-            aria-label={m.admin_sidebar_close_navigation()}
+            label={m.admin_sidebar_close_navigation()}
           >
             <X size={18} />
-          </button>
+          </IconButton>
           <button
             type="button"
             onClick={onToggleCollapse}

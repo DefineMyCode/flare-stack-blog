@@ -8,6 +8,7 @@ import {
   type CSSProperties,
 } from "react";
 import { createPortal } from "react-dom";
+import { IconButton } from "@/components/ui/icon-button";
 import { MOTION, useMotionPresence } from "@/hooks/use-motion";
 import "./comment-actions.css";
 
@@ -117,11 +118,10 @@ export function CommentActions({
 
   return (
     <>
-      <button
+      <IconButton
         ref={triggerRef}
-        type="button"
+        label={ariaLabel}
         className="comment-actions-trigger"
-        aria-label={ariaLabel}
         aria-haspopup="menu"
         aria-expanded={isOpen}
         aria-controls={present ? id : undefined}
@@ -138,7 +138,7 @@ export function CommentActions({
         }}
       >
         <Ellipsis size={18} aria-hidden="true" />
-      </button>
+      </IconButton>
       {present && position
         ? createPortal(
             <div

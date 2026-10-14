@@ -352,6 +352,7 @@
   "post_image_error": "图片加载失败",
   "common_back": "返回",
   "common_copy_code": "复制代码",
+  "common_code_copied": "已复制代码",
   "common_show_more": "显示更多",
   "common_expand_all": "展开全部",
   "common_collapse": "收起",

@@ -5,15 +5,16 @@ import {
   Clock,
   ExternalLink,
   Globe,
-  Loader2,
   RefreshCw,
   XCircle,
 } from "lucide-react";
 import { useRef, useState, type ComponentProps } from "react";
 import { Turnstile } from "@/components/common/turnstile";
+import { Button, buttonClass } from "@/components/ui/button";
 import DropdownMenu from "@/components/ui/dropdown-menu";
 import { FormField } from "@/components/ui/form-field";
 import { Input, Textarea } from "@/components/ui/input";
+import { Spinner } from "@/components/ui/spinner";
 import type { FriendLink } from "@/lib/db/schema";
 import { useContentMotion } from "@/hooks/use-motion";
 import { useFriendLinkSubmitForm } from "../hooks/use-friend-link-submit-form";
@@ -71,20 +72,15 @@ export function SubmitFriendLinkPage({
       <div ref={bodyRef}>
         {isLoading ? (
           <div className="friend-application-loading" aria-busy="true">
-            <Loader2 className="animate-spin" size={22} />
+            <Spinner size={22} />
             {m.friend_apply_loading()}
           </div>
         ) : isError ? (
           <div className="friend-application-message" role="alert">
             <p>{m.friend_apply_load_failed()}</p>
-            <button
-              type="button"
-              className="fuwari-btn-regular"
-              onClick={reload}
-              disabled={isRefreshing}
-            >
+            <Button size="lg" onClick={reload} disabled={isRefreshing}>
               {m.friend_apply_refresh()}
-            </button>
+            </Button>
           </div>
         ) : !current || editing ? (
           <ApplicationForm
@@ -144,30 +140,29 @@ export function SubmitFriendLinkPage({
             )}
             <div className="friend-application-actions">
               {current.status === "rejected" ? (
-                <button
-                  type="button"
-                  className="fuwari-btn-primary"
+                <Button
+                  variant="primary"
+                  size="lg"
                   onClick={() => setEditingId(current.id)}
                 >
                   {m.friend_apply_revise()}
-                </button>
+                </Button>
               ) : current.status === "approved" ? (
-                <Link to="/friend-links" className="fuwari-btn-primary">
+                <Link
+                  to="/friend-links"
+                  className={buttonClass({ variant: "primary", size: "lg" })}
+                >
                   {m.friend_apply_view()}
                 </Link>
               ) : null}
-              <button
-                type="button"
-                className="fuwari-btn-regular"
+              <Button
+                size="lg"
                 onClick={reload}
-                disabled={isRefreshing}
+                loading={isRefreshing}
+                icon={<RefreshCw size={16} />}
               >
-                <RefreshCw
-                  size={16}
-                  className={isRefreshing ? "animate-spin" : ""}
-                />
                 {m.friend_apply_refresh()}
-              </button>
+              </Button>
             </div>
           </div>
         )}
@@ -279,27 +274,24 @@ function ApplicationForm({
       )}
       <div className="friend-application-actions">
         {onCancel && (
-          <button
-            type="button"
-            className="fuwari-btn-regular"
-            onClick={onCancel}
-            disabled={form.isSubmitting}
-          >
+          <Button size="lg" onClick={onCancel} disabled={form.isSubmitting}>
             {m.common_cancel()}
-          </button>
+          </Button>
         )}
-        <button
+        <Button
           type="submit"
-          className="fuwari-btn-primary friend-application-submit"
-          disabled={form.isSubmitting || form.turnstilePending}
+          variant="primary"
+          size="lg"
+          className="friend-application-submit"
+          disabled={form.turnstilePending}
+          loading={form.isSubmitting}
         >
-          {form.isSubmitting && <Loader2 size={16} className="animate-spin" />}
           {form.isSubmitting
             ? m.friend_apply_sending()
             : initial
               ? m.friend_apply_resubmit()
               : m.friend_link_submit_form_title()}
-        </button>
+        </Button>
       </div>
       <p className="friend-application-hint">{m.friend_apply_after_submit()}</p>
     </form>

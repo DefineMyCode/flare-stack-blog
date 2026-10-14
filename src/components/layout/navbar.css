@@ -119,6 +119,7 @@
 }
 .public-navbar .public-account-trigger {
   width: 52px;
+  gap: 4px;
 }
 .public-account-trigger img {
   width: 28px;
@@ -135,8 +136,8 @@
 .public-navbar .public-mobile-trigger {
   display: none;
 }
-.public-navbar a:focus-visible,
-.public-navbar button:focus-visible {
+.public-navbar
+  :is(a, button):not(.fuwari-button, .fuwari-icon-button):focus-visible {
   outline: 2px solid var(--fuwari-primary);
   outline-offset: 3px;
 }
