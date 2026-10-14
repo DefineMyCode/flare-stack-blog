@@ -1,6 +1,7 @@
 import katex from "katex";
 import type { Ref } from "react";
 import { useMemo, useState } from "react";
+import { Textarea } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { m } from "@/paraglide/messages";
 import type { MathType } from "./state";
@@ -56,9 +57,13 @@ export function MathEditorPanel({
   return (
     <div
       data-math-editor=""
-      className={cn("flex flex-col gap-2 text-left", className)}
+      className={cn(
+        "flex flex-col gap-2 text-left [--fuwari-field-font-size:13px] [--fuwari-field-height:36px] [--fuwari-field-radius:8px]",
+        className,
+      )}
     >
-      <textarea
+      <Textarea
+        mono
         ref={inputRef}
         aria-label="LaTeX"
         value={value}
@@ -80,7 +85,6 @@ export function MathEditorPanel({
             apply();
           }
         }}
-        className="w-full resize-y rounded-lg border border-(--fuwari-input-border) bg-(--fuwari-input-bg) p-2 font-mono text-sm fuwari-text-90 outline-none placeholder:fuwari-text-30 focus:border-(--fuwari-primary)"
       />
       <output
         aria-label={m.editor_formula_preview()}

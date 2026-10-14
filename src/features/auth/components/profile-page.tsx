@@ -6,7 +6,11 @@ import {
   LogOut,
   UserRound,
 } from "lucide-react";
-import { lazy, Suspense, useRef, useState, type ReactNode } from "react";
+import { lazy, Suspense, useRef, useState } from "react";
+import { FormField } from "@/components/ui/form-field";
+import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
+import { Switch } from "@/components/ui/switch";
 import type { useProfileForm } from "../hooks/use-profile-form";
 import type { usePasswordForm } from "../hooks/use-password-form";
 import type { useNotificationToggle } from "../hooks/use-notification-toggle";
@@ -73,49 +77,39 @@ export function ProfilePage({
           <span>{m.account_avatar_preview()}</span>
         </div>
         <fieldset disabled={profileForm.isSubmitting}>
-          <Field
-            name="name"
+          <FormField
             label={m.profile_name()}
             error={profileForm.errors.name?.message}
+            required
           >
-            <input
-              id="account-name"
+            <Input
               {...profileForm.register("name")}
               autoComplete="nickname"
               maxLength={20}
-              aria-required="true"
-              aria-invalid={!!profileForm.errors.name}
-              aria-describedby={
-                profileForm.errors.name ? "account-name-error" : undefined
-              }
             />
-          </Field>
-          <Field
-            name="image"
+          </FormField>
+          <FormField
             label={m.profile_avatar_url()}
             error={profileForm.errors.image?.message}
+            action={
+              user.role === "admin" && (
+                <button
+                  ref={pickAvatarRef}
+                  type="button"
+                  className="account-field-action"
+                  onClick={() => setPickingAvatar(true)}
+                >
+                  {m.account_avatar_pick_media()}
+                </button>
+              )
+            }
           >
-            <input
-              id="account-image"
+            <Input
               {...profileForm.register("image")}
               type="url"
               placeholder="https://example.com/avatar.png"
-              aria-invalid={!!profileForm.errors.image}
-              aria-describedby={
-                profileForm.errors.image ? "account-image-error" : undefined
-              }
             />
-            {user.role === "admin" && (
-              <button
-                ref={pickAvatarRef}
-                type="button"
-                className="account-field-action"
-                onClick={() => setPickingAvatar(true)}
-              >
-                {m.account_avatar_pick_media()}
-              </button>
-            )}
-          </Field>
+          </FormField>
           <div className="account-email">
             <span>{m.account_email()}</span>
             <p>{user.email}</p>
@@ -183,26 +177,18 @@ export function ProfilePage({
               {m.account_retry()}
             </button>
           ) : (
-            <button
-              type="button"
-              role="switch"
-              aria-checked={notification.enabled === true}
+            <Switch
+              checked={notification.enabled === true}
+              onCheckedChange={notification.toggle}
               aria-label={m.profile_email_notify()}
-              className="account-switch"
+              loading={notification.isLoading || notification.isPending}
               disabled={
                 !notification.available ||
                 notification.isLoading ||
                 notification.isPending ||
                 notification.enabled === undefined
               }
-              onClick={notification.toggle}
-            >
-              <span>
-                {(notification.isLoading || notification.isPending) && (
-                  <Loader2 size={12} className="animate-spin" />
-                )}
-              </span>
-            </button>
+            />
           )}
         </div>
       </section>
@@ -276,64 +262,37 @@ function PasswordSection({
             noValidate
           >
             <fieldset disabled={form.isSubmitting}>
-              <Field
-                name="currentPassword"
+              <FormField
                 label={m.profile_current_password()}
                 error={form.errors.currentPassword?.message}
+                required
               >
-                <input
-                  id="account-currentPassword"
-                  type="password"
+                <PasswordInput
                   autoComplete="current-password"
                   {...form.register("currentPassword")}
-                  aria-required="true"
-                  aria-invalid={!!form.errors.currentPassword}
-                  aria-describedby={
-                    form.errors.currentPassword
-                      ? "account-currentPassword-error"
-                      : undefined
-                  }
                 />
-              </Field>
+              </FormField>
               <div className="account-password-pair">
-                <Field
-                  name="newPassword"
+                <FormField
                   label={m.profile_new_password()}
                   error={form.errors.newPassword?.message}
+                  required
                 >
-                  <input
-                    id="account-newPassword"
-                    type="password"
+                  <PasswordInput
                     autoComplete="new-password"
                     {...form.register("newPassword")}
-                    aria-required="true"
-                    aria-invalid={!!form.errors.newPassword}
-                    aria-describedby={
-                      form.errors.newPassword
-                        ? "account-newPassword-error"
-                        : undefined
-                    }
                   />
-                </Field>
-                <Field
-                  name="confirmPassword"
+                </FormField>
+                <FormField
                   label={m.profile_confirm_password()}
                   error={form.errors.confirmPassword?.message}
+                  required
                 >
-                  <input
-                    id="account-confirmPassword"
-                    type="password"
+                  <PasswordInput
                     autoComplete="new-password"
                     {...form.register("confirmPassword")}
-                    aria-required="true"
-                    aria-invalid={!!form.errors.confirmPassword}
-                    aria-describedby={
-                      form.errors.confirmPassword
-                        ? "account-confirmPassword-error"
-                        : undefined
-                    }
                   />
-                </Field>
+                </FormField>
               </div>
               <div className="account-save">
                 <button type="submit" className="fuwari-btn-primary">
@@ -357,32 +316,5 @@ function PasswordSection({
         </div>
       </div>
     </section>
-  );
-}
-function Field({
-  name,
-  label,
-  error,
-  children,
-}: {
-  name: string;
-  label: string;
-  error?: string;
-  children: ReactNode;
-}) {
-  return (
-    <div className="account-field">
-      <label htmlFor={`account-${name}`}>{label}</label>
-      {children}
-      {error && (
-        <p
-          className="account-feedback"
-          data-error="true"
-          id={`account-${name}-error`}
-        >
-          {error}
-        </p>
-      )}
-    </div>
   );
 }

@@ -10,6 +10,7 @@ import {
 import { createPortal } from "react-dom";
 import { MOTION, useMotionPresence } from "@/hooks/use-motion";
 import { cn } from "@/lib/utils";
+import "./field.css";
 
 export type SelectOption = {
   value: string;
@@ -24,7 +25,9 @@ export function Select({
   disabled = false,
   className,
   placeholder,
+  id,
 }: {
+  id?: string;
   value: string;
   options: Array<SelectOption>;
   onChange: (value: string) => void;
@@ -126,13 +129,14 @@ export function Select({
     <div className={cn("relative", className)}>
       <button
         ref={triggerRef}
+        id={id}
         type="button"
         disabled={disabled}
         aria-haspopup="listbox"
         aria-expanded={open}
         aria-controls={listId}
         onClick={() => setOpen((current) => !current)}
-        className="flex h-10 w-full items-center justify-between gap-2 rounded-xl bg-(--fuwari-btn-regular-bg) px-3 text-left text-sm fuwari-text-90 outline-none disabled:opacity-50"
+        className="fuwari-input flex items-center justify-between gap-2 text-left"
       >
         <span className={cn("min-w-0 truncate", !selected && "fuwari-text-30")}>
           {selected?.label ?? placeholder ?? ""}

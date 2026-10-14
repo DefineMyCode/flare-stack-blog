@@ -1,11 +1,5 @@
 import { AlertCircle, CheckCircle2, Loader2, MailCheck } from "lucide-react";
-import {
-  cloneElement,
-  useId,
-  type InputHTMLAttributes,
-  type ReactElement,
-  type ReactNode,
-} from "react";
+import type { ReactNode } from "react";
 
 export function AuthHeading({
   title,
@@ -19,33 +13,6 @@ export function AuthHeading({
       <h1>{title}</h1>
       {description && <p>{description}</p>}
     </header>
-  );
-}
-export function AuthField({
-  label,
-  error,
-  children,
-}: {
-  label: string;
-  error?: string;
-  children: ReactElement<InputHTMLAttributes<HTMLInputElement>>;
-}) {
-  const id = useId();
-  return (
-    <div className="auth-field">
-      <label htmlFor={id}>{label}</label>
-      {cloneElement(children, {
-        id,
-        "aria-required": true,
-        "aria-invalid": !!error,
-        "aria-describedby": error ? `${id}-error` : undefined,
-      })}
-      {error && (
-        <p id={`${id}-error`} className="auth-error">
-          {error}
-        </p>
-      )}
-    </div>
   );
 }
 export function AuthStatus({

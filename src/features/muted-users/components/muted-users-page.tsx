@@ -1,8 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
 import { ClientOnly } from "@tanstack/react-router";
-import { Search, ShieldCheck, UserRound, X } from "lucide-react";
+import { Search, ShieldCheck, UserRound } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import ConfirmationModal from "@/components/ui/confirmation-modal";
+import { SearchField } from "@/components/ui/search-field";
 import { Select } from "@/components/ui/select";
 import { useContentMotion } from "@/hooks/use-motion";
 import { useMutedUsers } from "@/features/muted-users/hooks/use-muted-users";
@@ -66,26 +67,16 @@ export function MutedUsersPage() {
         </span>
       </header>
       <div className="muted-toolbar">
-        <label className="muted-search">
-          <Search size={18} aria-hidden="true" />
-          <input
-            ref={searchRef}
-            value={search}
-            onChange={(event) => setSearch(event.target.value)}
-            placeholder={m.muted_manager_search()}
-            aria-label={m.muted_manager_search()}
-            maxLength={200}
-          />
-          {search && (
-            <button
-              type="button"
-              onClick={clearSearch}
-              aria-label={m.muted_manager_clear()}
-            >
-              <X size={16} />
-            </button>
-          )}
-        </label>
+        <SearchField
+          ref={searchRef}
+          className="muted-search"
+          value={search}
+          onValueChange={setSearch}
+          placeholder={m.muted_manager_search()}
+          aria-label={m.muted_manager_search()}
+          maxLength={200}
+          clearLabel={m.muted_manager_clear()}
+        />
         <div className="muted-sort">
           <span>{m.muted_manager_sort()}</span>
           <Select

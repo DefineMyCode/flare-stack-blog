@@ -1,6 +1,9 @@
 .settings-workspace {
   --settings-unit: clamp(1px, 0.07vw, 1.5px);
   --settings-rule: color-mix(in srgb, var(--fuwari-fg-50) 20%, transparent);
+  --fuwari-field-height: calc(42 * var(--settings-unit, 1px));
+  --fuwari-field-font-size: calc(14 * var(--settings-unit, 1px));
+  --fuwari-label-font-size: calc(13 * var(--settings-unit, 1px));
   display: flex;
   flex-direction: column;
   flex: 1;
@@ -95,7 +98,11 @@
 .settings-savebar p.settings-error {
   color: var(--fuwari-danger-fg);
 }
-.settings-workspace :is(button, a, input, summary):focus-visible {
+.settings-workspace
+  :is(button, a, summary):not(
+    .fuwari-input,
+    .fuwari-field-button
+  ):focus-visible {
   outline: 2px solid var(--fuwari-primary);
   outline-offset: 3px;
 }
@@ -146,14 +153,11 @@
   overflow-wrap: anywhere;
 }
 .notify-switch {
-  display: flex;
-  width: 100%;
-  align-items: center;
-  justify-content: space-between;
   gap: 20px;
   padding: 22px 0;
   border-bottom: 1px solid var(--settings-rule);
-  text-align: left;
+  border-radius: 0;
+  font-size: calc(14 * var(--settings-unit, 1px));
 }
 .settings-group-title {
   font-size: calc(17 * var(--settings-unit, 1px));
@@ -166,40 +170,8 @@
   gap: 20px;
   margin-bottom: 24px;
 }
-.settings-field {
-  display: grid;
-  align-content: start;
-  gap: 8px;
-  color: var(--fuwari-fg-75);
-  font-size: calc(13 * var(--settings-unit, 1px));
-}
-.settings-field input {
-  min-width: 0;
-  border: 1px solid var(--fuwari-input-border);
-  background: var(--fuwari-input-bg);
-  border-radius: 9px;
-  min-height: calc(40 * var(--settings-unit, 1px));
-  font-size: calc(14 * var(--settings-unit, 1px));
-}
 .settings-secret {
   min-width: 0;
-}
-.settings-secret-input {
-  position: relative;
-}
-.settings-secret-input input {
-  padding-right: 40px;
-}
-.settings-secret-input > button {
-  position: absolute;
-  right: 4px;
-  /* The input grows with --settings-unit; stay on its middle. */
-  top: 50%;
-  transform: translateY(-50%);
-  width: 32px;
-  height: 32px;
-  display: grid;
-  place-items: center;
 }
 .settings-secret-summary {
   display: flex;
@@ -394,54 +366,6 @@
 @media (prefers-reduced-motion: reduce) {
   .settings-disclosure-content,
   .settings-disclosure-trigger > svg {
-    transition: none;
-  }
-}
-
-/* Fuwari search-field treatment: soft fill, restrained borders, smooth focus. */
-input.settings-input,
-.settings-field input.settings-input {
-  min-height: calc(42 * var(--settings-unit, 1px));
-  border: 1px solid transparent;
-  border-radius: 12px;
-  background: color-mix(in srgb, var(--fuwari-fg-50) 8%, var(--fuwari-card-bg));
-  color: var(--fuwari-fg-90);
-  outline: none;
-  box-shadow: none;
-  transition:
-    background-color 240ms ease,
-    border-color 240ms ease,
-    box-shadow 240ms ease;
-}
-input.settings-input::placeholder {
-  color: var(--fuwari-fg-50);
-  opacity: 0.65;
-}
-input.settings-input:hover {
-  background: color-mix(
-    in srgb,
-    var(--fuwari-fg-50) 12%,
-    var(--fuwari-card-bg)
-  );
-}
-input.settings-input:focus,
-.settings-workspace input.settings-input:focus-visible {
-  outline: none;
-  border-color: color-mix(in srgb, var(--fuwari-primary) 45%, transparent);
-  background: color-mix(
-    in srgb,
-    var(--fuwari-primary) 7%,
-    var(--fuwari-card-bg)
-  );
-  box-shadow: 0 0 0 3px
-    color-mix(in srgb, var(--fuwari-primary) 10%, transparent);
-}
-input.settings-input:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-@media (prefers-reduced-motion: reduce) {
-  input.settings-input {
     transition: none;
   }
 }

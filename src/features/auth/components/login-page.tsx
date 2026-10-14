@@ -1,6 +1,8 @@
 import { Link } from "@tanstack/react-router";
 import { Check, Loader2 } from "lucide-react";
 import { type ReactNode } from "react";
+import { FormField } from "@/components/ui/form-field";
+import { Input } from "@/components/ui/input";
 import { PasswordInput } from "@/components/ui/password-input";
 import { GithubIcon } from "@/components/common/brand-icon";
 import type { useLoginForm } from "../hooks/use-login-form";
@@ -69,10 +71,12 @@ export function LoginPage({
             <span>{m.login_email_alternative()}</span>
           </div>
           <form className="auth-form" onSubmit={handleSubmit} noValidate>
-            <div className="auth-field">
-              <label htmlFor="auth-email">{m.login_email_address()}</label>
-              <input
-                id="auth-email"
+            <FormField
+              label={m.login_email_address()}
+              error={errors.email?.message}
+              required
+            >
+              <Input
                 {...register("email")}
                 type="email"
                 autoComplete="username"
@@ -80,41 +84,25 @@ export function LoginPage({
                 spellCheck={false}
                 placeholder={m.login_email_placeholder()}
                 disabled={busy}
-                aria-required="true"
-                aria-invalid={!!errors.email}
-                aria-describedby={errors.email ? "auth-email-error" : undefined}
               />
-              {errors.email && (
-                <p id="auth-email-error" className="auth-error">
-                  {errors.email.message}
-                </p>
-              )}
-            </div>
-            <div className="auth-field">
-              <div className="auth-password-label">
-                <label htmlFor="auth-password">{m.login_password()}</label>
-                <Link to="/forgot-password">
+            </FormField>
+            <FormField
+              label={m.login_password()}
+              error={errors.password?.message}
+              required
+              action={
+                <Link to="/forgot-password" className="auth-field-link">
                   {m.login_forgot_password_fuwari()}
                 </Link>
-              </div>
+              }
+            >
               <PasswordInput
-                id="auth-password"
                 {...register("password")}
                 autoComplete="current-password"
                 placeholder={m.login_password_placeholder()}
                 disabled={busy}
-                aria-required="true"
-                aria-invalid={!!errors.password}
-                aria-describedby={
-                  errors.password ? "auth-password-error" : undefined
-                }
               />
-              {errors.password && (
-                <p id="auth-password-error" className="auth-error">
-                  {errors.password.message}
-                </p>
-              )}
-            </div>
+            </FormField>
             {loginError && (
               <div className="auth-feedback" role="alert">
                 <p>{loginError.message}</p>

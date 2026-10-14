@@ -13,12 +13,16 @@ interface TagSelectorProps {
   value: Array<number>;
   onChange: (value: Array<number>) => void;
   disabled?: boolean;
+  id?: string;
+  "aria-describedby"?: string;
 }
 
 export function TagSelector({
   value = [],
   onChange,
   disabled,
+  id,
+  "aria-describedby": ariaDescribedBy,
 }: TagSelectorProps) {
   const [open, setOpen] = useState(false);
   const present = useMotionPresence(open && !disabled, MOTION.popover);
@@ -203,9 +207,8 @@ export function TagSelector({
           }
         }}
         className={cn(
-          "min-h-10 w-full rounded-xl bg-(--fuwari-btn-regular-bg) px-2 py-1.5 text-sm cursor-text",
-          (disabled || isInitialLoading) && "cursor-not-allowed opacity-50",
-          "flex flex-wrap items-center gap-1.5",
+          "fuwari-field-shell flex-wrap gap-1.5 py-1.5",
+          !disabled && !isInitialLoading && "cursor-text",
         )}
       >
         {/* Selected Tags */}
@@ -232,8 +235,10 @@ export function TagSelector({
         {/* Input */}
         <input
           ref={inputRef}
+          id={id}
+          aria-describedby={ariaDescribedBy}
           type="text"
-          className="h-6 min-w-20 flex-1 bg-transparent text-sm outline-none placeholder:fuwari-text-30"
+          className="h-6 min-w-20"
           placeholder={
             selectedTags.length === 0 ? m.tag_selector_search_placeholder() : ""
           }

@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
-import { ChevronRight, Loader2, Search, X } from "lucide-react";
+import { ChevronRight, Loader2, Search } from "lucide-react";
 import { useEffect, useRef } from "react";
+import { SearchField } from "@/components/ui/search-field";
 import { useContentMotion } from "@/hooks/use-motion";
 import { m } from "@/paraglide/messages";
 import "./search-page.css";
@@ -58,31 +59,20 @@ export function SearchPage({
           ? "error"
           : `${searchedQuery}:${results.map((result) => result.post.id).join(",")}`,
   );
-  const clear = () => {
-    onQueryChange("");
-    inputRef.current?.focus();
-  };
   return (
     <section className="public-search fuwari-card-base">
       <h1>{m.search_page_heading()}</h1>
-      <div role="search" className="public-search-field">
-        <Search size={20} strokeWidth={1.5} aria-hidden="true" />
-        <input
-          ref={inputRef}
-          type="search"
-          value={query}
-          aria-label={m.search_placeholder()}
-          placeholder={m.search_placeholder()}
-          onChange={(event) => onQueryChange(event.target.value)}
-          onCompositionStart={() => onCompositionChange(true)}
-          onCompositionEnd={() => onCompositionChange(false)}
-        />
-        {query && (
-          <button type="button" onClick={clear} aria-label={m.search_clear()}>
-            <X size={18} />
-          </button>
-        )}
-      </div>
+      <SearchField
+        ref={inputRef}
+        size="lg"
+        value={query}
+        aria-label={m.search_placeholder()}
+        placeholder={m.search_placeholder()}
+        onValueChange={onQueryChange}
+        onCompositionStart={() => onCompositionChange(true)}
+        onCompositionEnd={() => onCompositionChange(false)}
+        clearLabel={m.search_clear()}
+      />
       <p className="public-search-caption" role="status" aria-live="polite">
         {hasQuery ? (
           isSearching ? (

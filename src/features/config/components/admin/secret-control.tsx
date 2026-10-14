@@ -1,23 +1,25 @@
 import { SettingsDisclosure } from "./settings-disclosure";
-import { Eye, EyeOff } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useFormContext } from "react-hook-form";
 import ConfirmationModal from "@/components/ui/confirmation-modal";
+import { PasswordInput } from "@/components/ui/password-input";
 import type { ConfigFormValues } from "./config-editing";
-import { SETTINGS_FIELD_CLASS } from "./settings-pages";
 import { m } from "@/paraglide/messages";
 
 export function SecretControl({
   kind,
   stored,
-  label,
   canGenerate = false,
+  ...inputProps
 }: {
   kind: "email" | "webhook";
   stored: boolean;
-  label: string;
   /** Offers a random value, for a signing key the admin makes up. */
   canGenerate?: boolean;
+  id?: string;
+  "aria-invalid"?: boolean;
+  "aria-required"?: boolean;
+  "aria-describedby"?: string;
 }) {
   const { watch, setValue } = useFormContext<ConfigFormValues>();
   const name =
@@ -27,7 +29,6 @@ export function SecretControl({
   const value = watch(name) ?? "";
   const cleared = watch(clearName);
   const [editing, setEditing] = useState(false);
-  const [visible, setVisible] = useState(false);
   const [removing, setRemoving] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
@@ -35,10 +36,7 @@ export function SecretControl({
     if (editing) inputRef.current?.focus();
   }, [editing]);
   useEffect(() => {
-    if (!value && !cleared) {
-      setEditing(false);
-      setVisible(false);
-    }
+    if (!value && !cleared) setEditing(false);
   }, [value, cleared]);
   const showInput = !stored || editing || !!value;
   return (
@@ -46,30 +44,15 @@ export function SecretControl({
       {cleared ? (
         <p>{m.settings_design_secret_removed()}</p>
       ) : showInput ? (
-        <div className="settings-secret-input">
-          <input
-            ref={inputRef}
-            aria-label={label}
-            value={value}
-            autoComplete="new-password"
-            type={visible ? "text" : "password"}
-            onChange={(event) =>
-              setValue(name, event.target.value, { shouldDirty: true })
-            }
-            className={SETTINGS_FIELD_CLASS}
-          />
-          <button
-            type="button"
-            onClick={() => setVisible((current) => !current)}
-            aria-label={
-              visible
-                ? m.settings_design_hide_secret()
-                : m.settings_design_show_secret()
-            }
-          >
-            {visible ? <EyeOff size={16} /> : <Eye size={16} />}
-          </button>
-        </div>
+        <PasswordInput
+          {...inputProps}
+          ref={inputRef}
+          secret
+          value={value}
+          onChange={(event) =>
+            setValue(name, event.target.value, { shouldDirty: true })
+          }
+        />
       ) : (
         <div className="settings-secret-summary">
           <span>{m.settings_design_secret_configured()}</span>

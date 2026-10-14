@@ -4,17 +4,9 @@ import { SecretControl } from "./secret-control";
 import { useConfigEditing, type ConfigFormValues } from "./config-editing";
 import { Loader2, MessageCircle, Search, Send } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
-import {
-  useEffect,
-  useState,
-  useId,
-  Children,
-  isValidElement,
-  cloneElement,
-} from "react";
+import { useEffect, useState } from "react";
 import { useFormContext, useFormState, useWatch } from "react-hook-form";
 import { toast } from "sonner";
-import { SETTINGS_FIELD_CLASS } from "@/features/config/components/admin/settings-pages";
 import type { SystemConfig } from "@/features/config/config.schema";
 import type { AdminTestEmailConnectionInput } from "@/features/email/email.schema";
 import { useEmailConnection } from "@/features/email/hooks/use-email-connection";
@@ -32,7 +24,10 @@ import {
   type WebhookEndpoint,
   type WebhookProvider,
 } from "@/features/webhook/webhook.schema";
+import { FormField } from "@/components/ui/form-field";
+import { Input, Textarea } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
 import { cn } from "@/lib/utils";
 import { m } from "@/paraglide/messages";
 
@@ -170,19 +165,21 @@ function EmailChannel() {
           </span>
         </div>
 
-        <SwitchRow
+        <Switch
+          className="notify-switch"
           label={m.settings_email_scope_admin_label()}
           checked={adminOn}
-          onChange={(checked) =>
+          onCheckedChange={(checked) =>
             setValue("notification.admin.channels.email", checked, {
               shouldDirty: true,
             })
           }
         />
-        <SwitchRow
+        <Switch
+          className="notify-switch"
           label={m.settings_email_scope_user_label()}
           checked={userOn}
-          onChange={(checked) =>
+          onCheckedChange={(checked) =>
             setValue("notification.user.emailEnabled", checked, {
               shouldDirty: true,
             })
@@ -191,50 +188,45 @@ function EmailChannel() {
 
         <h3 className="settings-group-title">{m.settings_email_account()}</h3>
         <div className="settings-field-grid">
-          <Field label={m.settings_email_creds_host_label()}>
-            <input
+          <FormField label={m.settings_email_creds_host_label()}>
+            <Input
               {...register("email.host")}
               placeholder={m.settings_email_creds_host_ph()}
-              className={SETTINGS_FIELD_CLASS}
             />
-          </Field>
-          <Field label={m.settings_email_creds_port_label()}>
-            <input
+          </FormField>
+          <FormField label={m.settings_email_creds_port_label()}>
+            <Input
               type="number"
               {...register("email.port", { valueAsNumber: true })}
               placeholder={m.settings_email_creds_port_ph()}
-              className={SETTINGS_FIELD_CLASS}
             />
-          </Field>
-          <Field label={m.settings_email_creds_username_label()}>
-            <input
+          </FormField>
+          <FormField label={m.settings_email_creds_username_label()}>
+            <Input
               {...register("email.username")}
+              autoComplete="off"
               placeholder={m.settings_email_creds_username_ph()}
-              className={SETTINGS_FIELD_CLASS}
             />
-          </Field>
-          <Field label={m.settings_email_creds_password_label()}>
+          </FormField>
+          <FormField label={m.settings_email_creds_password_label()}>
             <SecretControl
               kind="email"
               stored={secrets.emailPasswordConfigured}
-              label={m.settings_email_creds_password_label()}
             />
-          </Field>
-          <Field label={m.settings_email_creds_sender_name_label()}>
-            <input
+          </FormField>
+          <FormField label={m.settings_email_creds_sender_name_label()}>
+            <Input
               {...register("email.senderName")}
               placeholder={m.settings_email_creds_sender_name_ph()}
-              className={SETTINGS_FIELD_CLASS}
             />
-          </Field>
-          <Field label={m.settings_email_creds_sender_addr_label()}>
-            <input
+          </FormField>
+          <FormField label={m.settings_email_creds_sender_addr_label()}>
+            <Input
               type="email"
               {...register("email.senderAddress")}
               placeholder={m.settings_email_creds_sender_addr_ph()}
-              className={SETTINGS_FIELD_CLASS}
             />
-          </Field>
+          </FormField>
         </div>
 
         <button
@@ -538,7 +530,27 @@ function WebhookChannel() {
       }
     >
       <div className="notify-webhook-content">
-        <Field label={m.settings_webhook_provider()}>
+        <FormField
+          label={m.settings_webhook_provider()}
+          hint={
+            <>
+              {copy.hint()}
+              {provider === "generic" || provider === "custom" ? (
+                <>
+                  {" "}
+                  <a
+                    href={WEBHOOK_DOCS_URL}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-(--fuwari-primary) hover:underline"
+                  >
+                    {m.settings_webhook_docs_link()}
+                  </a>
+                </>
+              ) : null}
+            </>
+          }
+        >
           <Select
             className="w-56 max-w-full"
             value={provider}
@@ -548,39 +560,20 @@ function WebhookChannel() {
               label: PROVIDER_COPY[value].label(),
             }))}
           />
-          <p className="text-xs fuwari-text-50 leading-relaxed">
-            {copy.hint()}
-            {provider === "generic" || provider === "custom" ? (
-              <>
-                {" "}
-                <a
-                  href={WEBHOOK_DOCS_URL}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="text-(--fuwari-primary) hover:underline"
-                >
-                  {m.settings_webhook_docs_link()}
-                </a>
-              </>
-            ) : null}
-          </p>
-        </Field>
+        </FormField>
 
         {provider === "telegram" ? (
           <>
-            <Field label={m.settings_webhook_field_bot_token()}>
-              <SecretControl
-                kind="webhook"
-                stored={stored}
-                label={m.settings_webhook_field_bot_token()}
-              />
-            </Field>
-            <Field label={m.settings_webhook_field_chat_id()}>
-              <input
-                {...register("notification.webhook.chatId")}
-                placeholder={m.settings_webhook_field_chat_id_ph()}
-                className={SETTINGS_FIELD_CLASS}
-              />
+            <FormField label={m.settings_webhook_field_bot_token()}>
+              <SecretControl kind="webhook" stored={stored} />
+            </FormField>
+            <div className="grid gap-2">
+              <FormField label={m.settings_webhook_field_chat_id()}>
+                <Input
+                  {...register("notification.webhook.chatId")}
+                  placeholder={m.settings_webhook_field_chat_id_ph()}
+                />
+              </FormField>
               <div className="flex flex-wrap items-center gap-2">
                 <button
                   type="button"
@@ -622,61 +615,51 @@ function WebhookChannel() {
                   {m.settings_webhook_chats_empty()}
                 </p>
               ) : null}
-            </Field>
+            </div>
           </>
         ) : (
-          <Field label={copy.urlLabel()}>
-            <input
+          <FormField label={copy.urlLabel()} error={fieldError?.url?.message}>
+            <Input
               {...register("notification.webhook.url")}
               placeholder={copy.urlPlaceholder}
-              className={SETTINGS_FIELD_CLASS}
             />
-            {fieldError?.url?.message ? (
-              <p className="text-xs text-(--fuwari-danger-fg)">
-                {fieldError.url.message}
-              </p>
-            ) : null}
-          </Field>
+          </FormField>
         )}
 
         {provider === "custom" ? (
-          <Field label={m.settings_webhook_field_template()}>
-            <textarea
+          <FormField
+            label={m.settings_webhook_field_template()}
+            hint={
+              <>
+                {m.settings_webhook_template_variables()}
+                {": "}
+                {WEBHOOK_TEMPLATE_VARIABLES.map((name) => (
+                  <code key={name} className="mx-1 font-mono">
+                    {`{{${name}}}`}
+                  </code>
+                ))}
+              </>
+            }
+          >
+            <Textarea
               {...register("notification.webhook.template")}
+              mono
               rows={6}
               spellCheck={false}
-              className={cn(
-                SETTINGS_FIELD_CLASS,
-                "h-auto py-2 font-mono text-xs leading-relaxed",
-              )}
             />
-            <p className="text-xs fuwari-text-50 leading-relaxed">
-              {m.settings_webhook_template_variables()}
-              {": "}
-              {WEBHOOK_TEMPLATE_VARIABLES.map((name) => (
-                <code key={name} className="mx-1 font-mono">
-                  {`{{${name}}}`}
-                </code>
-              ))}
-            </p>
-          </Field>
+          </FormField>
         ) : null}
 
         {provider === "generic" || provider === "custom" ? (
-          <Field
+          <FormField
             label={
               secretUse === "optional"
                 ? m.settings_webhook_field_secret_optional()
                 : m.settings_webhook_endpoint_field_secret()
             }
           >
-            <SecretControl
-              kind="webhook"
-              stored={stored}
-              label={m.settings_webhook_endpoint_field_secret()}
-              canGenerate
-            />
-          </Field>
+            <SecretControl kind="webhook" stored={stored} canGenerate />
+          </FormField>
         ) : null}
 
         <button
@@ -716,64 +699,5 @@ function WebhookChannel() {
         <p className="text-xs fuwari-text-50">{m.settings_webhook_empty()}</p>
       </div>
     </SettingsDisclosure>
-  );
-}
-
-function Field({
-  label,
-  children,
-}: {
-  label: string;
-  children: React.ReactNode;
-}) {
-  const id = useId();
-  const nodes = Children.toArray(children);
-  const hasInput = nodes.some(
-    (child) => isValidElement(child) && child.type === "input",
-  );
-  return (
-    <div className="settings-field">
-      {hasInput ? <label htmlFor={id}>{label}</label> : <span>{label}</span>}
-      {nodes.map((child) =>
-        isValidElement<{ id?: string }>(child) && child.type === "input"
-          ? cloneElement(child, { id })
-          : child,
-      )}
-    </div>
-  );
-}
-
-function SwitchRow({
-  label,
-  checked,
-  onChange,
-}: {
-  label: string;
-  checked: boolean;
-  onChange: (checked: boolean) => void;
-}) {
-  return (
-    <button
-      type="button"
-      role="switch"
-      aria-checked={checked}
-      onClick={() => onChange(!checked)}
-      className="notify-switch"
-    >
-      <span className="text-sm fuwari-text-90">{label}</span>
-      <span
-        className={cn(
-          "relative h-6 w-10 rounded-full shrink-0 transition-colors",
-          checked ? "bg-(--fuwari-primary)" : "bg-(--fuwari-btn-regular-bg)",
-        )}
-      >
-        <span
-          className={cn(
-            "absolute top-0.5 left-0.5 h-5 w-5 rounded-full bg-white shadow-sm transition-transform",
-            checked && "translate-x-4",
-          )}
-        />
-      </span>
-    </button>
   );
 }

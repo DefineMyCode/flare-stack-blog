@@ -2,6 +2,7 @@ import { ClientOnly } from "@tanstack/react-router";
 import { X } from "lucide-react";
 import { useRef } from "react";
 import { FuwariModal } from "@/components/ui/fuwari-modal";
+import { Input } from "@/components/ui/input";
 import { m } from "@/paraglide/messages";
 
 export function TaxonomyNameDialog({
@@ -61,7 +62,7 @@ export function TaxonomyNameDialog({
             if (!busy && name.trim()) onSave();
           }}
         >
-          <input
+          <Input
             ref={inputRef}
             aria-label={title}
             value={name}

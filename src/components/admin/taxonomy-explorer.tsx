@@ -1,5 +1,6 @@
-import { Loader2, Search, X } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { useState, type ReactNode } from "react";
+import { SearchField } from "@/components/ui/search-field";
 import { Select } from "@/components/ui/select";
 import { m } from "@/paraglide/messages";
 import type { TaxonomyState } from "./taxonomy-state";
@@ -79,24 +80,14 @@ export function TaxonomyExplorer({
         </button>
       </div>
       {tagMode ? (
-        <div className="taxonomy-search taxonomy-nav-search">
-          <Search size={15} />
-          <input
-            aria-label={m.tag_manager_search_placeholder()}
-            placeholder={m.tag_manager_search_placeholder()}
-            value={navSearch}
-            onChange={(event) => setNavSearch(event.target.value)}
-          />
-          {navSearch ? (
-            <button
-              type="button"
-              aria-label={m.tag_manager_clear_search()}
-              onClick={() => setNavSearch("")}
-            >
-              <X size={14} />
-            </button>
-          ) : null}
-        </div>
+        <SearchField
+          className="taxonomy-nav-search"
+          aria-label={m.tag_manager_search_placeholder()}
+          placeholder={m.tag_manager_search_placeholder()}
+          value={navSearch}
+          onValueChange={setNavSearch}
+          clearLabel={m.tag_manager_clear_search()}
+        />
       ) : null}
       <div className="taxonomy-nav-scroll custom-scrollbar">
         {pending ? (

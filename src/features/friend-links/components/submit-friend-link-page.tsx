@@ -9,9 +9,11 @@ import {
   RefreshCw,
   XCircle,
 } from "lucide-react";
-import { useRef, useState, type ReactNode } from "react";
+import { useRef, useState, type ComponentProps } from "react";
 import { Turnstile } from "@/components/common/turnstile";
 import DropdownMenu from "@/components/ui/dropdown-menu";
+import { FormField } from "@/components/ui/form-field";
+import { Input, Textarea } from "@/components/ui/input";
 import type { FriendLink } from "@/lib/db/schema";
 import { useContentMotion } from "@/hooks/use-motion";
 import { useFriendLinkSubmitForm } from "../hooks/use-friend-link-submit-form";
@@ -217,81 +219,55 @@ function ApplicationForm({
     >
       <fieldset disabled={form.isSubmitting}>
         <div className="friend-application-core">
-          <Field
-            name="siteName"
+          <FormField
             label={m.friend_link_field_site_name()}
             error={form.errors.siteName?.message}
             required
           >
-            <input
-              id="apply-siteName"
-              aria-required="true"
+            <Input
               {...form.register("siteName")}
               maxLength={100}
               autoComplete="organization"
-              aria-invalid={!!form.errors.siteName}
-              aria-describedby={
-                form.errors.siteName ? "apply-siteName-error" : undefined
-              }
               placeholder={m.friend_link_placeholder_site_name_fuwari()}
             />
-          </Field>
-          <Field
-            name="siteUrl"
+          </FormField>
+          <FormField
             label={m.friend_link_field_site_url_fuwari()}
             error={form.errors.siteUrl?.message}
             required
           >
-            <input
-              id="apply-siteUrl"
-              aria-required="true"
+            <Input
               {...form.register("siteUrl")}
               type="url"
               autoComplete="url"
-              aria-invalid={!!form.errors.siteUrl}
-              aria-describedby={
-                form.errors.siteUrl ? "apply-siteUrl-error" : undefined
-              }
               placeholder="https://example.com"
             />
-          </Field>
+          </FormField>
         </div>
-        <Field
-          name="description"
+        <FormField
           label={m.friend_link_field_description()}
           error={form.errors.description?.message}
+          optional={m.friend_apply_optional()}
         >
-          <textarea
-            id="apply-description"
+          <Textarea
             {...form.register("description")}
             rows={3}
             maxLength={300}
-            aria-invalid={!!form.errors.description}
-            aria-describedby={
-              form.errors.description ? "apply-description-error" : undefined
-            }
             placeholder={m.friend_link_placeholder_description_fuwari()}
           />
-        </Field>
-        <Field
-          name="logoUrl"
+        </FormField>
+        <FormField
           label={m.friend_link_field_logo_url()}
           error={form.errors.logoUrl?.message}
+          optional={m.friend_apply_optional()}
         >
-          <div className="friend-application-logo">
-            <input
-              id="apply-logoUrl"
-              {...form.register("logoUrl")}
-              type="url"
-              aria-invalid={!!form.errors.logoUrl}
-              aria-describedby={
-                form.errors.logoUrl ? "apply-logoUrl-error" : undefined
-              }
-              placeholder="https://example.com/avatar.png"
-            />
-            <SiteIcon src={form.logoUrl} />
-          </div>
-        </Field>
+          <LogoUrlInput
+            {...form.register("logoUrl")}
+            type="url"
+            placeholder="https://example.com/avatar.png"
+            preview={form.logoUrl}
+          />
+        </FormField>
       </fieldset>
       <div className="friend-application-verification">
         <Turnstile {...form.turnstileProps} />
@@ -329,35 +305,14 @@ function ApplicationForm({
     </form>
   );
 }
-function Field({
-  name,
-  label,
-  error,
-  required,
-  children,
-}: {
-  name: string;
-  label: string;
-  error?: string;
-  required?: boolean;
-  children: ReactNode;
-}) {
+function LogoUrlInput({
+  preview,
+  ...props
+}: ComponentProps<typeof Input> & { preview: string }) {
   return (
-    <div className="friend-application-field">
-      <label htmlFor={`apply-${name}`}>
-        {label}
-        {required ? (
-          <span aria-hidden="true"> *</span>
-        ) : (
-          <small>{m.friend_apply_optional()}</small>
-        )}
-      </label>
-      {children}
-      {error && (
-        <p id={`apply-${name}-error`} className="friend-application-error">
-          {error}
-        </p>
-      )}
+    <div className="friend-application-logo">
+      <Input {...props} />
+      <SiteIcon src={preview} />
     </div>
   );
 }

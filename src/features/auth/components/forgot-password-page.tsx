@@ -1,8 +1,10 @@
 import { Link } from "@tanstack/react-router";
 import { Loader2 } from "lucide-react";
 import type { ReactNode } from "react";
+import { FormField } from "@/components/ui/form-field";
+import { Input } from "@/components/ui/input";
 import type { useForgotPasswordForm } from "../hooks/use-forgot-password-form";
-import { AuthField, AuthHeading, AuthStatus } from "./auth-elements";
+import { AuthHeading, AuthStatus } from "./auth-elements";
 import { m } from "@/paraglide/messages";
 
 export function ForgotPasswordPage({
@@ -31,11 +33,12 @@ export function ForgotPasswordPage({
         description={m.forgot_password_header_desc()}
       />
       <form className="auth-form" onSubmit={form.handleSubmit} noValidate>
-        <AuthField
+        <FormField
           label={m.forgot_password_email_label()}
           error={form.errors.email?.message}
+          required
         >
-          <input
+          <Input
             {...form.register("email")}
             type="email"
             autoComplete="email"
@@ -44,7 +47,7 @@ export function ForgotPasswordPage({
             placeholder={m.login_email_placeholder()}
             disabled={form.isSubmitting}
           />
-        </AuthField>
+        </FormField>
         {form.submitError && (
           <p className="auth-feedback" role="alert">
             {form.submitError}

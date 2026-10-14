@@ -1,6 +1,8 @@
 .taxonomy-workspace {
   --taxonomy-unit: clamp(1px, 0.07vw, 1.5px);
   --admin-unit: var(--taxonomy-unit);
+  --fuwari-field-height: calc(42 * var(--taxonomy-unit));
+  --fuwari-field-font-size: calc(14 * var(--taxonomy-unit));
   --taxonomy-rule: color-mix(in srgb, var(--fuwari-fg-50) 20%, transparent);
   display: flex;
   flex-direction: column;
@@ -218,49 +220,8 @@
   margin-bottom: calc(22 * var(--taxonomy-unit));
   flex-shrink: 0;
 }
-.taxonomy-search {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  min-width: 0;
-  min-height: calc(42 * var(--taxonomy-unit));
-  padding: 0 calc(12 * var(--taxonomy-unit));
-  border: 1px solid var(--taxonomy-rule);
-  border-radius: 9px;
-  background: color-mix(
-    in srgb,
-    var(--fuwari-page-bg) 25%,
-    var(--fuwari-card-bg)
-  );
-  color: var(--fuwari-fg-50);
-}
 .taxonomy-post-controls > .taxonomy-search {
   width: min(100%, calc(340 * var(--taxonomy-unit)));
-}
-.taxonomy-search input {
-  width: 100%;
-  min-width: 0;
-  background: transparent;
-  outline: none;
-  font-size: calc(14 * var(--taxonomy-unit));
-  color: var(--fuwari-fg-75);
-}
-.taxonomy-search > svg {
-  flex-shrink: 0;
-}
-.taxonomy-search button {
-  display: grid;
-  place-items: center;
-  width: 26px;
-  height: 32px;
-  flex-shrink: 0;
-}
-.taxonomy-search:focus-within {
-  border-color: var(--fuwari-primary);
-  box-shadow: 0 0 0 2px var(--fuwari-btn-regular-bg);
-}
-.taxonomy-search input::-webkit-search-cancel-button {
-  appearance: none;
 }
 .taxonomy-nav-search {
   flex-shrink: 0;
@@ -352,12 +313,9 @@
   min-height: 120px;
   color: var(--fuwari-fg-50);
 }
-.taxonomy-workspace :is(button, a, input):focus-visible {
+.taxonomy-workspace :is(button:not(.fuwari-field-button), a):focus-visible {
   outline: 2px solid var(--fuwari-primary);
   outline-offset: 3px;
-}
-.taxonomy-search input:focus-visible {
-  outline: none;
 }
 .taxonomy-workspace button:disabled {
   opacity: 0.45;
@@ -481,19 +439,8 @@
   color: var(--fuwari-fg-50);
   font-size: 14px;
 }
-.taxonomy-name-dialog input {
-  width: 100%;
-  min-height: 44px;
+.taxonomy-name-dialog form {
   margin-top: 20px;
-  padding: 10px 12px;
-  border-radius: 10px;
-  background: var(--fuwari-input-bg);
-  border: 1px solid var(--fuwari-input-border);
-  font-size: 15px;
-  outline: none;
-}
-.taxonomy-name-dialog input:focus {
-  border-color: var(--fuwari-primary);
 }
 .taxonomy-name-dialog footer {
   display: flex;

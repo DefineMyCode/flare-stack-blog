@@ -1,6 +1,6 @@
 import type { Ref } from "react";
-import { Search, X } from "lucide-react";
 import DropdownMenu from "@/components/ui/dropdown-menu";
+import { SearchField } from "@/components/ui/search-field";
 import type { AdminPostStatusCounts } from "@/features/posts/schema/posts.schema";
 import { m } from "@/paraglide/messages";
 import type { SortField, StatusFilter } from "../types";
@@ -60,28 +60,15 @@ export function PostsToolbar({
         ))}
       </div>
       <div className="post-list-controls">
-        <div className="post-list-search">
-          <Search size={18} aria-hidden="true" />
-          <input
-            ref={searchRef}
-            type="search"
-            aria-label={m.admin_posts_search_placeholder()}
-            placeholder={m.admin_posts_search_placeholder()}
-            value={searchTerm}
-            onChange={(event) => onSearchChange(event.target.value)}
-          />
-          {searchTerm && (
-            <button
-              type="button"
-              aria-label={m.admin_posts_clear_search()}
-              onClick={() => {
-                onSearchChange("");
-              }}
-            >
-              <X size={16} />
-            </button>
-          )}
-        </div>
+        <SearchField
+          ref={searchRef}
+          className="post-list-search"
+          aria-label={m.admin_posts_search_placeholder()}
+          placeholder={m.admin_posts_search_placeholder()}
+          value={searchTerm}
+          onValueChange={onSearchChange}
+          clearLabel={m.admin_posts_clear_search()}
+        />
         <div className="post-list-sort">
           <span>{m.admin_posts_sort_label()}</span>
           <DropdownMenu

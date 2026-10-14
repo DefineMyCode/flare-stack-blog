@@ -1,9 +1,11 @@
 import { Link } from "@tanstack/react-router";
 import { Loader2 } from "lucide-react";
 import type { ReactNode } from "react";
+import { FormField } from "@/components/ui/form-field";
+import { Input } from "@/components/ui/input";
 import { PasswordInput } from "@/components/ui/password-input";
 import type { useRegisterForm } from "../hooks/use-register-form";
-import { AuthField, AuthHeading, AuthStatus } from "./auth-elements";
+import { AuthHeading, AuthStatus } from "./auth-elements";
 import { m } from "@/paraglide/messages";
 
 export function RegisterPage({
@@ -34,22 +36,24 @@ export function RegisterPage({
       />
       <form className="auth-form" onSubmit={form.handleSubmit} noValidate>
         <fieldset disabled={form.isSubmitting}>
-          <AuthField
+          <FormField
             label={m.register_nickname()}
             error={form.errors.name?.message}
+            required
           >
-            <input
+            <Input
               {...form.register("name")}
               autoComplete="nickname"
               maxLength={20}
               placeholder={m.register_nickname_placeholder()}
             />
-          </AuthField>
-          <AuthField
+          </FormField>
+          <FormField
             label={m.login_email_address()}
             error={form.errors.email?.message}
+            required
           >
-            <input
+            <Input
               {...form.register("email")}
               type="email"
               autoComplete="username"
@@ -57,10 +61,11 @@ export function RegisterPage({
               spellCheck={false}
               placeholder={m.login_email_placeholder()}
             />
-          </AuthField>
-          <AuthField
+          </FormField>
+          <FormField
             label={m.register_password()}
             error={form.errors.password?.message}
+            required
           >
             <PasswordInput
               {...form.register("password")}
@@ -68,10 +73,11 @@ export function RegisterPage({
               placeholder={m.login_password_placeholder()}
               disabled={form.isSubmitting}
             />
-          </AuthField>
-          <AuthField
+          </FormField>
+          <FormField
             label={m.register_confirm_password()}
             error={form.errors.confirmPassword?.message}
+            required
           >
             <PasswordInput
               {...form.register("confirmPassword")}
@@ -79,7 +85,7 @@ export function RegisterPage({
               placeholder={m.login_password_placeholder()}
               disabled={form.isSubmitting}
             />
-          </AuthField>
+          </FormField>
         </fieldset>
         {form.submitError && (
           <p className="auth-feedback" role="alert">

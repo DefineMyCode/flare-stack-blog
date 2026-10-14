@@ -77,61 +77,17 @@
   gap: 20px;
   min-width: 0;
 }
-.account-field {
-  display: grid;
-  gap: 8px;
-  min-width: 0;
-}
-.account-field label,
 .account-email > span {
   font-size: 14px;
   color: var(--fuwari-fg-75);
   font-weight: 500;
 }
-.account-page .account-field input {
-  width: 100%;
-  min-width: 0;
-  min-height: 44px;
-  padding: 12px 16px;
-  font-size: 15px;
-  color: var(--fuwari-fg);
-  background: color-mix(
-    in srgb,
-    var(--fuwari-fg-50) 10%,
-    var(--fuwari-card-bg)
-  );
-  border: 1px solid transparent;
-  border-radius: 12px;
-  outline: none;
-  box-shadow: none;
-  transition:
-    background-color 180ms,
-    border-color 180ms,
-    box-shadow 180ms;
-}
-.account-page .account-field input:hover {
-  background: color-mix(
-    in srgb,
-    var(--fuwari-fg-50) 15%,
-    var(--fuwari-card-bg)
-  );
-}
-.account-page .account-field input:focus {
-  background: var(--fuwari-btn-regular-bg);
-  border-color: color-mix(in srgb, var(--fuwari-primary) 55%, transparent);
-  box-shadow: 0 0 0 3px
-    color-mix(in srgb, var(--fuwari-primary) 12%, transparent);
-}
 .account-field-action {
-  justify-self: start;
   font-size: 13px;
   color: var(--fuwari-primary);
 }
 .account-field-action:hover {
   text-decoration: underline;
-}
-.account-field input::placeholder {
-  color: var(--fuwari-fg-30);
 }
 .account-email p {
   font-size: 14px;
@@ -160,12 +116,12 @@
 .account-feedback[data-error="true"] {
   color: var(--fuwari-danger-fg);
 }
-.account-page button:disabled {
+.account-page button:not(.fuwari-switch):disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
 .account-page a:focus-visible,
-.account-page button:focus-visible {
+.account-page button:not(.fuwari-field-button, .fuwari-switch):focus-visible {
   outline: 2px solid var(--fuwari-primary);
   outline-offset: 3px;
 }
@@ -204,40 +160,6 @@
 }
 .account-chevron-open {
   transform: rotate(180deg);
-}
-.account-switch {
-  position: relative;
-  width: 48px;
-  height: 44px;
-  flex-shrink: 0;
-  border-radius: 12px;
-}
-.account-switch::before {
-  content: "";
-  position: absolute;
-  inset: 8px 0;
-  border-radius: 20px;
-  background: var(--fuwari-input-bg);
-  transition: background-color 200ms;
-}
-.account-switch[aria-checked="true"]::before {
-  background: var(--fuwari-primary);
-}
-.account-switch > span {
-  position: absolute;
-  left: 3px;
-  top: 11px;
-  width: 22px;
-  height: 22px;
-  border-radius: 50%;
-  display: grid;
-  place-items: center;
-  background: white;
-  color: var(--fuwari-primary);
-  transition: transform 250ms var(--fuwari-motion-ease);
-}
-.account-switch[aria-checked="true"] > span {
-  transform: translateX(20px);
 }
 .account-password-disclosure {
   display: grid;
@@ -312,9 +234,6 @@
     width: 88px;
     height: 88px;
   }
-  .account-page .account-field input {
-    font-size: 16px;
-  }
   .account-setting-row {
     padding: 22px 0;
     gap: 16px;
@@ -330,10 +249,7 @@
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  .account-page .account-field input,
   .account-text-button svg,
-  .account-switch::before,
-  .account-switch > span,
   .account-password-disclosure {
     transition: none;
   }

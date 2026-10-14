@@ -1,8 +1,10 @@
 import { standardSchemaResolver } from "@hookform/resolvers/standard-schema";
 import { ClientOnly } from "@tanstack/react-router";
 import { Loader2 } from "lucide-react";
-import { useEffect, type InputHTMLAttributes } from "react";
+import { useEffect } from "react";
+import { FormField } from "@/components/ui/form-field";
 import { FuwariModal } from "@/components/ui/fuwari-modal";
+import { Input } from "@/components/ui/input";
 import { useForm } from "react-hook-form";
 import type {
   CreateFriendLinkInput,
@@ -90,30 +92,44 @@ function FriendLinkFormDialogInternal({
             }),
           )}
         >
-          <Field
+          <FormField
             label={m.friend_links_field_name()}
             error={errors.siteName?.message}
-            inputProps={register("siteName")}
-            placeholder={m.friend_links_form_site_name_ph()}
-          />
-          <Field
+            required
+          >
+            <Input
+              {...register("siteName")}
+              placeholder={m.friend_links_form_site_name_ph()}
+            />
+          </FormField>
+          <FormField
             label={m.friend_links_field_url()}
             error={errors.siteUrl?.message}
-            inputProps={register("siteUrl")}
-            placeholder={m.friend_links_form_site_url_ph()}
-          />
-          <Field
+            required
+          >
+            <Input
+              {...register("siteUrl")}
+              placeholder={m.friend_links_form_site_url_ph()}
+            />
+          </FormField>
+          <FormField
             label={m.friend_links_field_desc()}
             error={errors.description?.message}
-            inputProps={register("description")}
-            placeholder={m.friend_links_form_desc_ph()}
-          />
-          <Field
+          >
+            <Input
+              {...register("description")}
+              placeholder={m.friend_links_form_desc_ph()}
+            />
+          </FormField>
+          <FormField
             label={m.friend_links_field_logo()}
             error={errors.logoUrl?.message}
-            inputProps={register("logoUrl")}
-            placeholder={m.friend_links_form_logo_ph()}
-          />
+          >
+            <Input
+              {...register("logoUrl")}
+              placeholder={m.friend_links_form_logo_ph()}
+            />
+          </FormField>
           <div className="flex justify-end gap-2 pt-2">
             <button
               type="button"
@@ -145,31 +161,5 @@ export function FriendLinkFormDialog(props: FriendLinkFormDialogProps) {
     <ClientOnly>
       <FriendLinkFormDialogInternal {...props} />
     </ClientOnly>
-  );
-}
-
-function Field({
-  label,
-  error,
-  placeholder,
-  inputProps,
-}: {
-  label: string;
-  error?: string;
-  placeholder?: string;
-  inputProps: InputHTMLAttributes<HTMLInputElement>;
-}) {
-  return (
-    <label className="grid gap-1.5 text-sm fuwari-text-50">
-      {label}
-      <input
-        {...inputProps}
-        placeholder={placeholder}
-        className="h-10 px-3 rounded-xl bg-(--fuwari-btn-regular-bg) text-sm fuwari-text-90 outline-none"
-      />
-      {error ? (
-        <span className="text-xs text-(--fuwari-danger-fg)">{error}</span>
-      ) : null}
-    </label>
   );
 }

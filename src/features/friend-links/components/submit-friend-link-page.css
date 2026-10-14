@@ -52,71 +52,6 @@
   grid-template-columns: 1fr 1fr;
   gap: 20px;
 }
-.friend-application-field {
-  display: grid;
-  align-content: start;
-  gap: 8px;
-  min-width: 0;
-}
-.friend-application-field label {
-  font-size: 14px;
-  font-weight: 500;
-  color: var(--fuwari-fg-75);
-}
-.friend-application-field label > span {
-  color: var(--fuwari-danger-fg);
-}
-.friend-application-field label small {
-  font-size: 12px;
-  font-weight: 400;
-  margin-left: 8px;
-  color: var(--fuwari-fg-50);
-}
-.friend-application .friend-application-field input,
-.friend-application .friend-application-field textarea {
-  width: 100%;
-  min-width: 0;
-  min-height: 44px;
-  border-radius: 12px;
-  padding: 12px 16px;
-  border: 1px solid transparent;
-  background: color-mix(
-    in srgb,
-    var(--fuwari-fg-50) 10%,
-    var(--fuwari-card-bg)
-  );
-  color: var(--fuwari-fg);
-  font: inherit;
-  font-size: 15px;
-  outline: none;
-  box-shadow: none;
-  transition:
-    background-color 180ms,
-    border-color 180ms,
-    box-shadow 180ms;
-}
-.friend-application .friend-application-field input:hover,
-.friend-application .friend-application-field textarea:hover {
-  background: color-mix(
-    in srgb,
-    var(--fuwari-fg-50) 15%,
-    var(--fuwari-card-bg)
-  );
-}
-.friend-application .friend-application-field input:focus,
-.friend-application .friend-application-field textarea:focus {
-  background: var(--fuwari-btn-regular-bg);
-  border-color: color-mix(in srgb, var(--fuwari-primary) 55%, transparent);
-  box-shadow: 0 0 0 3px
-    color-mix(in srgb, var(--fuwari-primary) 12%, transparent);
-}
-.friend-application-field textarea {
-  resize: vertical;
-}
-.friend-application-field input::placeholder,
-.friend-application-field textarea::placeholder {
-  color: var(--fuwari-fg-30);
-}
 .friend-application-logo {
   display: flex;
   gap: 16px;
@@ -293,15 +228,5 @@
   .friend-application-core {
     grid-template-columns: minmax(0, 1fr);
     gap: 20px;
-  }
-  .friend-application .friend-application-field input,
-  .friend-application .friend-application-field textarea {
-    font-size: 16px;
-  }
-}
-@media (prefers-reduced-motion: reduce) {
-  .friend-application .friend-application-field input,
-  .friend-application .friend-application-field textarea {
-    transition: none;
   }
 }

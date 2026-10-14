@@ -7,6 +7,8 @@
   min-height: 0;
   overflow: hidden;
   color: var(--fuwari-fg-90);
+  --fuwari-field-height: calc(44 * var(--friend-unit));
+  --fuwari-field-font-size: calc(14 * var(--friend-unit));
 }
 .friend-header {
   display: flex;
@@ -66,34 +68,8 @@
   border-right: 1px solid var(--fuwari-input-border);
 }
 .friend-search {
-  display: flex;
-  gap: 10px;
-  align-items: center;
+  width: auto;
   margin: calc(20 * var(--friend-unit));
-  padding: 12px;
-  border: 1px solid var(--fuwari-input-border);
-  border-radius: 10px;
-  color: var(--fuwari-fg-50);
-  background: var(--fuwari-input-bg);
-}
-.friend-search:focus-within {
-  border-color: var(--fuwari-primary);
-  box-shadow: 0 0 0 3px
-    color-mix(in srgb, var(--fuwari-primary) 15%, transparent);
-}
-.friend-search input {
-  width: 100%;
-  min-width: 0;
-  background: transparent;
-  border: 0;
-  outline: none;
-  box-shadow: none;
-  font-size: calc(13 * var(--friend-unit));
-  color: var(--fuwari-fg-90);
-}
-.friend-search input:focus {
-  outline: none;
-  box-shadow: none;
 }
 .friend-queue-scroll,
 .friend-detail-scroll {

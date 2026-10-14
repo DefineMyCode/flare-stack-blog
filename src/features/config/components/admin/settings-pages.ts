@@ -22,9 +22,6 @@ export const LEGACY_SETTINGS_TAB_TO = {
   maintenance: SETTINGS_PAGE_TO.maintenance,
 } as const;
 
-export const SETTINGS_FIELD_CLASS =
-  "settings-input h-10 w-full px-3 rounded-xl text-sm fuwari-text-90 outline-none";
-
 export function settingsSectionFromPath(
   pathname: string,
 ): SettingsPageId | null {

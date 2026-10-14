@@ -1112,8 +1112,6 @@
   "settings_design_remove_secret": "Remove saved credential",
   "settings_design_remove_email_hint": "Saving notification settings will remove the email password and disable email delivery. You do not need to remove it before replacing it.",
   "settings_design_remove_webhook_hint": "The endpoint URL will be cleared and its secret marked for removal. Saving notification settings will disable Webhook delivery.",
-  "settings_design_hide_secret": "Hide new credential",
-  "settings_design_show_secret": "Show new credential",
   "settings_design_keys_hint": "Create credentials for scripts and external tools.",
   "settings_design_key_prefix": "Key prefix",
   "settings_design_created_at": "Created",

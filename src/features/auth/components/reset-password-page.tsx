@@ -1,8 +1,9 @@
 import { Link } from "@tanstack/react-router";
 import { Loader2 } from "lucide-react";
+import { FormField } from "@/components/ui/form-field";
 import { PasswordInput } from "@/components/ui/password-input";
 import type { useResetPasswordForm } from "../hooks/use-reset-password-form";
-import { AuthField, AuthHeading, AuthStatus } from "./auth-elements";
+import { AuthHeading, AuthStatus } from "./auth-elements";
 import { m } from "@/paraglide/messages";
 
 export function ResetPasswordPage({
@@ -56,9 +57,10 @@ export function ResetPasswordPage({
         description={m.reset_password_header_desc()}
       />
       <form className="auth-form" onSubmit={form.handleSubmit} noValidate>
-        <AuthField
+        <FormField
           label={m.reset_password_new_password()}
           error={form.errors.password?.message}
+          required
         >
           <PasswordInput
             {...form.register("password")}
@@ -66,10 +68,11 @@ export function ResetPasswordPage({
             placeholder={m.login_password_placeholder()}
             disabled={form.isSubmitting}
           />
-        </AuthField>
-        <AuthField
+        </FormField>
+        <FormField
           label={m.reset_password_confirm_new_password()}
           error={form.errors.confirmPassword?.message}
+          required
         >
           <PasswordInput
             {...form.register("confirmPassword")}
@@ -77,7 +80,7 @@ export function ResetPasswordPage({
             placeholder={m.login_password_placeholder()}
             disabled={form.isSubmitting}
           />
-        </AuthField>
+        </FormField>
         {form.submitError && (
           <div className="auth-feedback" role="alert">
             <p>{form.submitError}</p>

@@ -1,7 +1,9 @@
 import { ClientOnly } from "@tanstack/react-router";
 import { Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
+import { FormField } from "@/components/ui/form-field";
 import { FuwariModal } from "@/components/ui/fuwari-modal";
+import { Textarea } from "@/components/ui/input";
 import type { FriendLinkWithUser } from "@/features/friend-links/friend-links.schema";
 import { m } from "@/paraglide/messages";
 
@@ -48,17 +50,16 @@ function FriendLinkRejectDialogInternal({
             ? m.friend_links_remove_hint()
             : m.friend_links_reject_hint()}
         </p>
-        <label className="mt-4 grid gap-1.5 text-sm fuwari-text-50">
-          {m.friend_links_reject_reason()}
-          <textarea
+        <FormField label={m.friend_links_reject_reason()} className="mt-4">
+          <Textarea
             value={reason}
             onChange={(event) => setReason(event.target.value)}
             rows={3}
             maxLength={500}
             placeholder={m.friend_links_reject_reason_ph()}
-            className="px-3 py-2 rounded-xl bg-(--fuwari-btn-regular-bg) text-sm fuwari-text-90 outline-none resize-none"
+            className="resize-none"
           />
-        </label>
+        </FormField>
         <div className="mt-5 flex justify-end gap-2">
           <button
             type="button"

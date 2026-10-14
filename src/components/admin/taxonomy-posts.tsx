@@ -1,8 +1,9 @@
 import { useQuery, type UseQueryResult } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
-import { BookOpen, Hash, Loader2, Search, X } from "lucide-react";
+import { BookOpen, Hash, Loader2 } from "lucide-react";
 import { useEffect, useRef, type ReactNode, type RefObject } from "react";
 import DropdownMenu from "@/components/ui/dropdown-menu";
+import { SearchField } from "@/components/ui/search-field";
 import { PostRow } from "@/features/posts/components/post-manager/components/post-row";
 import { PostManagerSkeleton } from "@/features/posts/components/post-manager/post-manager-skeleton";
 import type {
@@ -208,27 +209,17 @@ function TaxonomyPostControls({
           : m.taxonomy_scope_public_hint()}
       </p>
       <div className="taxonomy-post-controls">
-        <div className="taxonomy-search">
-          <Search size={17} />
-          <input
-            ref={searchRef}
-            type="search"
-            aria-label={m.taxonomy_posts_search()}
-            placeholder={m.taxonomy_posts_search()}
-            value={search.value}
-            disabled={!selected}
-            onChange={(event) => search.update(event.target.value)}
-          />
-          {search.value ? (
-            <button
-              type="button"
-              aria-label={m.admin_posts_clear_search()}
-              onClick={() => search.changeContext({})}
-            >
-              <X size={15} />
-            </button>
-          ) : null}
-        </div>
+        <SearchField
+          ref={searchRef}
+          className="taxonomy-search"
+          aria-label={m.taxonomy_posts_search()}
+          placeholder={m.taxonomy_posts_search()}
+          value={search.value}
+          disabled={!selected}
+          onValueChange={search.update}
+          clearLabel={m.admin_posts_clear_search()}
+          onClear={() => search.changeContext({})}
+        />
         <div className="taxonomy-sort">
           <span>{m.admin_posts_sort_label()}</span>
           <DropdownMenu

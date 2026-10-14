@@ -1,5 +1,7 @@
 .muted-workspace {
   --muted-unit: clamp(1px, 0.07vw, 1.5px);
+  --fuwari-field-height: calc(42 * var(--muted-unit));
+  --fuwari-field-font-size: calc(14 * var(--muted-unit));
   --muted-rule: color-mix(in srgb, var(--fuwari-fg-50) 20%, transparent);
   display: flex;
   flex-direction: column;
@@ -50,40 +52,7 @@
   flex-shrink: 0;
 }
 .muted-search {
-  display: flex;
-  align-items: center;
-  gap: 10px;
   width: min(100%, calc(360 * var(--muted-unit)));
-  padding: 10px 12px;
-  min-height: calc(42 * var(--muted-unit));
-  border: 1px solid var(--fuwari-input-border);
-  background: var(--fuwari-input-bg);
-  border-radius: 10px;
-  color: var(--fuwari-fg-50);
-}
-.muted-search:focus-within {
-  border-color: var(--fuwari-primary);
-  box-shadow: 0 0 0 3px
-    color-mix(in srgb, var(--fuwari-primary) 15%, transparent);
-}
-.muted-search input,
-.muted-search input:focus {
-  flex: 1;
-  width: 100%;
-  min-width: 0;
-  outline: none;
-  border: 0;
-  box-shadow: none;
-  background: transparent;
-  color: var(--fuwari-fg-90);
-  font-size: calc(14 * var(--muted-unit));
-}
-.muted-search button {
-  display: grid;
-  place-items: center;
-  width: 24px;
-  height: 24px;
-  border-radius: 6px;
 }
 .muted-sort {
   display: flex;
@@ -196,7 +165,7 @@
   font-size: calc(12 * var(--muted-unit));
   color: var(--fuwari-fg-50);
 }
-.muted-workspace button:focus-visible {
+.muted-workspace button:not(.fuwari-field-button):focus-visible {
   outline: 2px solid var(--fuwari-primary);
   outline-offset: 3px;
 }

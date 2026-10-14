@@ -12,9 +12,9 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { useFieldArray, useFormContext, useWatch } from "react-hook-form";
+import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { OverlayUpload } from "@/features/config/components/admin/overlay-upload";
-import { SETTINGS_FIELD_CLASS } from "@/features/config/components/admin/settings-pages";
 import type { SystemConfig } from "@/features/config/config.schema";
 import {
   FUWARI_THEME_HUE_MAX,
@@ -280,14 +280,13 @@ function NavLinksEditor() {
                 >
                   <GripVertical size={18} />
                 </button>
-                <input
+                <Input
                   {...register(`site.navLinks.${index}.label`)}
                   placeholder={m.settings_site_nav_label_ph()}
                   aria-label={m.settings_site_nav_name()}
-                  className={SETTINGS_FIELD_CLASS}
                 />
                 <div className="relative min-w-0 flex-1">
-                  <input
+                  <Input
                     {...register(`site.navLinks.${index}.href`, {
                       onBlur: (event) => {
                         const next = canonicalizeNavHref(event.target.value);
@@ -301,10 +300,7 @@ function NavLinksEditor() {
                     })}
                     aria-label={m.settings_site_nav_url()}
                     placeholder={m.settings_site_nav_href_ph()}
-                    className={cn(
-                      SETTINGS_FIELD_CLASS,
-                      isExternalNavHref(canonicalHref) && "pr-10",
-                    )}
+                    className={cn(isExternalNavHref(canonicalHref) && "pr-10")}
                   />
                   {isExternalNavHref(canonicalHref) ? (
                     <ExternalLink
@@ -442,10 +438,9 @@ function SocialPills() {
                       disabled: taken(key, selected),
                     }))}
                   />
-                  <input
+                  <Input
                     {...register(`site.social.${selected}.url`)}
                     placeholder={urlPlaceholder}
-                    className={SETTINGS_FIELD_CLASS}
                   />
                   <button
                     type="button"
@@ -461,10 +456,10 @@ function SocialPills() {
                 </div>
                 {platform === "custom" ? (
                   <div className="flex gap-2">
-                    <input
+                    <Input
                       {...register(`site.social.${selected}.label`)}
                       placeholder={m.settings_social_label_ph()}
-                      className={cn(SETTINGS_FIELD_CLASS, "w-36 shrink-0")}
+                      className="w-36 shrink-0"
                     />
                     <OverlayUpload
                       name={`site.social.${selected}.icon`}

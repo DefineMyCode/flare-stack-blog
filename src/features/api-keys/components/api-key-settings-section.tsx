@@ -3,8 +3,9 @@ import { Copy, KeyRound, Loader2, Plus } from "lucide-react";
 import { useRef, useState } from "react";
 import { toast } from "sonner";
 import ConfirmationModal from "@/components/ui/confirmation-modal";
+import { FormField } from "@/components/ui/form-field";
 import { FuwariModal } from "@/components/ui/fuwari-modal";
-import { SETTINGS_FIELD_CLASS } from "@/features/config/components/admin/settings-pages";
+import { Input } from "@/components/ui/input";
 import { useApiKeys } from "@/features/api-keys/hooks/use-api-keys";
 import { formatDate } from "@/lib/utils";
 import { m } from "@/paraglide/messages";
@@ -205,18 +206,16 @@ export function ApiKeySettingsSection() {
                   void create();
                 }}
               >
-                <label className="grid gap-2 text-sm fuwari-text-75">
-                  {m.settings_api_keys_name_label()}
-                  <input
+                <FormField label={m.settings_api_keys_name_label()}>
+                  <Input
                     ref={inputRef}
                     value={name}
                     disabled={isCreating}
                     maxLength={32}
                     onChange={(event) => setName(event.target.value)}
                     placeholder={m.settings_api_keys_name_ph()}
-                    className={SETTINGS_FIELD_CLASS}
                   />
-                </label>
+                </FormField>
                 <div className="flex justify-end gap-2">
                   <button
                     type="button"

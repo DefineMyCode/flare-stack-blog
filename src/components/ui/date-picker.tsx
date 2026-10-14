@@ -8,6 +8,7 @@ import { useEffect, useRef, useState } from "react";
 import { MOTION, useMotionPresence } from "@/hooks/use-motion";
 import { m } from "@/paraglide/messages";
 import { getLocale } from "@/paraglide/runtime";
+import "./field.css";
 
 interface DatePickerProps {
   /** UTC calendar dates in YYYY-MM-DD format. */
@@ -16,9 +17,11 @@ interface DatePickerProps {
   today?: string;
   maxDate?: string;
   className?: string;
+  id?: string;
 }
 
 const DatePicker: React.FC<DatePickerProps> = ({
+  id,
   value,
   onChange,
   today,
@@ -155,13 +158,14 @@ const DatePicker: React.FC<DatePickerProps> = ({
       }}
     >
       <button
+        id={id}
         type="button"
         aria-expanded={isOpen}
         onClick={() => {
           if (!isOpen) setViewDate(new Date(`${activeDate}T00:00:00Z`));
           setIsOpen(!isOpen);
         }}
-        className="relative h-10 w-full cursor-pointer rounded-xl bg-(--fuwari-btn-regular-bg) pl-9 pr-3 text-left text-sm fuwari-text-90"
+        className="fuwari-input relative cursor-pointer pl-9 text-left"
       >
         <CalendarIcon
           className="absolute left-3 top-1/2 -translate-y-1/2 fuwari-text-50"

@@ -1105,8 +1105,6 @@
   "settings_design_remove_secret": "移除已保存的凭据",
   "settings_design_remove_email_hint": "保存通知设置后将移除邮件密码，邮件发送将不可用。替换密码无需先移除。",
   "settings_design_remove_webhook_hint": "将清空端点地址并标记移除密钥，保存通知设置后 Webhook 停用。",
-  "settings_design_hide_secret": "隐藏新凭据",
-  "settings_design_show_secret": "显示新凭据",
   "settings_design_keys_hint": "为脚本和外部工具创建访问凭据。",
   "settings_design_key_prefix": "密钥前缀",
   "settings_design_created_at": "创建时间",
