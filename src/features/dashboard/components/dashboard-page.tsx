@@ -62,6 +62,7 @@ export function DashboardPage() {
   return (
     <div className="dashboard-workspace admin-workspace fuwari-card-base">
       <PageHeader
+        className="dashboard-header"
         title={m.admin_overview_title()}
         description={m.dashboard_intro()}
         actions={

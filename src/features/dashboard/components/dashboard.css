@@ -368,7 +368,8 @@
 
 /* One column: what needs a reply comes first. */
 @media (max-width: 1023px) {
-  .dashboard-header-action {
+  .dashboard-header-action,
+  .dashboard-header h1 {
     display: none;
   }
   .dashboard-stats {
