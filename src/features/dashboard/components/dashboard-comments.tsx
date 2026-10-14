@@ -101,7 +101,7 @@ export function DashboardComments({
   return (
     <section
       id="dashboard-unreplied"
-      className={cn("dashboard-panel dashboard-comments", className)}
+      className={cn("dashboard-section dashboard-comments", className)}
     >
       <SectionHeading
         size="md"
@@ -220,7 +220,7 @@ export function DashboardComments({
         </ul>
       )}
       {total > comments.length ? (
-        <p className="dashboard-panel-footnote">
+        <p className="dashboard-footnote">
           {m.dashboard_unreplied_more({ count: total - comments.length })}
         </p>
       ) : null}

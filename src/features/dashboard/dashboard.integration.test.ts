@@ -20,7 +20,8 @@ import type {
   PostPopularitySnapshot,
   PostPopularitySyncStatus,
 } from "@/features/post-popularity/post-popularity.schema";
-import { CommentsTable, PostsTable } from "@/lib/db/schema";
+import * as PostRevisionRepo from "@/features/posts/data/post-revisions.data";
+import { CommentsTable, PostRevisionsTable, PostsTable } from "@/lib/db/schema";
 import { unwrap } from "@/lib/errors";
 
 function popularityStatus(
@@ -219,6 +220,48 @@ describe("Dashboard overview", () => {
     expect(overview.pendingFriendLinks.items[0]?.siteUrl).toMatch(
       /^https:\/\/site-\d+\.example$/,
     );
+  });
+
+  it("counts writing events per UTC hour inside the calendar window", async () => {
+    const HOUR_MS = 60 * 60 * 1000;
+    const postId = await publishPost("written");
+    const hour = Math.floor(Date.now() / HOUR_MS) - 48;
+    const at = (h: number, minute: number) =>
+      new Date(h * HOUR_MS + minute * 60_000);
+    const { db } = adminContext;
+    await db
+      .update(PostsTable)
+      .set({ createdAt: at(hour, 5) })
+      .where(eq(PostsTable.id, postId));
+    const published = await db
+      .update(PostRevisionsTable)
+      .set({ createdAt: at(hour, 40) })
+      .where(eq(PostRevisionsTable.postId, postId))
+      .returning({ id: PostRevisionsTable.id });
+    expect(published.length).toBeGreaterThan(0);
+    const [revision] = await db.select().from(PostRevisionsTable).limit(1);
+    if (!revision) throw new Error("expected the publish revision");
+    for (const createdAt of [
+      at(hour + 3, 20),
+      new Date(Date.now() - 200 * 24 * HOUR_MS),
+    ]) {
+      const extra = await PostRevisionRepo.insertPostRevision(db, {
+        postId,
+        reason: "auto",
+        snapshotJson: revision.snapshotJson,
+        snapshotHash: `${revision.snapshotHash}-${createdAt.getTime()}`,
+      });
+      await db
+        .update(PostRevisionsTable)
+        .set({ createdAt })
+        .where(eq(PostRevisionsTable.id, extra.id));
+    }
+
+    const overview = await getDashboardOverview(adminContext);
+    expect(overview.writingActivity).toEqual([
+      { hour, count: 1 + published.length },
+      { hour: hour + 3, count: 1 },
+    ]);
   });
 
   it("includes pinnedAt on recent posts", async () => {

@@ -393,7 +393,6 @@
   "admin_sidebar_logout_failed": "注销失败",
   "admin_sidebar_logout_failed_desc": "请重试。",
   "admin_overview_title": "概览",
-  "admin_overview_continue_writing": "接着写",
   "admin_overview_popularity_failed": "热度同步失败",
   "admin_overview_popularity_expired": "热度数据已过期",
   "admin_overview_activity_anonymous": "匿名用户",
@@ -1079,8 +1078,6 @@
   "friend_review_preview_hint": "通过后将以这些资料展示在前台友链页",
   "friend_review_previous": "上一条",
   "friend_review_next": "下一条",
-  "dashboard_intro": "专注创作，记录和分享生活中的思考",
-  "dashboard_resume": "继续编辑",
   "dashboard_first_post": "从第一篇文章开始",
   "dashboard_recent_edits": "最近编辑",
   "muted_manager_hint": "管理被禁言的用户，必要时恢复其评论权限。",
@@ -1256,5 +1253,64 @@
         "count=*": "还有 {formattedCountZh} 条申请"
       }
     }
-  ]
+  ],
+  "dashboard_greeting_morning": "上午好，{name}",
+  "dashboard_greeting_afternoon": "下午好，{name}",
+  "dashboard_greeting_evening": "晚上好，{name}",
+  "dashboard_summary_views": [
+    {
+      "declarations": ["input count", "local formattedCountZh = count: number"],
+      "match": {
+        "count=*": "近 30 天 {formattedCountZh} 次访问"
+      }
+    }
+  ],
+  "dashboard_summary_unreplied": [
+    {
+      "declarations": ["input count", "local formattedCountZh = count: number"],
+      "match": {
+        "count=*": "{formattedCountZh} 条评论等你回复"
+      }
+    }
+  ],
+  "dashboard_summary_pending_links": [
+    {
+      "declarations": ["input count", "local formattedCountZh = count: number"],
+      "match": {
+        "count=*": "{formattedCountZh} 个友链待审核"
+      }
+    }
+  ],
+  "dashboard_summary_clear": "都处理好了，今天适合写点什么",
+  "dashboard_hero_continue": "继续写《{title}》",
+  "dashboard_writing_title": "写作记录",
+  "dashboard_writing_days": [
+    {
+      "declarations": ["input count", "local formattedCountZh = count: number"],
+      "match": {
+        "count=*": "近半年写作 {formattedCountZh} 天"
+      }
+    }
+  ],
+  "dashboard_writing_streak": [
+    {
+      "declarations": ["input count", "local formattedCountZh = count: number"],
+      "match": {
+        "count=*": "最长连续 {formattedCountZh} 天"
+      }
+    }
+  ],
+  "dashboard_writing_none": "近半年还没有写作记录",
+  "dashboard_writing_basis": "按新建文章、发布和保存的版本统计，以本地日期分天",
+  "dashboard_writing_less": "少",
+  "dashboard_writing_more": "多",
+  "dashboard_writing_day": [
+    {
+      "declarations": ["input count", "local formattedCountZh = count: number", "input date"],
+      "match": {
+        "count=*": "{date}：{formattedCountZh} 次写作"
+      }
+    }
+  ],
+  "dashboard_writing_day_none": "{date}：没有写作"
 }

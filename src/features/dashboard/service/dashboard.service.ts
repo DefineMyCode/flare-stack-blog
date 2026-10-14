@@ -9,6 +9,7 @@ import {
   DASHBOARD_RECENT_POSTS_LIMIT,
   DASHBOARD_TOP_POST_CANDIDATES,
   DASHBOARD_UNREPLIED_COMMENTS_LIMIT,
+  DASHBOARD_WRITING_LOOKBACK_DAYS,
   popularityAlertFromStatus,
   popularityState,
   rankTopPosts,
@@ -62,9 +63,11 @@ export async function getDashboardOverview(
   context: DbContext,
 ): Promise<DashboardOverview> {
   const { db } = context;
+  const now = Date.now();
   const recentCommentsSince = new Date(
-    Date.now() - DASHBOARD_RECENT_COMMENT_DAYS * DAY_MS,
+    now - DASHBOARD_RECENT_COMMENT_DAYS * DAY_MS,
   );
+  const writingSince = new Date(now - DASHBOARD_WRITING_LOOKBACK_DAYS * DAY_MS);
 
   const [
     { alert, popularity },
@@ -78,6 +81,7 @@ export async function getDashboardOverview(
     unrepliedItems,
     unrepliedTotal,
     storedConfig,
+    writingActivity,
   ] = await Promise.all([
     getPopularity(context),
     versionChecker.cached(context),
@@ -94,6 +98,7 @@ export async function getDashboardOverview(
     DashboardRepo.listUnrepliedComments(db, DASHBOARD_UNREPLIED_COMMENTS_LIMIT),
     DashboardRepo.countUnrepliedComments(db),
     ConfigRepo.getSystemConfig(db),
+    DashboardRepo.countWritingEventsByHour(db, writingSince),
   ]);
   const config = resolveSystemConfig(storedConfig);
 
@@ -116,6 +121,7 @@ export async function getDashboardOverview(
       pendingFriendLinks: friendLinkCounts.pending,
     },
     popularity,
+    writingActivity,
     latestDraft,
     recentPosts: recentPosts
       .filter((post) => post.id !== latestDraft?.id)

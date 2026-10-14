@@ -61,6 +61,13 @@ const DashboardPopularitySchema = z.object({
   topPosts: z.array(DashboardTopPostSchema),
 });
 
+const DashboardWritingHourSchema = z.object({
+  /** Hours since the Unix epoch, in UTC. */
+  hour: count,
+  /** Revisions saved and Posts created in that hour. */
+  count: z.number().int().positive(),
+});
+
 const DashboardUpdateSchema = z.object({
   latestVersion: z.string(),
   releaseUrl: z.url(),
@@ -74,6 +81,11 @@ export const DashboardOverviewSchema = z.object({
   update: DashboardUpdateSchema.nullable(),
   stats: DashboardStatsSchema,
   popularity: DashboardPopularitySchema,
+  /**
+   * Writing events of the last DASHBOARD_WRITING_LOOKBACK_DAYS days per UTC
+   * hour, oldest first; the page groups them into local days.
+   */
+  writingActivity: z.array(DashboardWritingHourSchema),
   latestDraft: DashboardRecentPostSchema.nullable(),
   /** Most recently edited Posts, without `latestDraft`. */
   recentPosts: z.array(DashboardRecentPostSchema),

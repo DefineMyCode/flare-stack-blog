@@ -400,7 +400,6 @@
   "admin_sidebar_logout_failed": "Sign out failed",
   "admin_sidebar_logout_failed_desc": "Please try again.",
   "admin_overview_title": "Overview",
-  "admin_overview_continue_writing": "Continue writing",
   "admin_overview_popularity_failed": "Popularity sync failed",
   "admin_overview_popularity_expired": "Popularity data expired",
   "admin_overview_activity_anonymous": "Anonymous",
@@ -1086,8 +1085,6 @@
   "friend_review_preview_hint": "Once approved, these details appear on your friend links page.",
   "friend_review_previous": "Previous",
   "friend_review_next": "Next",
-  "dashboard_intro": "A place to write, connect, and share.",
-  "dashboard_resume": "Continue editing",
   "dashboard_first_post": "Start with your first post",
   "dashboard_recent_edits": "Recently edited",
   "muted_manager_hint": "Manage muted users and restore their ability to comment.",
@@ -1268,5 +1265,70 @@
         "count=*": "{formattedCountEn} more requests"
       }
     }
-  ]
+  ],
+  "dashboard_greeting_morning": "Good morning, {name}",
+  "dashboard_greeting_afternoon": "Good afternoon, {name}",
+  "dashboard_greeting_evening": "Good evening, {name}",
+  "dashboard_summary_views": [
+    {
+      "declarations": ["input count", "local formattedCountEn = count: number"],
+      "match": {
+        "count=1": "{formattedCountEn} visit in 30 days",
+        "count=*": "{formattedCountEn} visits in 30 days"
+      }
+    }
+  ],
+  "dashboard_summary_unreplied": [
+    {
+      "declarations": ["input count", "local formattedCountEn = count: number"],
+      "match": {
+        "count=1": "{formattedCountEn} comment awaits your reply",
+        "count=*": "{formattedCountEn} comments await your reply"
+      }
+    }
+  ],
+  "dashboard_summary_pending_links": [
+    {
+      "declarations": ["input count", "local formattedCountEn = count: number"],
+      "match": {
+        "count=1": "{formattedCountEn} friend link to review",
+        "count=*": "{formattedCountEn} friend links to review"
+      }
+    }
+  ],
+  "dashboard_summary_clear": "All caught up — a good day to write",
+  "dashboard_hero_continue": "Continue “{title}”",
+  "dashboard_writing_title": "Writing",
+  "dashboard_writing_days": [
+    {
+      "declarations": ["input count", "local formattedCountEn = count: number"],
+      "match": {
+        "count=1": "Wrote on {formattedCountEn} day in 6 months",
+        "count=*": "Wrote on {formattedCountEn} days in 6 months"
+      }
+    }
+  ],
+  "dashboard_writing_streak": [
+    {
+      "declarations": ["input count", "local formattedCountEn = count: number"],
+      "match": {
+        "count=1": "longest streak {formattedCountEn} day",
+        "count=*": "longest streak {formattedCountEn} days"
+      }
+    }
+  ],
+  "dashboard_writing_none": "No writing in the last 6 months",
+  "dashboard_writing_basis": "Counts new posts, publishes and saved revisions by local day",
+  "dashboard_writing_less": "Less",
+  "dashboard_writing_more": "More",
+  "dashboard_writing_day": [
+    {
+      "declarations": ["input count", "local formattedCountEn = count: number", "input date"],
+      "match": {
+        "count=1": "{date}: {formattedCountEn} writing event",
+        "count=*": "{date}: {formattedCountEn} writing events"
+      }
+    }
+  ],
+  "dashboard_writing_day_none": "{date}: no writing"
 }

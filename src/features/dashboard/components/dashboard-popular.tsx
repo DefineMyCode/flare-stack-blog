@@ -27,7 +27,7 @@ export function DashboardPopular({
       : undefined;
 
   return (
-    <section className={cn("dashboard-panel dashboard-popular", className)}>
+    <section className={cn("dashboard-section dashboard-popular", className)}>
       <SectionHeading
         size="md"
         title={m.dashboard_popular_title()}

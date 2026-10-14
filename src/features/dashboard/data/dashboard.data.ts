@@ -3,6 +3,7 @@ import {
   count,
   desc,
   eq,
+  gte,
   inArray,
   isNotNull,
   isNull,
@@ -12,7 +13,12 @@ import {
   sql,
 } from "drizzle-orm";
 import { alias } from "drizzle-orm/sqlite-core";
-import { CommentsTable, PostsTable, user as UserTable } from "@/lib/db/schema";
+import {
+  CommentsTable,
+  PostRevisionsTable,
+  PostsTable,
+  user as UserTable,
+} from "@/lib/db/schema";
 
 const postSummaryColumns = {
   id: PostsTable.id,
@@ -144,4 +150,35 @@ export async function countUnrepliedComments(db: DB) {
     .leftJoin(UserTable, eq(CommentsTable.userId, UserTable.id))
     .where(unrepliedVisitorComment(db));
   return row?.total ?? 0;
+}
+
+/**
+ * Writing events since `since`, counted per UTC hour (hours since the Unix
+ * epoch): Post revisions (autosaves kept, publishes, restore backups) and
+ * Posts created. Hours, not days, so the reader can group them by its own
+ * local day.
+ */
+export async function countWritingEventsByHour(db: DB, since: Date) {
+  const revisionHour = sql<number>`${PostRevisionsTable.createdAt} / 3600`;
+  const postHour = sql<number>`${PostsTable.createdAt} / 3600`;
+  const [revisions, posts] = await Promise.all([
+    db
+      .select({ hour: revisionHour, count: count() })
+      .from(PostRevisionsTable)
+      .where(gte(PostRevisionsTable.createdAt, since))
+      .groupBy(revisionHour),
+    db
+      .select({ hour: postHour, count: count() })
+      .from(PostsTable)
+      .where(gte(PostsTable.createdAt, since))
+      .groupBy(postHour),
+  ]);
+  const byHour = new Map<number, number>();
+  for (const row of [...revisions, ...posts]) {
+    const hour = Number(row.hour);
+    byHour.set(hour, (byHour.get(hour) ?? 0) + row.count);
+  }
+  return [...byHour]
+    .sort(([a], [b]) => a - b)
+    .map(([hour, events]) => ({ hour, count: events }));
 }

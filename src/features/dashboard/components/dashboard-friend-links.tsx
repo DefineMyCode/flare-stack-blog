@@ -26,7 +26,7 @@ export function DashboardFriendLinks({
   const total = items.length + remainingCount;
 
   return (
-    <section className={cn("dashboard-panel dashboard-links", className)}>
+    <section className={cn("dashboard-section dashboard-links", className)}>
       <SectionHeading
         size="md"
         title={
@@ -73,7 +73,7 @@ export function DashboardFriendLinks({
         ))}
       </ul>
       {remainingCount > 0 ? (
-        <p className="dashboard-panel-footnote">
+        <p className="dashboard-footnote">
           {m.dashboard_pending_links_more({ count: remainingCount })}
         </p>
       ) : null}
