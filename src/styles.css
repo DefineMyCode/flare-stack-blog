@@ -331,6 +331,25 @@
     }
   }
 
+  /* A ring along the element's border, filled to --progress (0 to 1). */
+  .fuwari-progress-ring {
+    @apply relative;
+    &::before {
+      content: "";
+      @apply absolute inset-0 pointer-events-none;
+      border-radius: inherit;
+      padding: 2px;
+      background: conic-gradient(
+        var(--fuwari-primary) calc(var(--progress, 0) * 360deg),
+        transparent 0
+      );
+      mask:
+        linear-gradient(#000 0 0) content-box,
+        linear-gradient(#000 0 0);
+      mask-composite: exclude;
+    }
+  }
+
   .fuwari-hide-scrollbar {
     scrollbar-width: none;
     -ms-overflow-style: none;

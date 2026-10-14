@@ -377,6 +377,27 @@ function CompactToc({
     if (!shown) setOpen(false);
   }, [shown]);
 
+  // Written straight to the button so scrolling does not re-render.
+  useEffect(() => {
+    const update = () => {
+      const button = buttonRef.current;
+      const content = document.querySelector(".fuwari-custom-md");
+      if (!button || !content) return;
+      const rect = content.getBoundingClientRect();
+      const scrollable = rect.height - window.innerHeight;
+      const progress =
+        scrollable > 0 ? Math.min(1, Math.max(0, -rect.top / scrollable)) : 1;
+      button.style.setProperty("--progress", String(progress));
+    };
+    update();
+    window.addEventListener("scroll", update, { passive: true });
+    window.addEventListener("resize", update);
+    return () => {
+      window.removeEventListener("scroll", update);
+      window.removeEventListener("resize", update);
+    };
+  }, [slot]);
+
   useLayoutEffect(() => {
     if (!links) return;
     const items = links.querySelectorAll<HTMLElement>("a[data-active]");
@@ -404,7 +425,7 @@ function CompactToc({
               aria-expanded={open}
               className={cn(
                 FLOATING_ACTION_BUTTON_CLASS,
-                "2xl:hidden duration-300",
+                "fuwari-progress-ring 2xl:hidden duration-300",
                 shown
                   ? "opacity-100 scale-100"
                   : "opacity-0 scale-90 pointer-events-none",
