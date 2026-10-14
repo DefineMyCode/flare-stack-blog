@@ -35,7 +35,6 @@
     :is(
       .post-manager,
       .media-workspace,
-      .taxonomy-workspace,
       .friend-workspace,
       .muted-workspace,
       .settings-workspace
@@ -49,9 +48,6 @@
     :is(
       .post-list-scroll,
       .media-browser,
-      .taxonomy-scroll,
-      .taxonomy-nav-scroll,
-      .taxonomy-post-scroll,
       .friend-queue-scroll,
       .friend-detail-scroll,
       .muted-list-scroll,

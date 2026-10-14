@@ -1,6 +1,8 @@
 import { useQuery } from "@tanstack/react-query";
+import { Settings2 } from "lucide-react";
 import { useEffect, type Ref } from "react";
 import DropdownMenu from "@/components/ui/dropdown-menu";
+import { IconButton } from "@/components/ui/icon-button";
 import { SearchField } from "@/components/ui/search-field";
 import { Tabs } from "@/components/ui/tabs";
 import { categoryOptionsQuery } from "@/features/categories/queries";
@@ -27,6 +29,8 @@ interface PostsToolbarProps {
   onTagChange: (tag?: number, replace?: boolean) => void;
   sortBy: SortField;
   onSortByChange: (sortBy: SortField) => void;
+  /** Opens the categories and tags sheet. */
+  onManageTaxonomy?: () => void;
 }
 
 export function PostsToolbar({
@@ -42,6 +46,7 @@ export function PostsToolbar({
   onTagChange,
   sortBy,
   onSortByChange,
+  onManageTaxonomy,
 }: PostsToolbarProps) {
   const categoriesQuery = useQuery({
     ...categoryOptionsQuery,
@@ -137,6 +142,16 @@ export function PostsToolbar({
               })),
             ]}
           />
+          {onManageTaxonomy ? (
+            <IconButton
+              size="lg"
+              label={m.admin_posts_manage_taxonomy()}
+              aria-haspopup="dialog"
+              onClick={onManageTaxonomy}
+            >
+              <Settings2 size={18} />
+            </IconButton>
+          ) : null}
         </div>
         <div className="post-list-sort">
           <span>{m.admin_posts_sort_label()}</span>

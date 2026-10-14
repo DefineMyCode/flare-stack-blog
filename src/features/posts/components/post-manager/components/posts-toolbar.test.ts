@@ -37,6 +37,7 @@ afterEach(cleanup);
 function renderToolbar(filters: { category?: number | "none"; tag?: number }) {
   const onCategoryChange = vi.fn();
   const onTagChange = vi.fn();
+  const onManageTaxonomy = vi.fn();
   render(
     createElement(
       QueryClientProvider,
@@ -55,11 +56,12 @@ function renderToolbar(filters: { category?: number | "none"; tag?: number }) {
         onSortByChange: vi.fn(),
         onCategoryChange,
         onTagChange,
+        onManageTaxonomy,
         ...filters,
       }),
     ),
   );
-  return { onCategoryChange, onTagChange };
+  return { onCategoryChange, onTagChange, onManageTaxonomy };
 }
 
 async function pick(menu: string, option: string) {
@@ -107,4 +109,17 @@ it("drops a filter whose category or tag no longer exists without a history entr
     expect(staleTag.onTagChange).toHaveBeenCalledWith(undefined, true),
   );
   expect(staleTag.onCategoryChange).not.toHaveBeenCalled();
+});
+
+it("opens the categories and tags sheet from beside the filters", () => {
+  const { onManageTaxonomy } = renderToolbar({});
+  const manage = screen.getByRole("button", {
+    name: m.admin_posts_manage_taxonomy(),
+  });
+  expect(manage.getAttribute("aria-haspopup")).toBe("dialog");
+  expect(manage.previousElementSibling?.textContent).toContain(
+    m.admin_posts_filter_tag_all(),
+  );
+  fireEvent.click(manage);
+  expect(onManageTaxonomy).toHaveBeenCalledOnce();
 });

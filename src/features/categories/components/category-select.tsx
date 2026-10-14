@@ -1,10 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { Select } from "@/components/ui/select";
-import {
-  CategoryManager,
-  type CategoryEdit,
-} from "@/features/categories/components/category-manager";
+import { CategoryCreateDialog } from "@/features/categories/components/category-create-dialog";
 import { categoryOptionsQuery } from "@/features/categories/queries";
 import { m } from "@/paraglide/messages";
 
@@ -18,7 +15,7 @@ interface CategorySelectProps {
 
 export function CategorySelect({ id, value, onChange }: CategorySelectProps) {
   const { data: categories = [], isLoading } = useQuery(categoryOptionsQuery);
-  const [creating, setCreating] = useState<CategoryEdit | null>(null);
+  const [creating, setCreating] = useState(false);
 
   return (
     <>
@@ -27,13 +24,7 @@ export function CategorySelect({ id, value, onChange }: CategorySelectProps) {
         value={value == null ? "" : String(value)}
         disabled={isLoading}
         onChange={(next) => {
-          if (next === CREATE)
-            setCreating({
-              id: null,
-              name: "",
-              postCount: 0,
-              publicPostCount: 0,
-            });
+          if (next === CREATE) setCreating(true);
           else onChange(next === "" ? null : Number(next));
         }}
         options={[
@@ -45,9 +36,9 @@ export function CategorySelect({ id, value, onChange }: CategorySelectProps) {
           { value: CREATE, label: m.editor_meta_category_create() },
         ]}
       />
-      <CategoryManager
-        editing={creating}
-        onClose={() => setCreating(null)}
+      <CategoryCreateDialog
+        open={creating}
+        onClose={() => setCreating(false)}
         onCreated={onChange}
       />
     </>

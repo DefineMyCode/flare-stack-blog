@@ -1,7 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { ArrowLeft, Check, ExternalLink, EyeOff, Trash2 } from "lucide-react";
 import { useRef, useState } from "react";
-import { usePostEditorReturn } from "./post-editor-return";
 import { ActionMenu, type ActionMenuItem } from "@/components/ui/action-menu";
 import { Button } from "@/components/ui/button";
 import ConfirmationModal from "@/components/ui/confirmation-modal";
@@ -66,7 +65,6 @@ export function PostEditorHeader({
   infoOpen,
   onOpenHistory,
 }: PostEditorHeaderProps) {
-  const taxonomyReturn = usePostEditorReturn();
   const [returnLocation] = useState(readPostListLocation);
   const menuTriggerRef = useRef<HTMLButtonElement | null>(null);
   const [confirmingUnpublish, setConfirmingUnpublish] = useState(false);
@@ -109,26 +107,14 @@ export function PostEditorHeader({
         : m.editor_header_publish();
   return (
     <header className="post-editor-header">
-      {taxonomyReturn ? (
-        <Link
-          to="/admin/tags"
-          search={taxonomyReturn.search}
-          state={{ taxonomyScrollTop: taxonomyReturn.scrollTop }}
-          className="post-editor-back hidden lg:inline-flex"
-        >
-          <ArrowLeft size={17} />
-          {m.taxonomy_manager_title()}
-        </Link>
-      ) : (
-        <Link
-          to="/admin/posts"
-          search={returnLocation}
-          className="post-editor-back hidden lg:inline-flex"
-        >
-          <ArrowLeft size={17} />
-          {m.editor_back_to_posts()}
-        </Link>
-      )}
+      <Link
+        to="/admin/posts"
+        search={returnLocation}
+        className="post-editor-back hidden lg:inline-flex"
+      >
+        <ArrowLeft size={17} />
+        {m.editor_back_to_posts()}
+      </Link>
       <p
         role="status"
         className={cn(

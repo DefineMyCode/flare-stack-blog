@@ -14,6 +14,8 @@ interface ConfirmationModalProps {
   confirmLabel?: string;
   isDanger?: boolean;
   isLoading?: boolean;
+  /** Shown on the confirm button while loading, such as progress. */
+  loadingLabel?: string;
   returnFocus?: () => HTMLElement | null;
   fallbackFocus?: () => HTMLElement | null;
 }
@@ -26,6 +28,7 @@ function ConfirmationModalInternal(props: ConfirmationModalProps) {
     title,
     message,
     isLoading = false,
+    loadingLabel = m.common_processing(),
     isDanger = false,
     confirmLabel = m.common_confirm(),
   } = props;
@@ -54,7 +57,7 @@ function ConfirmationModalInternal(props: ConfirmationModalProps) {
           loading={isLoading}
           onClick={onConfirm}
         >
-          <span>{isLoading ? m.common_processing() : confirmLabel}</span>
+          <span>{isLoading ? loadingLabel : confirmLabel}</span>
         </Button>
       </div>
     </FuwariModal>

@@ -33,6 +33,8 @@ export interface SheetProps extends Omit<
   backdrop?: boolean;
   backdropClassName?: string;
   side?: "left" | "right";
+  /** Width on wider screens: md 23rem, lg 25rem; full width on phones. */
+  size?: "md" | "lg";
   as?: "div" | "aside";
   /**
    * Stays rendered while closed, as `data-state="closed"`, for a panel the
@@ -57,6 +59,7 @@ export function Sheet({
   backdrop = modal,
   backdropClassName,
   side = "right",
+  size = "md",
   as: Panel = "div",
   keepMounted = false,
   initialFocus,
@@ -143,6 +146,7 @@ export function Sheet({
         aria-modal={modal && open ? true : undefined}
         tabIndex={-1}
         data-side={side}
+        data-size={size}
         data-state={state}
         inert={state === "closing"}
         onKeyDown={handleKeyDown}
