@@ -22,7 +22,7 @@ export function CategoryManager({
   editing: CategoryEdit | null;
   onClose: () => void;
   onCreated: (id: number) => void;
-  fallbackFocus: () => HTMLElement | null;
+  fallbackFocus?: () => HTMLElement | null;
 }) {
   const queryClient = useQueryClient();
   const [name, setName] = useState("");

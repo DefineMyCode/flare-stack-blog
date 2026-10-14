@@ -18,6 +18,9 @@ export type StatusFilter = (typeof STATUS_FILTERS)[number];
 export const SORT_FIELDS = ["publishedAt", "updatedAt"] as const;
 export type SortField = (typeof SORT_FIELDS)[number];
 
+/** A category id, or "none" for posts without one. */
+export type CategoryFilter = number | "none";
+
 /** Convert StatusFilter to API status param */
 export function statusFilterToApi(
   filter: StatusFilter,

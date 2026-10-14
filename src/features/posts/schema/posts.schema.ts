@@ -186,6 +186,22 @@ export type AdminTaxonomyFilter = z.infer<typeof AdminTaxonomyFilterSchema>;
 
 export const GetPostsInputSchema = z.object({
   taxonomy: AdminTaxonomyFilterSchema.optional(),
+  categoryId: z
+    .number()
+    .int()
+    .positive()
+    .optional()
+    .describe("Only posts whose current category is this one."),
+  uncategorized: z
+    .boolean()
+    .optional()
+    .describe("Only posts without a current category."),
+  tagId: z
+    .number()
+    .int()
+    .positive()
+    .optional()
+    .describe("Only posts currently carrying this tag."),
   offset: z.number().optional(),
   limit: z.number().optional(),
   status: z.custom<PostStatus>().optional(),
@@ -233,7 +249,7 @@ export const AdminPostListPageSchema = z.object({
   items: z.array(AdminPostListItemSchema),
   total: z.number().int().nonnegative(),
   statusCounts: AdminPostStatusCountsSchema.describe(
-    "Counts matching search, publicOnly and taxonomy scope before status filtering or pagination.",
+    "Counts matching search, publicOnly, taxonomy scope and the category and tag filters before status filtering or pagination.",
   ),
 });
 

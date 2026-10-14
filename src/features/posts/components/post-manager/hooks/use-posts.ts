@@ -10,22 +10,18 @@ import { adminPostsQuery } from "@/features/posts/queries";
 import { orpc, orpcClient } from "@/lib/orpc";
 import { ADMIN_ITEMS_PER_PAGE } from "@/lib/constants";
 import { m } from "@/paraglide/messages";
-import type { AdminPostListItem, SortField, StatusFilter } from "../types";
+import type { PostListLocation } from "../list-position";
+import type { AdminPostListItem } from "../types";
 import { statusFilterToApi } from "../types";
-
-interface UsePostsOptions {
-  page: number;
-  status: StatusFilter;
-  sortBy: SortField;
-  search: string;
-}
 
 export function adminPostsListParams({
   page,
   status,
   sortBy,
   search,
-}: UsePostsOptions): GetPostsInput {
+  category,
+  tag,
+}: PostListLocation): GetPostsInput {
   return {
     offset: (page - 1) * ADMIN_ITEMS_PER_PAGE,
     limit: ADMIN_ITEMS_PER_PAGE,
@@ -33,12 +29,15 @@ export function adminPostsListParams({
     sortDir: "DESC",
     sortBy,
     search: search || undefined,
+    categoryId: typeof category === "number" ? category : undefined,
+    uncategorized: category === "none" || undefined,
+    tagId: tag,
   };
 }
 
-export function usePosts({ page, status, sortBy, search }: UsePostsOptions) {
+export function usePosts(location: PostListLocation) {
   const postsQuery = useQuery({
-    ...adminPostsQuery(adminPostsListParams({ page, status, sortBy, search })),
+    ...adminPostsQuery(adminPostsListParams(location)),
     placeholderData: keepPreviousData,
   });
 
