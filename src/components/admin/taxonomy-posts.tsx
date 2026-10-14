@@ -1,8 +1,13 @@
 import { useQuery, type UseQueryResult } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
-import { BookOpen, Hash, Loader2, Search, X } from "lucide-react";
+import { BookOpen, Hash } from "lucide-react";
 import { useEffect, useRef, type ReactNode, type RefObject } from "react";
+import { Button, buttonClass } from "@/components/ui/button";
 import DropdownMenu from "@/components/ui/dropdown-menu";
+import { SectionHeading } from "@/components/ui/page-heading";
+import { SearchField } from "@/components/ui/search-field";
+import { Spinner } from "@/components/ui/spinner";
+import { Tabs } from "@/components/ui/tabs";
 import { PostRow } from "@/features/posts/components/post-manager/components/post-row";
 import { PostManagerSkeleton } from "@/features/posts/components/post-manager/post-manager-skeleton";
 import type {
@@ -11,6 +16,7 @@ import type {
 } from "@/features/posts/components/post-manager/types";
 import { adminPostsQuery } from "@/features/posts/queries";
 import { useContentMotion } from "@/hooks/use-motion";
+import { EmptyState } from "@/components/ui/empty-state";
 import { m } from "@/paraglide/messages";
 import { AdminPagination } from "./admin-pagination";
 import type { TaxonomyReturn, TaxonomyState } from "./taxonomy-state";
@@ -107,15 +113,17 @@ export function TaxonomyPosts({
 
   return (
     <section className="taxonomy-results">
-      <header className="taxonomy-selection-heading">
-        <h2 ref={focusTargets.heading} tabIndex={-1}>
-          {selected?.name ??
-            (state.kind === "tag"
-              ? m.tag_manager_title()
-              : m.category_manager_title())}
-        </h2>
-        {action}
-      </header>
+      <SectionHeading
+        className="taxonomy-selection-heading"
+        title={
+          selected?.name ??
+          (state.kind === "tag"
+            ? m.tag_manager_title()
+            : m.category_manager_title())
+        }
+        titleProps={{ ref: focusTargets.heading, tabIndex: -1 }}
+        actions={action}
+      />
       <TaxonomyPostControls
         state={state}
         selected={selected}
@@ -175,66 +183,53 @@ function TaxonomyPostControls({
 }) {
   return (
     <>
-      <div
+      <Tabs
         className="taxonomy-scope-tabs"
-        role="group"
         aria-label={m.taxonomy_usage_summary({
           current: selected?.postCount ?? 0,
           public: selected?.publicPostCount ?? 0,
         })}
+        value={state.scope}
+        onValueChange={(scope) => search.changeContext({ scope })}
+        items={[
+          {
+            value: "current",
+            label: m.taxonomy_scope_current(),
+            count: selected?.postCount ?? "—",
+            disabled: !selected,
+          },
+          {
+            value: "public",
+            label: m.taxonomy_scope_public(),
+            count: selected?.publicPostCount ?? "—",
+            disabled: !selected,
+          },
+        ]}
       >
-        <button
-          type="button"
-          disabled={!selected}
-          aria-pressed={state.scope === "current"}
-          onClick={() => search.changeContext({ scope: "current" })}
-        >
-          {m.taxonomy_scope_current()} <span>{selected?.postCount ?? "—"}</span>
-        </button>
-        <button
-          type="button"
-          disabled={!selected}
-          aria-pressed={state.scope === "public"}
-          onClick={() => search.changeContext({ scope: "public" })}
-        >
-          {m.taxonomy_scope_public()}{" "}
-          <span>{selected?.publicPostCount ?? "—"}</span>
-        </button>
-        {isFetching ? <Loader2 size={14} className="animate-spin" /> : null}
-      </div>
+        {isFetching ? <Spinner size={14} /> : null}
+      </Tabs>
       <p className="taxonomy-scope-hint">
         {state.scope === "current"
           ? m.taxonomy_scope_current_hint()
           : m.taxonomy_scope_public_hint()}
       </p>
       <div className="taxonomy-post-controls">
-        <div className="taxonomy-search">
-          <Search size={17} />
-          <input
-            ref={searchRef}
-            type="search"
-            aria-label={m.taxonomy_posts_search()}
-            placeholder={m.taxonomy_posts_search()}
-            value={search.value}
-            disabled={!selected}
-            onChange={(event) => search.update(event.target.value)}
-          />
-          {search.value ? (
-            <button
-              type="button"
-              aria-label={m.admin_posts_clear_search()}
-              onClick={() => search.changeContext({})}
-            >
-              <X size={15} />
-            </button>
-          ) : null}
-        </div>
+        <SearchField
+          ref={searchRef}
+          className="taxonomy-search"
+          aria-label={m.taxonomy_posts_search()}
+          placeholder={m.taxonomy_posts_search()}
+          value={search.value}
+          disabled={!selected}
+          onValueChange={search.update}
+          clearLabel={m.admin_posts_clear_search()}
+          onClear={() => search.changeContext({})}
+        />
         <div className="taxonomy-sort">
           <span>{m.admin_posts_sort_label()}</span>
           <DropdownMenu
             value={state.sortBy}
             ariaLabel={m.admin_posts_sort_label()}
-            triggerClassName="taxonomy-sort-trigger"
             options={[
               {
                 value: "updatedAt",
@@ -285,17 +280,17 @@ function TaxonomyPostList({
       aria-busy={query.isFetching}
     >
       {!selected ? (
-        <div className="taxonomy-empty">
-          <Hash size={28} />
-          <p>{m.taxonomy_empty_selection()}</p>
-        </div>
+        <EmptyState icon={Hash} description={m.taxonomy_empty_selection()} />
       ) : query.isError ? (
-        <div className="taxonomy-empty" role="alert">
-          <p>{m.error_desc()}</p>
-          <button type="button" onClick={() => void query.refetch()}>
-            {m.error_retry()}
-          </button>
-        </div>
+        <EmptyState
+          role="alert"
+          description={m.error_desc()}
+          action={
+            <Button variant="text" onClick={() => void query.refetch()}>
+              {m.error_retry()}
+            </Button>
+          }
+        />
       ) : (
         <>
           <table className="post-list-table">
@@ -334,23 +329,30 @@ function TaxonomyPostList({
             </tbody>
           </table>
           {!query.isPending && posts.length === 0 ? (
-            <div className="taxonomy-empty">
-              <BookOpen size={26} />
-              <p>
-                {state.search
+            <EmptyState
+              icon={BookOpen}
+              description={
+                state.search
                   ? m.admin_posts_no_match()
                   : state.scope === "current"
                     ? m.taxonomy_current_empty()
-                    : m.taxonomy_public_empty()}
-              </p>
-              {state.search ? (
-                <button type="button" onClick={onClearSearch}>
-                  {m.admin_posts_clear_filters()}
-                </button>
-              ) : (
-                <Link to="/admin/posts">{m.admin_posts_title()}</Link>
-              )}
-            </div>
+                    : m.taxonomy_public_empty()
+              }
+              action={
+                state.search ? (
+                  <Button variant="text" onClick={onClearSearch}>
+                    {m.admin_posts_clear_filters()}
+                  </Button>
+                ) : (
+                  <Link
+                    to="/admin/posts"
+                    className={buttonClass({ variant: "text" })}
+                  >
+                    {m.admin_posts_title()}
+                  </Link>
+                )
+              }
+            />
           ) : null}
         </>
       )}

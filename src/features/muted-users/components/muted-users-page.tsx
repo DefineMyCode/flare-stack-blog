@@ -1,14 +1,18 @@
 import { useQuery } from "@tanstack/react-query";
 import { ClientOnly } from "@tanstack/react-router";
-import { Search, ShieldCheck, UserRound, X } from "lucide-react";
+import { Search, ShieldCheck, UserRound } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { Button } from "@/components/ui/button";
 import ConfirmationModal from "@/components/ui/confirmation-modal";
+import { PageHeader } from "@/components/ui/page-heading";
+import { SearchField } from "@/components/ui/search-field";
 import { Select } from "@/components/ui/select";
 import { useContentMotion } from "@/hooks/use-motion";
 import { useMutedUsers } from "@/features/muted-users/hooks/use-muted-users";
 import type { MutedUser } from "@/features/muted-users/muted-users.schema";
 import { mutedUsersQuery } from "@/features/muted-users/queries";
 import { formatDate } from "@/lib/utils";
+import { EmptyState } from "@/components/ui/empty-state";
 import { m } from "@/paraglide/messages";
 import { MutedUsersListSkeleton } from "./muted-users-skeleton";
 import "./muted-users.css";
@@ -53,39 +57,30 @@ export function MutedUsersPage() {
     searchRef.current?.focus();
   };
   return (
-    <div className="muted-workspace fuwari-card-base">
-      <header className="muted-heading">
-        <div>
-          <h1>{m.muted_users_title()}</h1>
-          <p>{m.muted_manager_hint()}</p>
-        </div>
-        <span className="muted-count">
-          {isPending || isError
-            ? "—"
-            : m.muted_manager_count({ count: data?.length ?? 0 })}
-        </span>
-      </header>
+    <div className="muted-workspace admin-workspace fuwari-card-base">
+      <PageHeader
+        className="muted-heading"
+        title={m.muted_users_title()}
+        description={m.muted_manager_hint()}
+        actions={
+          <span className="muted-count">
+            {isPending || isError
+              ? "—"
+              : m.muted_manager_count({ count: data?.length ?? 0 })}
+          </span>
+        }
+      />
       <div className="muted-toolbar">
-        <label className="muted-search">
-          <Search size={18} aria-hidden="true" />
-          <input
-            ref={searchRef}
-            value={search}
-            onChange={(event) => setSearch(event.target.value)}
-            placeholder={m.muted_manager_search()}
-            aria-label={m.muted_manager_search()}
-            maxLength={200}
-          />
-          {search && (
-            <button
-              type="button"
-              onClick={clearSearch}
-              aria-label={m.muted_manager_clear()}
-            >
-              <X size={16} />
-            </button>
-          )}
-        </label>
+        <SearchField
+          ref={searchRef}
+          className="muted-search"
+          value={search}
+          onValueChange={setSearch}
+          placeholder={m.muted_manager_search()}
+          aria-label={m.muted_manager_search()}
+          maxLength={200}
+          clearLabel={m.muted_manager_clear()}
+        />
         <div className="muted-sort">
           <span>{m.muted_manager_sort()}</span>
           <Select
@@ -102,45 +97,38 @@ export function MutedUsersPage() {
       <div className="muted-list-scroll" ref={scrollRef} aria-busy={isPending}>
         <div ref={contentRef}>
           {isError ? (
-            <div className="muted-empty" role="alert">
-              <p>{m.muted_users_toast_error()}</p>
-              <button
-                type="button"
-                className="muted-action fuwari-btn-regular"
-                onClick={() => void refetch()}
-              >
-                {m.muted_manager_retry()}
-              </button>
-            </div>
+            <EmptyState
+              role="alert"
+              description={m.muted_users_toast_error()}
+              action={
+                <Button onClick={() => void refetch()}>
+                  {m.muted_manager_retry()}
+                </Button>
+              }
+            />
           ) : isPending ? (
             <MutedUsersListSkeleton />
           ) : items.length === 0 ? (
-            <div className="muted-empty">
-              {data?.length ? (
-                <Search size={32} aria-hidden="true" />
-              ) : (
-                <ShieldCheck size={36} aria-hidden="true" />
-              )}
-              <h2>
-                {data?.length
+            <EmptyState
+              icon={data?.length ? Search : ShieldCheck}
+              title={
+                data?.length
                   ? m.muted_manager_no_results()
-                  : m.muted_users_empty()}
-              </h2>
-              <p>
-                {data?.length
+                  : m.muted_users_empty()
+              }
+              description={
+                data?.length
                   ? m.muted_manager_search_hint()
-                  : m.muted_manager_empty_hint()}
-              </p>
-              {search && (
-                <button
-                  type="button"
-                  className="muted-action fuwari-btn-regular"
-                  onClick={clearSearch}
-                >
-                  {m.muted_manager_clear()}
-                </button>
-              )}
-            </div>
+                  : m.muted_manager_empty_hint()
+              }
+              action={
+                search && (
+                  <Button onClick={clearSearch}>
+                    {m.muted_manager_clear()}
+                  </Button>
+                )
+              }
+            />
           ) : (
             <ul className="muted-list">
               {items.map((user) => (
@@ -156,9 +144,7 @@ export function MutedUsersPage() {
                       </ClientOnly>
                     </p>
                   </div>
-                  <button
-                    type="button"
-                    className="muted-action fuwari-btn-regular"
+                  <Button
                     disabled={isUnmuting}
                     onClick={() => setPending(user)}
                     aria-label={m.muted_manager_unmute_named({
@@ -166,7 +152,7 @@ export function MutedUsersPage() {
                     })}
                   >
                     {m.muted_users_unmute()}
-                  </button>
+                  </Button>
                 </li>
               ))}
             </ul>

@@ -235,12 +235,9 @@ it.each(["scope", "kind"] as const)(
     vi.useFakeTimers();
     fireEvent.change(postSearch(), { target: { value: "unsent search" } });
     fireEvent.click(
-      screen.getByRole("button", {
-        name:
-          context === "scope"
-            ? `${m.taxonomy_scope_public()} 5`
-            : m.tag_manager_title(),
-      }),
+      context === "scope"
+        ? screen.getByRole("tab", { name: `${m.taxonomy_scope_public()} 5` })
+        : screen.getByRole("radio", { name: m.tag_manager_title() }),
     );
     expect(postSearch().value).toBe("");
     await act(async () => vi.advanceTimersByTimeAsync(350));
@@ -270,6 +267,8 @@ it.each(["sort", "page"] as const)(
       fireEvent.click(
         screen.getByRole("button", { name: m.admin_posts_sort_label() }),
       );
+      // The menu shows once its position has been measured.
+      await act(async () => {});
       fireEvent.click(
         screen.getByRole("menuitemradio", {
           name: m.admin_posts_sort_recent_pub(),

@@ -101,7 +101,7 @@ it("switches a formula from inline to block", async () => {
 
   act(() => {
     fireEvent.click(
-      within(panel).getByRole("button", { name: m.editor_formula_block() }),
+      within(panel).getByRole("radio", { name: m.editor_formula_block() }),
     );
   });
   act(() => {

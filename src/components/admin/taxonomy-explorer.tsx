@@ -1,6 +1,10 @@
-import { Loader2, Search, X } from "lucide-react";
 import { useState, type ReactNode } from "react";
+import { Button } from "@/components/ui/button";
+import { SearchField } from "@/components/ui/search-field";
+import { SegmentedControl } from "@/components/ui/segmented-control";
 import { Select } from "@/components/ui/select";
+import { Spinner } from "@/components/ui/spinner";
+import { EmptyState } from "@/components/ui/empty-state";
 import { m } from "@/paraglide/messages";
 import type { TaxonomyState } from "./taxonomy-state";
 import type {
@@ -55,70 +59,58 @@ export function TaxonomyExplorer({
       className="taxonomy-explorer"
       aria-label={m.taxonomy_manager_title()}
     >
-      <div
+      <SegmentedControl
         className="taxonomy-mode-tabs"
-        role="group"
         aria-label={m.taxonomy_manager_title()}
-      >
-        <button
-          type="button"
-          aria-pressed={!tagMode}
-          onClick={() => {
-            setNavSearch("");
-            onChoose("category");
-          }}
-        >
-          {m.category_manager_title()}
-        </button>
-        <button
-          type="button"
-          aria-pressed={tagMode}
-          onClick={() => onChoose("tag")}
-        >
-          {m.tag_manager_title()}
-        </button>
-      </div>
+        stretch
+        value={tagMode ? "tag" : "category"}
+        onValueChange={(kind) => {
+          if (kind === "category") setNavSearch("");
+          onChoose(kind);
+        }}
+        items={[
+          { value: "category", label: m.category_manager_title() },
+          { value: "tag", label: m.tag_manager_title() },
+        ]}
+      />
       {tagMode ? (
-        <div className="taxonomy-search taxonomy-nav-search">
-          <Search size={15} />
-          <input
-            aria-label={m.tag_manager_search_placeholder()}
-            placeholder={m.tag_manager_search_placeholder()}
-            value={navSearch}
-            onChange={(event) => setNavSearch(event.target.value)}
-          />
-          {navSearch ? (
-            <button
-              type="button"
-              aria-label={m.tag_manager_clear_search()}
-              onClick={() => setNavSearch("")}
-            >
-              <X size={14} />
-            </button>
-          ) : null}
-        </div>
+        <SearchField
+          className="taxonomy-nav-search"
+          aria-label={m.tag_manager_search_placeholder()}
+          placeholder={m.tag_manager_search_placeholder()}
+          value={navSearch}
+          onValueChange={setNavSearch}
+          clearLabel={m.tag_manager_clear_search()}
+        />
       ) : null}
       <div className="taxonomy-nav-scroll custom-scrollbar">
         {pending ? (
           <div className="taxonomy-loading">
-            <Loader2 size={18} className="animate-spin" />
+            <Spinner size={18} />
           </div>
         ) : navError ? (
-          <div className="taxonomy-empty" role="alert">
-            <p>{m.error_desc()}</p>
-            <button type="button" onClick={onRetry}>
-              {m.error_retry()}
-            </button>
-          </div>
+          <EmptyState
+            size="compact"
+            role="alert"
+            description={m.error_desc()}
+            action={
+              <Button variant="text" onClick={onRetry}>
+                {m.error_retry()}
+              </Button>
+            }
+          />
         ) : (
           <>
             {visibleItems.map(navRow)}
             {tagMode && visibleItems.length === 0 ? (
-              <p className="taxonomy-nav-empty">
-                {items.length
-                  ? m.tag_manager_no_match()
-                  : m.tag_manager_empty()}
-              </p>
+              <EmptyState
+                size="compact"
+                description={
+                  items.length
+                    ? m.tag_manager_no_match()
+                    : m.tag_manager_empty()
+                }
+              />
             ) : null}
             {!tagMode ? (
               <div className="taxonomy-uncategorized">

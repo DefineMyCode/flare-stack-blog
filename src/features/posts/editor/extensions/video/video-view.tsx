@@ -11,6 +11,7 @@ import {
   videoPageUrl,
   videoSourceOf,
 } from "@/features/posts/utils/video-source";
+import { useDismissOnOutside } from "@/hooks/use-dismiss-on-outside";
 import { cn } from "@/lib/utils";
 import { m } from "@/paraglide/messages";
 import { useVideoEditor } from "./state";
@@ -35,15 +36,13 @@ export function VideoView({
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (!editing) return;
-    inputRef.current?.focus();
-    const onMouseDown = (event: MouseEvent) => {
-      if (wrapperRef.current?.contains(event.target as Node)) return;
-      editor.commands.closeVideoEditor();
-    };
-    document.addEventListener("mousedown", onMouseDown);
-    return () => document.removeEventListener("mousedown", onMouseDown);
-  }, [editing, editor]);
+    if (editing) inputRef.current?.focus();
+  }, [editing]);
+  useDismissOnOutside(
+    wrapperRef,
+    () => editor.commands.closeVideoEditor(),
+    editing,
+  );
 
   const openEditor = () => {
     const pos = getPos();

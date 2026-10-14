@@ -7,11 +7,15 @@ import { ClientOnly, Link, useNavigate } from "@tanstack/react-router";
 import { ArrowRight, FileText, Pin, Plus } from "lucide-react";
 import { useEffect } from "react";
 import { useAdminChrome } from "@/components/admin/admin-chrome";
+import { Button, buttonClass } from "@/components/ui/button";
+import { PageHeader, SectionHeading } from "@/components/ui/page-heading";
 import type { DashboardOverview } from "@/features/dashboard/dashboard.schema";
 import { dashboardOverviewQuery } from "@/features/dashboard/queries";
+import { PostStatusBadge } from "@/features/posts/components/post-status-badge";
 import { orpc, orpcClient } from "@/lib/orpc";
 import { cn, formatTimeAgo } from "@/lib/utils";
 import { m } from "@/paraglide/messages";
+import "@/components/ui/callout.css";
 import "./dashboard.css";
 import { DashboardIdentity } from "./dashboard-identity";
 
@@ -72,22 +76,21 @@ export function DashboardPage() {
     !!popularityAlert;
 
   return (
-    <div className="dashboard-workspace fuwari-card-base">
-      <header className="dashboard-header">
-        <div>
-          <h1>{m.admin_overview_title()}</h1>
-          <p>{m.dashboard_intro()}</p>
-        </div>
-        <button
-          type="button"
-          onClick={() => createPost()}
-          disabled={isCreating}
-          className="dashboard-button fuwari-btn-regular"
-        >
-          <Plus size={18} />
-          {createLabel}
-        </button>
-      </header>
+    <div className="dashboard-workspace admin-workspace fuwari-card-base">
+      <PageHeader
+        className="dashboard-header"
+        title={m.admin_overview_title()}
+        description={m.dashboard_intro()}
+        actions={
+          <Button
+            onClick={() => createPost()}
+            loading={isCreating}
+            icon={<Plus size={18} />}
+          >
+            {createLabel}
+          </Button>
+        }
+      />
       <div className="dashboard-layout">
         <section
           className="dashboard-resume"
@@ -101,7 +104,7 @@ export function DashboardPage() {
                 </p>
                 <div className="dashboard-resume-title">
                   <h2>{latest.title.trim() || m.common_untitled()}</h2>
-                  <StatusPill published={latest.status === "published"} />
+                  <PostStatusBadge published={latest.status === "published"} />
                 </div>
                 <p className="dashboard-meta">
                   <FileText size={16} />
@@ -113,7 +116,7 @@ export function DashboardPage() {
               <Link
                 to="/admin/posts/edit/$id"
                 params={{ id: String(latest.id) }}
-                className="dashboard-button fuwari-btn-primary"
+                className={buttonClass({ variant: "primary" })}
               >
                 {m.dashboard_resume()}
                 <ArrowRight size={18} />
@@ -125,27 +128,33 @@ export function DashboardPage() {
                 <h2>{m.dashboard_first_post()}</h2>
                 <p>{m.admin_posts_empty_library()}</p>
               </div>
-              <button
-                type="button"
+              <Button
+                variant="primary"
                 onClick={() => createPost()}
-                disabled={isCreating}
-                className="dashboard-button fuwari-btn-primary"
+                loading={isCreating}
+                icon={<Plus size={18} />}
               >
-                <Plus size={18} />
                 {createLabel}
-              </button>
+              </Button>
             </>
           )}
         </section>
         {otherPosts.length > 0 && (
           <section className="dashboard-recent">
-            <div className="dashboard-section-heading">
-              <h2>{m.dashboard_recent_edits()}</h2>
-              <Link to="/admin/posts" className="dashboard-text-link">
-                {m.admin_overview_all_posts()}
-                <ArrowRight size={16} />
-              </Link>
-            </div>
+            <SectionHeading
+              className="dashboard-section-heading"
+              size="sm"
+              title={m.dashboard_recent_edits()}
+              actions={
+                <Link
+                  to="/admin/posts"
+                  className={buttonClass({ variant: "text", size: "sm" })}
+                >
+                  {m.admin_overview_all_posts()}
+                  <ArrowRight size={16} />
+                </Link>
+              }
+            />
             <ul className="dashboard-posts">
               {otherPosts.map((post) => (
                 <li key={post.id}>
@@ -162,7 +171,9 @@ export function DashboardPage() {
                         <strong>
                           {post.title.trim() || m.common_untitled()}
                         </strong>
-                        <StatusPill published={post.status === "published"} />
+                        <PostStatusBadge
+                          published={post.status === "published"}
+                        />
                       </div>
                       <p className="dashboard-meta">
                         {post.pinnedAt && (
@@ -191,9 +202,11 @@ export function DashboardPage() {
           >
             {showTasks && (
               <section className="dashboard-tasks">
-                <div className="dashboard-section-heading">
-                  <h2>{m.dashboard_tasks()}</h2>
-                </div>
+                <SectionHeading
+                  className="dashboard-section-heading"
+                  size="md"
+                  title={m.dashboard_tasks()}
+                />
                 <div className="dashboard-task-scroll">
                   {showFriendLinks && (
                     <>
@@ -240,7 +253,11 @@ export function DashboardPage() {
                       <Link
                         to="/admin/friend-links"
                         search={{ status: "pending", page: 1 }}
-                        className="dashboard-text-link dashboard-review-all"
+                        className={buttonClass({
+                          variant: "text",
+                          size: "sm",
+                          className: "dashboard-review-all",
+                        })}
                       >
                         {m.admin_overview_review_friend_links()}
                         <ArrowRight size={16} />
@@ -257,9 +274,11 @@ export function DashboardPage() {
             )}
             {showComments && (
               <section className="dashboard-comments">
-                <div className="dashboard-section-heading">
-                  <h2>{m.admin_overview_recent_comments()}</h2>
-                </div>
+                <SectionHeading
+                  className="dashboard-section-heading"
+                  size="md"
+                  title={m.admin_overview_recent_comments()}
+                />
                 <ul className="dashboard-list">
                   {recentComments.map((comment) => (
                     <li key={comment.id}>
@@ -335,7 +354,8 @@ function AttentionChips({
         <Link
           from="/"
           to="/admin/settings/notifications"
-          className="inline-flex items-center h-9 px-3.5 rounded-full bg-(--fuwari-warning-bg) text-(--fuwari-warning-fg) text-sm font-medium"
+          className="fuwari-callout"
+          data-tone="warning"
         >
           {m.admin_overview_email_needs_setup()}
         </Link>
@@ -344,7 +364,8 @@ function AttentionChips({
         <Link
           from="/"
           to="/admin/settings/maintenance"
-          className="inline-flex items-center h-9 px-3.5 rounded-full bg-(--fuwari-warning-bg) text-(--fuwari-warning-fg) text-sm font-medium"
+          className="fuwari-callout"
+          data-tone="warning"
         >
           {m.admin_overview_popularity_expired()}
         </Link>
@@ -353,7 +374,8 @@ function AttentionChips({
         <Link
           from="/"
           to="/admin/settings/maintenance"
-          className="inline-flex items-center h-9 px-3.5 rounded-full bg-(--fuwari-danger-bg) text-(--fuwari-danger-fg) text-sm font-medium"
+          className="fuwari-callout"
+          data-tone="danger"
         >
           {m.admin_overview_popularity_failed()}
         </Link>
@@ -362,27 +384,12 @@ function AttentionChips({
         <Link
           from="/"
           to="/admin/settings/site"
-          className="inline-flex items-center h-9 px-3.5 rounded-full bg-(--fuwari-btn-regular-bg) text-(--fuwari-btn-content) text-sm font-medium"
+          className="fuwari-callout"
+          data-tone="info"
         >
           {m.admin_overview_default_site_identity()}
         </Link>
       ) : null}
     </div>
-  );
-}
-
-function StatusPill({ published }: { published: boolean }) {
-  return (
-    <span
-      className={
-        published
-          ? "text-xs px-2 py-0.5 rounded-full bg-(--fuwari-success-bg) text-(--fuwari-success-fg)"
-          : "text-xs px-2 py-0.5 rounded-full bg-(--fuwari-btn-regular-bg) fuwari-text-50"
-      }
-    >
-      {published
-        ? m.admin_posts_status_published()
-        : m.admin_posts_status_draft()}
-    </span>
   );
 }

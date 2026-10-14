@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
-import { Loader2, Plus, Search } from "lucide-react";
+import { Plus, Search } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { useAdminChrome } from "@/components/admin/admin-chrome";
@@ -8,9 +8,13 @@ import { AdminPagination } from "@/components/admin/admin-pagination";
 import { orpc, orpcClient } from "@/lib/orpc";
 import { ADMIN_ITEMS_PER_PAGE } from "@/lib/constants";
 import { useContentMotion } from "@/hooks/use-motion";
+import { EmptyState } from "@/components/ui/empty-state";
 import { m } from "@/paraglide/messages";
 import { PostRow, PostsToolbar } from "./components";
+import { Button } from "@/components/ui/button";
 import ConfirmationModal from "@/components/ui/confirmation-modal";
+import { PageHeader } from "@/components/ui/page-heading";
+import { Spinner } from "@/components/ui/spinner";
 import { useListScroll } from "./hooks/use-list-scroll";
 import { useDeletePost, usePosts } from "./hooks";
 import { PostManagerSkeleton } from "./post-manager-skeleton";
@@ -143,35 +147,32 @@ export function PostManager({
   const isEmptyLibrary = !hasContentFilter && totalCount === 0;
 
   return (
-    <section className="post-manager fuwari-card-base">
-      <header className="post-list-heading">
-        <div>
-          <h1>{m.admin_posts_title()}</h1>
-          <p>
+    <section className="post-manager admin-workspace fuwari-card-base">
+      <PageHeader
+        className="post-list-heading"
+        title={m.admin_posts_title()}
+        description={
+          <>
             {statusCounts
               ? m.admin_posts_total({
                   count: statusCounts.draft + statusCounts.published,
                 })
               : "—"}
-            {isFetching && (
-              <Loader2
-                size={14}
-                className="ml-2 inline animate-spin"
-                aria-hidden="true"
-              />
-            )}
-          </p>
-        </div>
-        <button
-          type="button"
-          className="post-list-create fuwari-btn-primary"
-          onClick={() => createPost()}
-          disabled={isCreating}
-        >
-          <Plus size={19} />
-          {createLabel}
-        </button>
-      </header>
+            {isFetching && <Spinner size={14} className="ml-2 inline" />}
+          </>
+        }
+        actions={
+          <Button
+            variant="primary"
+            className="post-list-create"
+            onClick={() => createPost()}
+            loading={isCreating}
+            icon={<Plus size={19} />}
+          >
+            {createLabel}
+          </Button>
+        }
+      />
       <PostsToolbar
         searchTerm={searchInput}
         onSearchChange={handleSearchChange}
@@ -191,12 +192,15 @@ export function PostManager({
         tabIndex={0}
       >
         {error ? (
-          <div className="post-list-empty">
-            <p>{m.error_desc()}</p>
-            <button type="button" onClick={() => void refetch()}>
-              {m.error_retry()}
-            </button>
-          </div>
+          <EmptyState
+            className="post-list-empty"
+            description={m.error_desc()}
+            action={
+              <Button variant="text" onClick={() => void refetch()}>
+                {m.error_retry()}
+              </Button>
+            }
+          />
         ) : (
           <>
             <div className="post-list-table-wrap" aria-busy={isFetching}>
@@ -239,23 +243,28 @@ export function PostManager({
               </table>
             </div>
             {!isPending && posts.length === 0 && (
-              <div className="post-list-empty">
-                <Search size={30} aria-hidden="true" />
-                <p>
-                  {isEmptyLibrary
+              <EmptyState
+                className="post-list-empty"
+                icon={Search}
+                description={
+                  isEmptyLibrary
                     ? m.admin_posts_empty_library()
-                    : m.admin_posts_no_match()}
-                </p>
-                <button
-                  type="button"
-                  disabled={isCreating}
-                  onClick={() =>
-                    isEmptyLibrary ? createPost() : resetFilters()
-                  }
-                >
-                  {isEmptyLibrary ? createLabel : m.admin_posts_clear_filters()}
-                </button>
-              </div>
+                    : m.admin_posts_no_match()
+                }
+                action={
+                  <Button
+                    variant="text"
+                    disabled={isCreating}
+                    onClick={() =>
+                      isEmptyLibrary ? createPost() : resetFilters()
+                    }
+                  >
+                    {isEmptyLibrary
+                      ? createLabel
+                      : m.admin_posts_clear_filters()}
+                  </Button>
+                }
+              />
             )}
           </>
         )}
@@ -279,13 +288,9 @@ export function PostManager({
             />
           )}
           {hasActiveFilters && (
-            <button
-              type="button"
-              className="post-list-reset"
-              onClick={resetFilters}
-            >
+            <Button variant="text" size="sm" onClick={resetFilters}>
               {m.admin_posts_clear_filters()}
-            </button>
+            </Button>
           )}
         </footer>
       )}

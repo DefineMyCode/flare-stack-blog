@@ -4,15 +4,17 @@ import { categoryOptionsQuery } from "@/features/categories/queries";
 import { m } from "@/paraglide/messages";
 
 interface CategorySelectProps {
+  id?: string;
   value: number | null;
   onChange: (categoryId: number | null) => void;
 }
 
-export function CategorySelect({ value, onChange }: CategorySelectProps) {
+export function CategorySelect({ id, value, onChange }: CategorySelectProps) {
   const { data: categories = [], isLoading } = useQuery(categoryOptionsQuery);
 
   return (
     <Select
+      id={id}
       value={value == null ? "" : String(value)}
       disabled={isLoading}
       onChange={(next) => onChange(next === "" ? null : Number(next))}
