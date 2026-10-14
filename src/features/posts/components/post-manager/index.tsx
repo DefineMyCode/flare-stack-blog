@@ -16,7 +16,12 @@ import ConfirmationModal from "@/components/ui/confirmation-modal";
 import { PageHeader } from "@/components/ui/page-heading";
 import { Spinner } from "@/components/ui/spinner";
 import { useListScroll } from "./hooks/use-list-scroll";
-import { useDeletePost, usePosts } from "./hooks";
+import {
+  useDeletePost,
+  usePosts,
+  useTogglePostPin,
+  useUnpublishPost,
+} from "./hooks";
 import { PostManagerSkeleton } from "./post-manager-skeleton";
 import type { AdminPostListItem, SortField, StatusFilter } from "./types";
 import "./post-manager.css";
@@ -50,6 +55,8 @@ export function PostManager({
   const [postToDelete, setPostToDelete] = useState<AdminPostListItem | null>(
     null,
   );
+  const [postToUnpublish, setPostToUnpublish] =
+    useState<AdminPostListItem | null>(null);
   const deleteTriggerRef = useRef<HTMLButtonElement | null>(null);
   const searchRef = useRef<HTMLInputElement>(null);
   const searchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -141,6 +148,10 @@ export function PostManager({
   const deleteMutation = useDeletePost({
     onSuccess: () => setPostToDelete(null),
   });
+  const unpublishMutation = useUnpublishPost({
+    onSuccess: () => setPostToUnpublish(null),
+  });
+  const pinMutation = useTogglePostPin();
   const hasActiveFilters =
     status !== "ALL" || sortBy !== "updatedAt" || Boolean(searchInput);
   const hasContentFilter = status !== "ALL" || Boolean(search.trim());
@@ -236,6 +247,15 @@ export function PostManager({
                           deleteTriggerRef.current = trigger;
                           setPostToDelete(target);
                         }}
+                        onTogglePin={(target) => pinMutation.mutate(target)}
+                        pinPending={
+                          pinMutation.isPending &&
+                          pinMutation.variables.id === post.id
+                        }
+                        onUnpublish={(target, trigger) => {
+                          deleteTriggerRef.current = trigger;
+                          setPostToUnpublish(target);
+                        }}
                       />
                     ))
                   )}
@@ -307,6 +327,23 @@ export function PostManager({
         onClose={() => setPostToDelete(null)}
         onConfirm={() => {
           if (postToDelete) deleteMutation.mutate(postToDelete);
+        }}
+        returnFocus={() =>
+          deleteTriggerRef.current?.isConnected
+            ? deleteTriggerRef.current
+            : searchRef.current
+        }
+      />
+      <ConfirmationModal
+        isOpen={!!postToUnpublish}
+        title={m.editor_unpublish_confirm_title()}
+        message={m.editor_unpublish_confirm_desc()}
+        confirmLabel={m.editor_header_unpublish()}
+        isDanger
+        isLoading={unpublishMutation.isPending}
+        onClose={() => setPostToUnpublish(null)}
+        onConfirm={() => {
+          if (postToUnpublish) unpublishMutation.mutate(postToUnpublish.id);
         }}
         returnFocus={() =>
           deleteTriggerRef.current?.isConnected

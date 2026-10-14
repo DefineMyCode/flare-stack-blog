@@ -22,6 +22,13 @@ const AdminPostCoverSchema = PublicPostCoverSchema.extend({
   fileName: z.string(),
 });
 
+const PublicSlugSchema = z
+  .string()
+  .nullable()
+  .describe(
+    "Slug of the live page at /post/{publicSlug}. It can differ from slug, the draft's, until the next publish. Null while the post is not published.",
+  );
+
 const PostSelectSchema = createSelectSchema(PostsTable, {
   publishedAt: coercedDateNullable,
   pinnedAt: coercedDateNullable,
@@ -100,17 +107,14 @@ export const PostWithTocSchema = PostSelectSchema.omit({
   })
   .nullable();
 
-export const AdminPostSchema = PostSelectSchema.omit({
-  publicSlug: true,
-})
-  .extend({
-    tags: z.array(TagSelectSchema).optional(),
-    hasPublicSnapshot: z.boolean(),
-    publicSnapshotContentJson: NullableJsonContentSchema,
-    serverToday: z.string(),
-    cover: AdminPostCoverSchema.nullable(),
-  })
-  .nullable();
+export const AdminPostSchema = PostSelectSchema.extend({
+  publicSlug: PublicSlugSchema,
+  tags: z.array(TagSelectSchema).optional(),
+  hasPublicSnapshot: z.boolean(),
+  publicSnapshotContentJson: NullableJsonContentSchema,
+  serverToday: z.string(),
+  cover: AdminPostCoverSchema.nullable(),
+}).nullable();
 
 export function normalizePostTagName(
   tagName: string | undefined,
@@ -213,6 +217,7 @@ const AdminPostListItemSchema = z.object({
   title: z.string(),
   summary: z.string().nullable(),
   slug: z.string(),
+  publicSlug: PublicSlugSchema,
   status: z.enum(["draft", "published"]),
   publishedAt: coercedDateNullable,
   pinnedAt: coercedDateNullable,

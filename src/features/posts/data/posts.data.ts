@@ -122,6 +122,7 @@ export async function getPosts(
     .select({
       id: PostsTable.id,
       ...adminPostTextColumns(filters.taxonomy),
+      publicSlug: PostsTable.publicSlug,
       status: PostsTable.status,
       publishedAt: publicScope
         ? snapshotDate("publishedAt")

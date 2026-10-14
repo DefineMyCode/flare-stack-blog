@@ -112,6 +112,11 @@ function EditPost() {
   };
 
   return (
-    <PostEditor key={post.id} initialData={initialData} onSave={handleSave} />
+    <PostEditor
+      key={post.id}
+      initialData={initialData}
+      publicSlug={post.publicSlug}
+      onSave={handleSave}
+    />
   );
 }
