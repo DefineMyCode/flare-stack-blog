@@ -193,7 +193,9 @@
 .settings-secret-input > button {
   position: absolute;
   right: 4px;
-  top: 4px;
+  /* The input grows with --settings-unit; stay on its middle. */
+  top: 50%;
+  transform: translateY(-50%);
   width: 32px;
   height: 32px;
   display: grid;
