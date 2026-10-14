@@ -10,6 +10,7 @@ import {
   useMediaQuery,
   useMotionPresence,
 } from "@/hooks/use-motion";
+import { EmptyState } from "@/components/ui/empty-state";
 import { m } from "@/paraglide/messages";
 import { MediaDetail, MediaToolbar } from "./components";
 import { MediaCollection } from "./components/media-collection";
@@ -209,32 +210,39 @@ export function MediaLibrary() {
             {isPending ? (
               <MediaCollectionSkeleton view={view} />
             ) : isError && !mediaItems.length ? (
-              <div className="media-empty" role="alert">
-                <p>{m.media_load_fail()}</p>
-                <button
-                  type="button"
-                  className="fuwari-btn-regular"
-                  onClick={() => void refetch()}
-                >
-                  {m.media_load_retry()}
-                </button>
-              </div>
+              <EmptyState
+                className="media-empty"
+                role="alert"
+                description={m.media_load_fail()}
+                action={
+                  <button
+                    type="button"
+                    className="fuwari-btn-regular"
+                    onClick={() => void refetch()}
+                  >
+                    {m.media_load_retry()}
+                  </button>
+                }
+              />
             ) : isEmpty ? (
-              <div className="media-empty">
-                <p>
-                  {unusedOnly ? m.media_unreferenced_empty() : m.media_empty()}
-                </p>
-                <span>{!unusedOnly ? m.media_empty_hint() : null}</span>
-                <button
-                  type="button"
-                  className="fuwari-btn-regular"
-                  onClick={
-                    unusedOnly ? () => setUnusedOnly(false) : openFilePicker
-                  }
-                >
-                  {unusedOnly ? m.media_filter_all() : m.media_choose()}
-                </button>
-              </div>
+              <EmptyState
+                className="media-empty"
+                title={
+                  unusedOnly ? m.media_unreferenced_empty() : m.media_empty()
+                }
+                description={!unusedOnly ? m.media_empty_hint() : null}
+                action={
+                  <button
+                    type="button"
+                    className="fuwari-btn-regular"
+                    onClick={
+                      unusedOnly ? () => setUnusedOnly(false) : openFilePicker
+                    }
+                  >
+                    {unusedOnly ? m.media_filter_all() : m.media_choose()}
+                  </button>
+                }
+              />
             ) : (
               <>
                 <MediaCollection

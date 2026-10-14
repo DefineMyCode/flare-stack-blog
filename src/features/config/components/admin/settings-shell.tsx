@@ -4,6 +4,7 @@ import { useAdminChrome } from "@/components/admin/admin-chrome";
 import { useContentMotion } from "@/hooks/use-motion";
 import { SettingsNav } from "./settings-nav";
 import type { SettingsPageId } from "./settings-pages";
+import { Callout } from "@/components/ui/callout";
 import { m } from "@/paraglide/messages";
 import "./settings.css";
 const FORM_ID = "system-config-form";
@@ -52,21 +53,15 @@ export function SettingsShell({
       {save && (
         <footer className="settings-savebar">
           {save.dirty && (
-            <p
+            <Callout
               role="status"
-              className={
-                save.conflict
-                  ? "settings-save-notice settings-error"
-                  : "settings-save-notice"
-              }
+              tone={save.conflict ? "danger" : "warning"}
+              icon={CircleAlert}
             >
-              <CircleAlert size={17} aria-hidden="true" />
-              <span>
-                {save.conflict
-                  ? m.settings_config_conflict()
-                  : m.settings_config_unsaved()}
-              </span>
-            </p>
+              {save.conflict
+                ? m.settings_config_conflict()
+                : m.settings_config_unsaved()}
+            </Callout>
           )}
           <div>
             {save.dirty && (

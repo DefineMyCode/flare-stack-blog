@@ -69,17 +69,6 @@
   font-size: 12px;
   padding-block: 4px;
 }
-.auth-error,
-.auth-feedback {
-  color: var(--fuwari-danger-fg);
-  font-size: 13px;
-  line-height: 1.6;
-}
-.auth-feedback {
-  padding: 12px 14px;
-  background: var(--fuwari-danger-bg);
-  border-radius: 12px;
-}
 .auth-feedback button {
   display: flex;
   align-items: center;
@@ -123,20 +112,6 @@
   padding-top: 8px;
   text-align: center;
 }
-.auth-status-icon {
-  display: grid;
-  place-items: center;
-  width: 56px;
-  height: 56px;
-  margin-inline: auto;
-  border-radius: 16px;
-  background: var(--fuwari-btn-regular-bg);
-  color: var(--fuwari-primary);
-}
-.auth-status-icon[data-error="true"] {
-  background: var(--fuwari-danger-bg);
-  color: var(--fuwari-danger-fg);
-}
 .auth-status-actions {
   display: grid;
   gap: 16px;
@@ -145,10 +120,6 @@
 .auth-feedback a {
   color: var(--fuwari-primary);
   font-size: 14px;
-}
-.auth-feedback a {
-  display: inline-block;
-  margin-top: 8px;
 }
 .auth-status .auth-heading p {
   overflow-wrap: anywhere;

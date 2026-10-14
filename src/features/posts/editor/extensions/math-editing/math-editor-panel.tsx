@@ -100,7 +100,7 @@ export function MathEditorPanel({
             {m.editor_formula_preview_empty()}
           </span>
         ) : "error" in preview ? (
-          <span className="text-sm wrap-break-word text-(--fuwari-danger-fg)">
+          <span className="fuwari-form-field-error wrap-break-word">
             {preview.error}
           </span>
         ) : (

@@ -65,14 +65,6 @@
   gap: 8px;
   margin-top: 14px;
 }
-.public-search-tags span {
-  font-size: 12px;
-  color: var(--fuwari-btn-content);
-  background: var(--fuwari-btn-regular-bg);
-  border-radius: 6px;
-  padding: 3px 8px;
-  overflow-wrap: anywhere;
-}
 .public-search-arrow {
   position: absolute;
   right: 0;
@@ -98,29 +90,6 @@
   outline: 2px solid var(--fuwari-primary);
   outline-offset: 3px;
 }
-.public-search-empty {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 12px;
-  padding: 44px 12px;
-  text-align: center;
-  color: var(--fuwari-fg-50);
-}
-.public-search-empty > svg {
-  color: var(--fuwari-primary);
-  margin-bottom: 4px;
-}
-.public-search-empty h2 {
-  color: var(--fuwari-fg-75);
-  font-size: 18px;
-  font-weight: 500;
-}
-.public-search-empty p {
-  font-size: 14px;
-  line-height: 1.7;
-  overflow-wrap: anywhere;
-}
 .public-search-empty button {
   min-height: 44px;
   padding: 10px 20px;
@@ -131,18 +100,6 @@
   display: grid;
   gap: 16px;
   padding-block: 28px;
-}
-.public-search-skeleton span {
-  height: 18px;
-  border-radius: 6px;
-  background: var(--fuwari-btn-regular-bg);
-}
-.public-search-skeleton span:first-child {
-  width: 65%;
-  height: 24px;
-}
-.public-search-skeleton span:last-child {
-  width: 80%;
 }
 @media (max-width: 639px) {
   .public-search {

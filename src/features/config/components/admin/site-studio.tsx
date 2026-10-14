@@ -319,7 +319,7 @@ function NavLinksEditor() {
                 </button>
               </div>
               {labelError || hrefError ? (
-                <p className="text-xs text-(--fuwari-danger-fg)">
+                <p className="fuwari-form-field-error">
                   {hrefError || labelError}
                 </p>
               ) : null}

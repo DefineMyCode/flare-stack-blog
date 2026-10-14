@@ -9,9 +9,11 @@ import { useEffect } from "react";
 import { useAdminChrome } from "@/components/admin/admin-chrome";
 import type { DashboardOverview } from "@/features/dashboard/dashboard.schema";
 import { dashboardOverviewQuery } from "@/features/dashboard/queries";
+import { PostStatusBadge } from "@/features/posts/components/post-status-badge";
 import { orpc, orpcClient } from "@/lib/orpc";
 import { cn, formatTimeAgo } from "@/lib/utils";
 import { m } from "@/paraglide/messages";
+import "@/components/ui/callout.css";
 import "./dashboard.css";
 import { DashboardIdentity } from "./dashboard-identity";
 
@@ -101,7 +103,7 @@ export function DashboardPage() {
                 </p>
                 <div className="dashboard-resume-title">
                   <h2>{latest.title.trim() || m.common_untitled()}</h2>
-                  <StatusPill published={latest.status === "published"} />
+                  <PostStatusBadge published={latest.status === "published"} />
                 </div>
                 <p className="dashboard-meta">
                   <FileText size={16} />
@@ -162,7 +164,9 @@ export function DashboardPage() {
                         <strong>
                           {post.title.trim() || m.common_untitled()}
                         </strong>
-                        <StatusPill published={post.status === "published"} />
+                        <PostStatusBadge
+                          published={post.status === "published"}
+                        />
                       </div>
                       <p className="dashboard-meta">
                         {post.pinnedAt && (
@@ -335,7 +339,8 @@ function AttentionChips({
         <Link
           from="/"
           to="/admin/settings/notifications"
-          className="inline-flex items-center h-9 px-3.5 rounded-full bg-(--fuwari-warning-bg) text-(--fuwari-warning-fg) text-sm font-medium"
+          className="fuwari-callout"
+          data-tone="warning"
         >
           {m.admin_overview_email_needs_setup()}
         </Link>
@@ -344,7 +349,8 @@ function AttentionChips({
         <Link
           from="/"
           to="/admin/settings/maintenance"
-          className="inline-flex items-center h-9 px-3.5 rounded-full bg-(--fuwari-warning-bg) text-(--fuwari-warning-fg) text-sm font-medium"
+          className="fuwari-callout"
+          data-tone="warning"
         >
           {m.admin_overview_popularity_expired()}
         </Link>
@@ -353,7 +359,8 @@ function AttentionChips({
         <Link
           from="/"
           to="/admin/settings/maintenance"
-          className="inline-flex items-center h-9 px-3.5 rounded-full bg-(--fuwari-danger-bg) text-(--fuwari-danger-fg) text-sm font-medium"
+          className="fuwari-callout"
+          data-tone="danger"
         >
           {m.admin_overview_popularity_failed()}
         </Link>
@@ -362,27 +369,12 @@ function AttentionChips({
         <Link
           from="/"
           to="/admin/settings/site"
-          className="inline-flex items-center h-9 px-3.5 rounded-full bg-(--fuwari-btn-regular-bg) text-(--fuwari-btn-content) text-sm font-medium"
+          className="fuwari-callout"
+          data-tone="info"
         >
           {m.admin_overview_default_site_identity()}
         </Link>
       ) : null}
     </div>
-  );
-}
-
-function StatusPill({ published }: { published: boolean }) {
-  return (
-    <span
-      className={
-        published
-          ? "text-xs px-2 py-0.5 rounded-full bg-(--fuwari-success-bg) text-(--fuwari-success-fg)"
-          : "text-xs px-2 py-0.5 rounded-full bg-(--fuwari-btn-regular-bg) fuwari-text-50"
-      }
-    >
-      {published
-        ? m.admin_posts_status_published()
-        : m.admin_posts_status_draft()}
-    </span>
   );
 }

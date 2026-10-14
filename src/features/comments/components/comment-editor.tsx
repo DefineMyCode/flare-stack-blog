@@ -7,6 +7,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
+import { StatusText } from "@/components/ui/status-text";
 import { m } from "@/paraglide/messages";
 import { CommentEditorActive } from "./comment-reveal";
 
@@ -115,9 +116,9 @@ export function CommentEditor({
         </div>
       </div>
       {error && (
-        <p id={`${id}-error`} role="alert" className="comment-error">
+        <StatusText error id={`${id}-error`} className="comment-error">
           {m.comments_send_failed_keep_draft()}
-        </p>
+        </StatusText>
       )}
     </form>
   );

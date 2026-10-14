@@ -2,6 +2,7 @@ import { Loader2 } from "lucide-react";
 import { useState, type ReactNode } from "react";
 import { SearchField } from "@/components/ui/search-field";
 import { Select } from "@/components/ui/select";
+import { EmptyState } from "@/components/ui/empty-state";
 import { m } from "@/paraglide/messages";
 import type { TaxonomyState } from "./taxonomy-state";
 import type {
@@ -95,21 +96,29 @@ export function TaxonomyExplorer({
             <Loader2 size={18} className="animate-spin" />
           </div>
         ) : navError ? (
-          <div className="taxonomy-empty" role="alert">
-            <p>{m.error_desc()}</p>
-            <button type="button" onClick={onRetry}>
-              {m.error_retry()}
-            </button>
-          </div>
+          <EmptyState
+            className="taxonomy-empty"
+            size="compact"
+            role="alert"
+            description={m.error_desc()}
+            action={
+              <button type="button" onClick={onRetry}>
+                {m.error_retry()}
+              </button>
+            }
+          />
         ) : (
           <>
             {visibleItems.map(navRow)}
             {tagMode && visibleItems.length === 0 ? (
-              <p className="taxonomy-nav-empty">
-                {items.length
-                  ? m.tag_manager_no_match()
-                  : m.tag_manager_empty()}
-              </p>
+              <EmptyState
+                size="compact"
+                description={
+                  items.length
+                    ? m.tag_manager_no_match()
+                    : m.tag_manager_empty()
+                }
+              />
             ) : null}
             {!tagMode ? (
               <div className="taxonomy-uncategorized">

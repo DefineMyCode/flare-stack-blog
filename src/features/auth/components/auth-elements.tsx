@@ -1,5 +1,6 @@
 import { AlertCircle, CheckCircle2, Loader2, MailCheck } from "lucide-react";
 import type { ReactNode } from "react";
+import { StatusIcon } from "@/components/ui/status-icon";
 
 export function AuthHeading({
   title,
@@ -36,13 +37,12 @@ export function AuthStatus({
           : Loader2;
   return (
     <div className="auth-page auth-status fuwari-content-enter">
-      <div className="auth-status-icon" data-error={state === "error"}>
-        <Icon
-          size={28}
-          strokeWidth={1.5}
-          className={state === "loading" ? "animate-spin" : undefined}
-        />
-      </div>
+      <StatusIcon
+        icon={Icon}
+        tone={state === "error" ? "danger" : "primary"}
+        spin={state === "loading"}
+        className="mx-auto"
+      />
       <div role={state === "error" ? "alert" : "status"}>
         <AuthHeading title={title} description={description} />
       </div>

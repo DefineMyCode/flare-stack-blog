@@ -42,15 +42,6 @@
   font-size: 14px;
 }
 .comments-muted,
-.comments-empty {
-  color: var(--fuwari-fg-50);
-  font-size: 14px;
-  line-height: 1.7;
-  padding-block: 24px;
-}
-.comments-empty {
-  text-align: center;
-}
 .comment-avatar {
   width: 40px;
   height: 40px;
@@ -128,14 +119,6 @@
   color: var(--fuwari-fg-75);
   overflow-wrap: anywhere;
 }
-.comment-blogger {
-  padding: 1px 6px;
-  border-radius: 6px;
-  background: var(--fuwari-btn-regular-bg);
-  color: var(--fuwari-primary);
-  font-size: 11px;
-  font-weight: 400;
-}
 .comment-author .comment-reply-target,
 .comment-meta time {
   font-size: 12px;
@@ -197,22 +180,6 @@
   color: var(--fuwari-primary);
   font-size: 13px;
   display: block;
-}
-.comment-reveal {
-  display: grid;
-  grid-template-rows: 0fr;
-  opacity: 0;
-  transition:
-    grid-template-rows 320ms var(--fuwari-motion-ease),
-    opacity 180ms;
-}
-.comment-reveal[data-open="true"] {
-  grid-template-rows: 1fr;
-  opacity: 1;
-}
-.comment-reveal > div {
-  min-height: 0;
-  overflow: hidden;
 }
 .comment-root-reply {
   margin-left: 56px;
@@ -302,19 +269,10 @@
   display: none;
 }
 .comment-error {
-  color: var(--fuwari-danger-fg);
-  font-size: 13px;
-  line-height: 1.7;
   margin-top: 10px;
 }
 .comment-load-error {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 8px 16px;
-  color: var(--fuwari-fg-50);
-  font-size: 13px;
-  padding-block: 16px;
+  margin-block: 12px;
 }
 .comment-load-error button {
   min-height: 40px;
@@ -400,7 +358,6 @@
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  .comment-reveal,
   .comment-item,
   .comment-body-height,
   .comment-composer-input,

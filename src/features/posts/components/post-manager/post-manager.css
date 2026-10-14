@@ -94,6 +94,9 @@
   cursor: pointer;
 }
 .post-list-table {
+  --fuwari-badge-height: calc(24 * var(--admin-unit));
+  --fuwari-badge-padding-x: calc(10 * var(--admin-unit));
+  --fuwari-badge-font-size: calc(12 * var(--admin-unit));
   width: 100%;
   table-layout: fixed;
   border-collapse: collapse;
@@ -169,25 +172,6 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.post-list-status {
-  display: inline-flex;
-  min-height: calc(24 * var(--admin-unit));
-  align-items: center;
-  justify-content: center;
-  padding: 1px calc(10 * var(--admin-unit));
-  font-size: calc(12 * var(--admin-unit));
-  font-weight: 500;
-  border-radius: calc(20 * var(--admin-unit));
-  white-space: nowrap;
-}
-.post-list-status.published {
-  background: var(--fuwari-success-bg);
-  color: var(--fuwari-success-fg);
-}
-.post-list-status.draft {
-  background: var(--fuwari-btn-regular-bg);
-  color: var(--fuwari-btn-content);
-}
 .post-list-date {
   font-size: calc(12 * var(--admin-unit));
   font-variant-numeric: tabular-nums;
@@ -260,24 +244,6 @@
 }
 .post-list-reset {
   color: var(--fuwari-primary);
-}
-.post-list-empty {
-  padding: calc(90 * var(--admin-unit)) calc(20 * var(--admin-unit));
-  text-align: center;
-  color: var(--fuwari-fg-50);
-}
-.post-list-empty > svg {
-  margin: 0 auto calc(20 * var(--admin-unit));
-  color: var(--fuwari-primary);
-}
-.post-list-empty h2 {
-  font-size: calc(18 * var(--admin-unit));
-  font-weight: 500;
-  color: var(--fuwari-fg-75);
-}
-.post-list-empty p {
-  font-size: calc(14 * var(--admin-unit));
-  margin-top: calc(10 * var(--admin-unit));
 }
 .post-list-empty button {
   color: var(--fuwari-primary);
@@ -413,10 +379,10 @@
   .post-list-row-actions {
     gap: 5px;
   }
-  .post-list-status {
-    font-size: calc(11 * var(--admin-unit));
-    min-height: calc(22 * var(--admin-unit));
-    padding: 0 calc(7 * var(--admin-unit));
+  .post-list-table {
+    --fuwari-badge-height: calc(22 * var(--admin-unit));
+    --fuwari-badge-padding-x: calc(7 * var(--admin-unit));
+    --fuwari-badge-font-size: calc(11 * var(--admin-unit));
   }
   .post-list-row-actions > a {
     font-size: calc(12 * var(--admin-unit));
@@ -424,9 +390,6 @@
   .post-list-menu > button {
     height: calc(26 * var(--admin-unit));
     width: calc(26 * var(--admin-unit));
-  }
-  .post-list-empty {
-    padding: calc(60 * var(--admin-unit)) calc(10 * var(--admin-unit));
   }
   .post-list-footer {
     font-size: calc(12 * var(--admin-unit));

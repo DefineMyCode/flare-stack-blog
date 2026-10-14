@@ -139,11 +139,6 @@
   padding-top: 16px;
   border-top: 1px solid var(--taxonomy-rule);
 }
-.taxonomy-nav-empty {
-  padding: 20px 10px;
-  font-size: 13px;
-  color: var(--fuwari-fg-50);
-}
 .taxonomy-mobile-picker {
   display: none;
 }
@@ -291,19 +286,6 @@
   flex-wrap: wrap;
   justify-content: center;
 }
-.taxonomy-empty {
-  min-height: 220px;
-  padding: 30px 16px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 14px;
-  font-size: 14px;
-  color: var(--fuwari-fg-50);
-  line-height: 1.7;
-  text-align: center;
-}
 .taxonomy-empty :is(button, a) {
   color: var(--fuwari-primary);
 }
@@ -325,7 +307,6 @@
   height: 16px;
   width: 55%;
   border-radius: 7px;
-  background: var(--fuwari-btn-regular-bg);
 }
 .taxonomy-skeleton-row {
   height: calc(62 * var(--taxonomy-unit));

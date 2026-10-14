@@ -1,12 +1,7 @@
 import { Link } from "@tanstack/react-router";
-import {
-  ArrowLeft,
-  ChevronDown,
-  Loader2,
-  LogOut,
-  UserRound,
-} from "lucide-react";
+import { ArrowLeft, Loader2, LogOut, UserRound } from "lucide-react";
 import { lazy, Suspense, useRef, useState } from "react";
+import { DisclosureChevron, DisclosurePanel } from "@/components/ui/disclosure";
 import { FormField } from "@/components/ui/form-field";
 import { Input } from "@/components/ui/input";
 import { PasswordInput } from "@/components/ui/password-input";
@@ -14,6 +9,7 @@ import { Switch } from "@/components/ui/switch";
 import type { useProfileForm } from "../hooks/use-profile-form";
 import type { usePasswordForm } from "../hooks/use-password-form";
 import type { useNotificationToggle } from "../hooks/use-notification-toggle";
+import { StatusText } from "@/components/ui/status-text";
 import { m } from "@/paraglide/messages";
 import "./profile-page.css";
 
@@ -127,13 +123,9 @@ export function ProfilePage({
             </button>
             {profileForm.feedback &&
               (profileForm.feedback.error || !profileForm.isDirty) && (
-                <p
-                  className="account-feedback"
-                  data-error={profileForm.feedback.error}
-                  role={profileForm.feedback.error ? "alert" : "status"}
-                >
+                <StatusText error={profileForm.feedback.error}>
                   {profileForm.feedback.message}
-                </p>
+                </StatusText>
               )}
           </div>
         </fieldset>
@@ -242,79 +234,64 @@ function PasswordSection({
           onClick={() => (open ? close() : setOpen(true))}
         >
           {open ? m.common_cancel() : m.account_change_password()}
-          <ChevronDown
-            size={16}
-            className={open ? "account-chevron-open" : ""}
-          />
+          <DisclosureChevron />
         </button>
       </div>
-      <div
-        id="account-password-fields"
-        className="account-password-disclosure"
-        data-open={open}
-        inert={!open}
-        aria-hidden={!open}
-      >
-        <div>
-          <form
-            className="account-password-form"
-            onSubmit={form.handleSubmit}
-            noValidate
-          >
-            <fieldset disabled={form.isSubmitting}>
+      <DisclosurePanel id="account-password-fields" open={open}>
+        <form
+          className="account-password-form"
+          onSubmit={form.handleSubmit}
+          noValidate
+        >
+          <fieldset disabled={form.isSubmitting}>
+            <FormField
+              label={m.profile_current_password()}
+              error={form.errors.currentPassword?.message}
+              required
+            >
+              <PasswordInput
+                autoComplete="current-password"
+                {...form.register("currentPassword")}
+              />
+            </FormField>
+            <div className="account-password-pair">
               <FormField
-                label={m.profile_current_password()}
-                error={form.errors.currentPassword?.message}
+                label={m.profile_new_password()}
+                error={form.errors.newPassword?.message}
                 required
               >
                 <PasswordInput
-                  autoComplete="current-password"
-                  {...form.register("currentPassword")}
+                  autoComplete="new-password"
+                  {...form.register("newPassword")}
                 />
               </FormField>
-              <div className="account-password-pair">
-                <FormField
-                  label={m.profile_new_password()}
-                  error={form.errors.newPassword?.message}
-                  required
-                >
-                  <PasswordInput
-                    autoComplete="new-password"
-                    {...form.register("newPassword")}
-                  />
-                </FormField>
-                <FormField
-                  label={m.profile_confirm_password()}
-                  error={form.errors.confirmPassword?.message}
-                  required
-                >
-                  <PasswordInput
-                    autoComplete="new-password"
-                    {...form.register("confirmPassword")}
-                  />
-                </FormField>
-              </div>
-              <div className="account-save">
-                <button type="submit" className="fuwari-btn-primary">
-                  {form.isSubmitting && (
-                    <Loader2 size={16} className="animate-spin" />
-                  )}
-                  {m.profile_update_password_fuwari()}
-                </button>
-              </div>
-              {form.feedback && (
-                <p
-                  className="account-feedback"
-                  data-error={form.feedback.error}
-                  role={form.feedback.error ? "alert" : "status"}
-                >
-                  {form.feedback.message}
-                </p>
-              )}
-            </fieldset>
-          </form>
-        </div>
-      </div>
+              <FormField
+                label={m.profile_confirm_password()}
+                error={form.errors.confirmPassword?.message}
+                required
+              >
+                <PasswordInput
+                  autoComplete="new-password"
+                  {...form.register("confirmPassword")}
+                />
+              </FormField>
+            </div>
+            <div className="account-save">
+              <button type="submit" className="fuwari-btn-primary">
+                {form.isSubmitting && (
+                  <Loader2 size={16} className="animate-spin" />
+                )}
+                {m.profile_update_password_fuwari()}
+              </button>
+            </div>
+            {form.feedback && (
+              <StatusText error={form.feedback.error}>
+                {form.feedback.message}
+              </StatusText>
+            )}
+          </fieldset>
+        </form>
+      </DisclosurePanel>
     </section>
   );
 }

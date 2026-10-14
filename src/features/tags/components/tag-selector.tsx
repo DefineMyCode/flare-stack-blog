@@ -8,6 +8,7 @@ import type { Tag } from "@/lib/db/schema";
 import { cn } from "@/lib/utils";
 import { MOTION, useMotionPresence } from "@/hooks/use-motion";
 import { m } from "@/paraglide/messages";
+import "@/components/ui/field.css";
 
 interface TagSelectorProps {
   value: Array<number>;
@@ -291,9 +292,9 @@ export function TagSelector({
 
             {/* Filtered List */}
             {isError ? (
-              <div className="p-2 text-center text-xs text-(--fuwari-danger-fg)">
-                <p>{m.tag_selector_load_fail()}</p>
-              </div>
+              <p className="fuwari-form-field-error p-2 text-center">
+                {m.tag_selector_load_fail()}
+              </p>
             ) : availableTags.length === 0 && !searchTerm ? (
               <p className="p-2 text-center text-xs fuwari-text-50">
                 {searchTerm

@@ -4,6 +4,7 @@ import type { CommentWithUser } from "@/features/comments/comments.schema";
 import { isMuted } from "@/features/muted-users/muted-users";
 import { authClient } from "@/lib/auth/auth-client";
 import { cn, formatDate } from "@/lib/utils";
+import { Badge } from "@/components/ui/badge";
 import { m } from "@/paraglide/messages";
 import { ExpandableContent } from "./expandable-content";
 import { CommentAvatar } from "./comment-avatar";
@@ -89,9 +90,9 @@ export const CommentItem = memo(
                   : comment.user?.name || m.comments_item_anonymous()}
               </span>
               {comment.user?.role === "admin" && !deleted && (
-                <span className="comment-blogger">
+                <Badge tone="primary" size="sm">
                   {m.comments_item_blogger()}
-                </span>
+                </Badge>
               )}
               {isReply && replyToName && !deleted && (
                 <span className="comment-reply-target">

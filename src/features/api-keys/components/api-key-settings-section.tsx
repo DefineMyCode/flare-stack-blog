@@ -3,6 +3,7 @@ import { Copy, KeyRound, Loader2, Plus } from "lucide-react";
 import { useRef, useState } from "react";
 import { toast } from "sonner";
 import ConfirmationModal from "@/components/ui/confirmation-modal";
+import { EmptyState } from "@/components/ui/empty-state";
 import { FormField } from "@/components/ui/form-field";
 import { FuwariModal } from "@/components/ui/fuwari-modal";
 import { Input } from "@/components/ui/input";
@@ -69,23 +70,25 @@ export function ApiKeySettingsSection() {
       </div>
       <div className="settings-key-list" aria-busy={isLoading}>
         {isError ? (
-          <div className="settings-key-empty">
-            <p>{m.settings_design_load_failed()}</p>
-            <button
-              type="button"
-              className="settings-button fuwari-btn-regular"
-              onClick={() => void reload()}
-            >
-              {m.settings_design_retry()}
-            </button>
-          </div>
+          <EmptyState
+            description={m.settings_design_load_failed()}
+            action={
+              <button
+                type="button"
+                className="settings-button fuwari-btn-regular"
+                onClick={() => void reload()}
+              >
+                {m.settings_design_retry()}
+              </button>
+            }
+          />
         ) : isLoading ? (
-          <p className="settings-key-empty">{m.settings_api_keys_loading()}</p>
+          <EmptyState description={m.settings_api_keys_loading()} />
         ) : keys.length === 0 ? (
-          <div className="settings-key-empty">
-            <KeyRound size={30} />
-            <p>{m.settings_api_keys_empty()}</p>
-          </div>
+          <EmptyState
+            icon={KeyRound}
+            description={m.settings_api_keys_empty()}
+          />
         ) : (
           <table>
             <thead>

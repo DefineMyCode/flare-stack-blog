@@ -72,15 +72,6 @@
 .settings-key-footer span {
   white-space: nowrap;
 }
-.settings-key-empty {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 16px;
-  padding: 60px 20px;
-  color: var(--fuwari-fg-50);
-  font-size: 14px;
-}
 @media (max-width: 600px) {
   .settings-key-list th,
   .settings-key-list td {

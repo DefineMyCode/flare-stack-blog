@@ -1,5 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import type { FriendLinkWithUser } from "@/features/friend-links/friend-links.schema";
+import { EmptyState } from "@/components/ui/empty-state";
 import { m } from "@/paraglide/messages";
 import { FriendCard } from "./friend-card";
 import "./friend-links-page.css";
@@ -30,7 +31,7 @@ export function FriendLinksPage({ links }: FriendLinksPageProps) {
           ))}
         </ul>
       ) : (
-        <p className="friends-empty">{m.friend_links_fuwari_no_links()}</p>
+        <EmptyState description={m.friend_links_fuwari_no_links()} />
       )}
     </section>
   );

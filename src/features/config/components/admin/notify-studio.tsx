@@ -24,6 +24,7 @@ import {
   type WebhookEndpoint,
   type WebhookProvider,
 } from "@/features/webhook/webhook.schema";
+import { Badge } from "@/components/ui/badge";
 import { FormField } from "@/components/ui/form-field";
 import { Input, Textarea } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
@@ -150,19 +151,18 @@ function EmailChannel() {
             </h2>
             <p className="settings-muted">{m.settings_design_email_hint()}</p>
           </div>
-          <span
+          <Badge
             role="status"
-            className={cn(
-              "shrink-0 h-6 px-2 rounded-full text-xs grid place-items-center",
+            tone={
               connectionStatus === "verified"
-                ? "bg-(--fuwari-success-bg) text-(--fuwari-success-fg)"
+                ? "success"
                 : connectionStatus === "failed"
-                  ? "bg-(--fuwari-danger-bg) text-(--fuwari-danger-fg)"
-                  : "bg-(--fuwari-btn-regular-bg) fuwari-text-50",
-            )}
+                  ? "danger"
+                  : "neutral"
+            }
           >
             {connectionLabels[connectionStatus]}
-          </span>
+          </Badge>
         </div>
 
         <Switch

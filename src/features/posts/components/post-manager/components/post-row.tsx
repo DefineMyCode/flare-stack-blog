@@ -10,6 +10,7 @@ import {
 } from "react";
 import { createPortal } from "react-dom";
 import { MOTION, useMotionPresence } from "@/hooks/use-motion";
+import { PostStatusBadge } from "@/features/posts/components/post-status-badge";
 import { formatDate } from "@/lib/utils";
 import { m } from "@/paraglide/messages";
 import type { TaxonomyReturn } from "@/components/admin/taxonomy-state";
@@ -49,11 +50,7 @@ export function PostRow({ post, sortBy, onDelete, editorState }: PostRowProps) {
         </div>
       </td>
       <td>
-        <span className={`post-list-status ${post.status}`}>
-          {post.status === "published"
-            ? m.admin_posts_status_published()
-            : m.admin_posts_status_draft()}
-        </span>
+        <PostStatusBadge published={post.status === "published"} />
       </td>
       <td className="post-list-date">
         <span className="post-list-mobile-date-label">
