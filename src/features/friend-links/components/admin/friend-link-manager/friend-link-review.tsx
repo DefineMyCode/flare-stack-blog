@@ -7,6 +7,7 @@ import { SearchField } from "@/components/ui/search-field";
 import type { FriendLinkWithUser } from "@/features/friend-links/friend-links.schema";
 import { useContentMotion } from "@/hooks/use-motion";
 import { formatDate } from "@/lib/utils";
+import { EmptyState } from "@/components/ui/empty-state";
 import { m } from "@/paraglide/messages";
 import { FriendLinkManagerSkeleton } from "./friend-link-manager-skeleton";
 
@@ -131,15 +132,18 @@ export function FriendLinkReview({
             aria-busy={loading}
           >
             {error ? (
-              <p className="friend-empty" role="alert">
-                {m.friend_links_admin_load_fail()}
-              </p>
+              <EmptyState
+                size="compact"
+                role="alert"
+                description={m.friend_links_admin_load_fail()}
+              />
             ) : loading ? (
               <FriendLinkManagerSkeleton />
             ) : items.length === 0 ? (
-              <p className="friend-empty">
-                {search ? m.friend_review_no_results() : emptyCopy}
-              </p>
+              <EmptyState
+                size="compact"
+                description={search ? m.friend_review_no_results() : emptyCopy}
+              />
             ) : (
               items.map((item) => (
                 <button

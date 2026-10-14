@@ -5,6 +5,7 @@ import { useTheme } from "@/components/common/theme-provider";
 import { ThemeToggle } from "@/components/common/theme-toggle";
 import type { NavOption, UserInfo } from "@/components/layout/layout-props";
 import { PublicNavLink } from "./public-nav-link";
+import { Skeleton } from "@/components/ui/skeleton";
 import { m } from "@/paraglide/messages";
 import { getLocale, setLocale } from "@/paraglide/runtime";
 
@@ -76,7 +77,7 @@ export function MobileMenu({
       )}
       {isLoading ? (
         <div className="public-menu-loading" aria-busy="true">
-          <span className="animate-pulse" />
+          <Skeleton className="h-6" />
         </div>
       ) : user ? (
         <>

@@ -14,6 +14,7 @@ import type {
 } from "@/features/posts/components/post-manager/types";
 import { adminPostsQuery } from "@/features/posts/queries";
 import { useContentMotion } from "@/hooks/use-motion";
+import { EmptyState } from "@/components/ui/empty-state";
 import { m } from "@/paraglide/messages";
 import { AdminPagination } from "./admin-pagination";
 import type { TaxonomyReturn, TaxonomyState } from "./taxonomy-state";
@@ -277,17 +278,17 @@ function TaxonomyPostList({
       aria-busy={query.isFetching}
     >
       {!selected ? (
-        <div className="taxonomy-empty">
-          <Hash size={28} />
-          <p>{m.taxonomy_empty_selection()}</p>
-        </div>
+        <EmptyState icon={Hash} description={m.taxonomy_empty_selection()} />
       ) : query.isError ? (
-        <div className="taxonomy-empty" role="alert">
-          <p>{m.error_desc()}</p>
-          <Button variant="text" onClick={() => void query.refetch()}>
-            {m.error_retry()}
-          </Button>
-        </div>
+        <EmptyState
+          role="alert"
+          description={m.error_desc()}
+          action={
+            <Button variant="text" onClick={() => void query.refetch()}>
+              {m.error_retry()}
+            </Button>
+          }
+        />
       ) : (
         <>
           <table className="post-list-table">
@@ -326,28 +327,30 @@ function TaxonomyPostList({
             </tbody>
           </table>
           {!query.isPending && posts.length === 0 ? (
-            <div className="taxonomy-empty">
-              <BookOpen size={26} />
-              <p>
-                {state.search
+            <EmptyState
+              icon={BookOpen}
+              description={
+                state.search
                   ? m.admin_posts_no_match()
                   : state.scope === "current"
                     ? m.taxonomy_current_empty()
-                    : m.taxonomy_public_empty()}
-              </p>
-              {state.search ? (
-                <Button variant="text" onClick={onClearSearch}>
-                  {m.admin_posts_clear_filters()}
-                </Button>
-              ) : (
-                <Link
-                  to="/admin/posts"
-                  className={buttonClass({ variant: "text" })}
-                >
-                  {m.admin_posts_title()}
-                </Link>
-              )}
-            </div>
+                    : m.taxonomy_public_empty()
+              }
+              action={
+                state.search ? (
+                  <Button variant="text" onClick={onClearSearch}>
+                    {m.admin_posts_clear_filters()}
+                  </Button>
+                ) : (
+                  <Link
+                    to="/admin/posts"
+                    className={buttonClass({ variant: "text" })}
+                  >
+                    {m.admin_posts_title()}
+                  </Link>
+                )
+              }
+            />
           ) : null}
         </>
       )}

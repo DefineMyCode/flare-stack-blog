@@ -248,12 +248,6 @@
 .public-menu-loading {
   padding: 16px;
 }
-.public-menu-loading span {
-  display: block;
-  height: 24px;
-  border-radius: 8px;
-  background: var(--fuwari-btn-regular-bg);
-}
 @media (max-width: 1279px) {
   .public-navbar {
     gap: 12px;

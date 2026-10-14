@@ -1,7 +1,7 @@
 import { useMediaQuery } from "@/hooks/use-motion";
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { getRouteApi, Link, useLocation } from "@tanstack/react-router";
-import { LogIn } from "lucide-react";
+import { CircleAlert, LogIn } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { Turnstile, useTurnstile } from "@/components/common/turnstile";
@@ -16,6 +16,7 @@ import {
   rootCommentsByPostIdInfiniteQuery,
 } from "@/features/comments/queries";
 import { authClient } from "@/lib/auth/auth-client";
+import { Callout } from "@/components/ui/callout";
 import { m } from "@/paraglide/messages";
 import { CommentConfirmationModal } from "./comment-confirmation-modal";
 import { CommentEditor } from "./comment-editor";
@@ -222,17 +223,24 @@ export function CommentSection({ postId }: CommentSectionProps) {
     return (
       <section id="comments" className="comments-section">
         <h2>{m.comments_heading()}</h2>
-        <div className="comment-load-error" role="alert">
-          <span>{m.comments_load_failed()}</span>
-          <Button
-            variant="text"
-            size="sm"
-            onClick={() => void listQuery.refetch()}
-            disabled={listQuery.isFetching}
-          >
-            {m.comments_retry()}
-          </Button>
-        </div>
+        <Callout
+          className="comment-load-error"
+          tone="danger"
+          icon={CircleAlert}
+          role="alert"
+          action={
+            <Button
+              variant="text"
+              size="sm"
+              onClick={() => void listQuery.refetch()}
+              disabled={listQuery.isFetching}
+            >
+              {m.comments_retry()}
+            </Button>
+          }
+        >
+          {m.comments_load_failed()}
+        </Callout>
       </section>
     );
 
@@ -319,21 +327,28 @@ export function CommentSection({ postId }: CommentSectionProps) {
         revealCommentId={reveal?.commentId}
       />
       {listQuery.isError && (
-        <div className="comment-load-error" role="alert">
-          <span>{m.comments_load_failed()}</span>
-          <Button
-            variant="text"
-            size="sm"
-            onClick={() =>
-              void (listQuery.isFetchNextPageError
-                ? fetchNextPage()
-                : listQuery.refetch())
-            }
-            disabled={listQuery.isFetching}
-          >
-            {m.comments_retry()}
-          </Button>
-        </div>
+        <Callout
+          className="comment-load-error"
+          tone="danger"
+          icon={CircleAlert}
+          role="alert"
+          action={
+            <Button
+              variant="text"
+              size="sm"
+              onClick={() =>
+                void (listQuery.isFetchNextPageError
+                  ? fetchNextPage()
+                  : listQuery.refetch())
+              }
+              disabled={listQuery.isFetching}
+            >
+              {m.comments_retry()}
+            </Button>
+          }
+        >
+          {m.comments_load_failed()}
+        </Callout>
       )}
       {hasNextPage && !listQuery.isError && (
         <div className="comments-pagination">
@@ -388,7 +403,7 @@ export function CommentSection({ postId }: CommentSectionProps) {
 function CommentSectionSkeleton() {
   return (
     <div className="space-y-6">
-      <Skeleton className="h-7 w-24 rounded-lg" />
+      <Skeleton className="h-7 w-24" />
       <Skeleton className="h-32 w-full rounded-(--fuwari-radius-large)" />
       <div className="space-y-0">
         {[1, 2, 3].map((i) => (

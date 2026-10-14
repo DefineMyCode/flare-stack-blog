@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { updateCheckQuery } from "@/features/version/queries";
 import { recordUpdateNoticeShown } from "@/features/version/update-notice";
 import { orpcClient } from "@/lib/orpc";
+import { StatusText } from "@/components/ui/status-text";
 import { m } from "@/paraglide/messages";
 
 export function VersionMaintenance() {
@@ -49,7 +50,7 @@ export function VersionMaintenance() {
           {m.settings_maintenance_version_desc({ version: __APP_VERSION__ })}
         </p>
         {checkUpdateMutation.isSuccess && checkUpdateMutation.data && (
-          <p role="status" className="settings-operation-result">
+          <StatusText className="mt-2">
             {checkUpdateMutation.data.hasUpdate ? (
               <a
                 href={checkUpdateMutation.data.releaseUrl}
@@ -66,16 +67,12 @@ export function VersionMaintenance() {
                 version: checkUpdateMutation.data.currentVersion,
               })
             )}
-          </p>
+          </StatusText>
         )}
         {checkUpdateMutation.isError && (
-          <p
-            role="alert"
-            className="settings-operation-result"
-            data-error="true"
-          >
+          <StatusText error className="mt-2">
             {m.settings_maintenance_version_toast_fail()}
-          </p>
+          </StatusText>
         )}
       </div>
       <Button

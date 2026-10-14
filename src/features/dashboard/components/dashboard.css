@@ -237,17 +237,10 @@
   vertical-align: middle;
 }
 .dashboard-notices {
+  --fuwari-callout-font-size: calc(13 * var(--dashboard-unit));
   display: grid;
   gap: 10px;
   margin-top: 22px;
-}
-.dashboard-notices a {
-  height: auto;
-  min-height: 44px;
-  padding: 12px 16px;
-  border-radius: 12px;
-  line-height: 1.6;
-  font-size: calc(13 * var(--dashboard-unit));
 }
 .dashboard-workspace :is(a, button):not(.fuwari-button) {
   transition:

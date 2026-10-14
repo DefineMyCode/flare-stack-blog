@@ -100,11 +100,6 @@
   margin-top: 16px;
 }
 .friend-application-error {
-  color: var(--fuwari-danger-fg);
-  font-size: 13px;
-  line-height: 1.6;
-}
-.friend-application-form > .friend-application-error {
   margin-top: 16px;
 }
 .friend-application-loading {
@@ -123,19 +118,6 @@
 }
 .friend-application-switcher {
   margin-bottom: 24px;
-}
-.friend-application-state-icon {
-  display: grid;
-  place-items: center;
-  width: 52px;
-  height: 52px;
-  border-radius: 16px;
-  background: var(--fuwari-btn-regular-bg);
-  color: var(--fuwari-primary);
-}
-.friend-application-state-icon[data-status="rejected"] {
-  color: var(--fuwari-danger-fg);
-  background: var(--fuwari-danger-bg);
 }
 .friend-application-status h2 {
   font-size: 22px;

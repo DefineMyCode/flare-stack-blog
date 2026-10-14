@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { Check } from "lucide-react";
+import { Check, CircleAlert } from "lucide-react";
 import { type ReactNode } from "react";
 import { Button } from "@/components/ui/button";
 import { FormField } from "@/components/ui/form-field";
@@ -8,6 +8,8 @@ import { PasswordInput } from "@/components/ui/password-input";
 import { GithubIcon } from "@/components/common/brand-icon";
 import type { useLoginForm } from "../hooks/use-login-form";
 import type { useSocialLogin } from "../hooks/use-social-login";
+import { Callout } from "@/components/ui/callout";
+import { StatusText } from "@/components/ui/status-text";
 import { m } from "@/paraglide/messages";
 
 interface LoginPageProps {
@@ -60,9 +62,7 @@ export function LoginPage({
           : m.login_github_continue()}
       </Button>
       {socialLogin.errorMessage && (
-        <p className="auth-error" role="alert">
-          {socialLogin.errorMessage}
-        </p>
+        <StatusText error>{socialLogin.errorMessage}</StatusText>
       )}
       {isEmailConfigured && (
         <>
@@ -103,20 +103,26 @@ export function LoginPage({
               />
             </FormField>
             {loginError && (
-              <div className="auth-feedback" role="alert">
-                <p>{loginError.message}</p>
-                {loginError.unverified && (
-                  <Button
-                    variant="text"
-                    size="sm"
-                    onClick={resendVerification}
-                    disabled={busy || turnstilePending}
-                    loading={isResending}
-                  >
-                    {m.login_resend_verification()}
-                  </Button>
-                )}
-              </div>
+              <Callout
+                tone="danger"
+                icon={CircleAlert}
+                role="alert"
+                action={
+                  loginError.unverified && (
+                    <Button
+                      variant="text"
+                      size="sm"
+                      onClick={resendVerification}
+                      disabled={busy || turnstilePending}
+                      loading={isResending}
+                    >
+                      {m.login_resend_verification()}
+                    </Button>
+                  )
+                }
+              >
+                {loginError.message}
+              </Callout>
             )}
             {resendFeedback && (
               <p className="auth-note" role="status">

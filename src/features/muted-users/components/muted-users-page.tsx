@@ -11,6 +11,7 @@ import { useMutedUsers } from "@/features/muted-users/hooks/use-muted-users";
 import type { MutedUser } from "@/features/muted-users/muted-users.schema";
 import { mutedUsersQuery } from "@/features/muted-users/queries";
 import { formatDate } from "@/lib/utils";
+import { EmptyState } from "@/components/ui/empty-state";
 import { m } from "@/paraglide/messages";
 import { MutedUsersListSkeleton } from "./muted-users-skeleton";
 import "./muted-users.css";
@@ -94,35 +95,38 @@ export function MutedUsersPage() {
       <div className="muted-list-scroll" ref={scrollRef} aria-busy={isPending}>
         <div ref={contentRef}>
           {isError ? (
-            <div className="muted-empty" role="alert">
-              <p>{m.muted_users_toast_error()}</p>
-              <Button onClick={() => void refetch()}>
-                {m.muted_manager_retry()}
-              </Button>
-            </div>
+            <EmptyState
+              role="alert"
+              description={m.muted_users_toast_error()}
+              action={
+                <Button onClick={() => void refetch()}>
+                  {m.muted_manager_retry()}
+                </Button>
+              }
+            />
           ) : isPending ? (
             <MutedUsersListSkeleton />
           ) : items.length === 0 ? (
-            <div className="muted-empty">
-              {data?.length ? (
-                <Search size={32} aria-hidden="true" />
-              ) : (
-                <ShieldCheck size={36} aria-hidden="true" />
-              )}
-              <h2>
-                {data?.length
+            <EmptyState
+              icon={data?.length ? Search : ShieldCheck}
+              title={
+                data?.length
                   ? m.muted_manager_no_results()
-                  : m.muted_users_empty()}
-              </h2>
-              <p>
-                {data?.length
+                  : m.muted_users_empty()
+              }
+              description={
+                data?.length
                   ? m.muted_manager_search_hint()
-                  : m.muted_manager_empty_hint()}
-              </p>
-              {search && (
-                <Button onClick={clearSearch}>{m.muted_manager_clear()}</Button>
-              )}
-            </div>
+                  : m.muted_manager_empty_hint()
+              }
+              action={
+                search && (
+                  <Button onClick={clearSearch}>
+                    {m.muted_manager_clear()}
+                  </Button>
+                )
+              }
+            />
           ) : (
             <ul className="muted-list">
               {items.map((user) => (

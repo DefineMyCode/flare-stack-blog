@@ -93,14 +93,6 @@
   align-items: center;
   gap: 12px;
 }
-.account-feedback {
-  font-size: 13px;
-  line-height: 1.6;
-  color: var(--fuwari-primary);
-}
-.account-feedback[data-error="true"] {
-  color: var(--fuwari-danger-fg);
-}
 .account-page
   :is(a, button):not(
     .fuwari-field-button,
@@ -130,28 +122,6 @@
   font-size: 14px;
   line-height: 1.65;
   margin-top: 6px;
-}
-.account-text-button svg {
-  transition: transform 320ms var(--fuwari-motion-ease);
-}
-.account-chevron-open {
-  transform: rotate(180deg);
-}
-.account-password-disclosure {
-  display: grid;
-  grid-template-rows: 0fr;
-  opacity: 0;
-  transition:
-    grid-template-rows 320ms var(--fuwari-motion-ease),
-    opacity 180ms;
-}
-.account-password-disclosure[data-open="true"] {
-  grid-template-rows: 1fr;
-  opacity: 1;
-}
-.account-password-disclosure > div {
-  min-height: 0;
-  overflow: hidden;
 }
 .account-password-form {
   padding: 4px 20px 28px;
@@ -202,11 +172,5 @@
   }
   .account-password-pair {
     grid-template-columns: minmax(0, 1fr);
-  }
-}
-@media (prefers-reduced-motion: reduce) {
-  .account-text-button svg,
-  .account-password-disclosure {
-    transition: none;
   }
 }

@@ -10,6 +10,7 @@ import {
   useMediaQuery,
   useMotionPresence,
 } from "@/hooks/use-motion";
+import { EmptyState } from "@/components/ui/empty-state";
 import { m } from "@/paraglide/messages";
 import { MediaDetail, MediaToolbar } from "./components";
 import { MediaCollection } from "./components/media-collection";
@@ -209,26 +210,31 @@ export function MediaLibrary() {
             {isPending ? (
               <MediaCollectionSkeleton view={view} />
             ) : isError && !mediaItems.length ? (
-              <div className="media-empty" role="alert">
-                <p>{m.media_load_fail()}</p>
-                <Button onClick={() => void refetch()}>
-                  {m.media_load_retry()}
-                </Button>
-              </div>
+              <EmptyState
+                role="alert"
+                description={m.media_load_fail()}
+                action={
+                  <Button onClick={() => void refetch()}>
+                    {m.media_load_retry()}
+                  </Button>
+                }
+              />
             ) : isEmpty ? (
-              <div className="media-empty">
-                <p>
-                  {unusedOnly ? m.media_unreferenced_empty() : m.media_empty()}
-                </p>
-                <span>{!unusedOnly ? m.media_empty_hint() : null}</span>
-                <Button
-                  onClick={
-                    unusedOnly ? () => setUnusedOnly(false) : openFilePicker
-                  }
-                >
-                  {unusedOnly ? m.media_filter_all() : m.media_choose()}
-                </Button>
-              </div>
+              <EmptyState
+                title={
+                  unusedOnly ? m.media_unreferenced_empty() : m.media_empty()
+                }
+                description={!unusedOnly ? m.media_empty_hint() : null}
+                action={
+                  <Button
+                    onClick={
+                      unusedOnly ? () => setUnusedOnly(false) : openFilePicker
+                    }
+                  >
+                    {unusedOnly ? m.media_filter_all() : m.media_choose()}
+                  </Button>
+                }
+              />
             ) : (
               <>
                 <MediaCollection

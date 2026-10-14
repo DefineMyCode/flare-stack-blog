@@ -243,12 +243,6 @@
   border-top: 1px solid var(--fuwari-input-border);
   flex-shrink: 0;
 }
-.friend-empty {
-  padding: 40px 20px;
-  text-align: center;
-  color: var(--fuwari-fg-50);
-  font-size: 14px;
-}
 .friend-detail-placeholder {
   flex: 1;
   display: flex;

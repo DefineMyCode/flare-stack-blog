@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { postPopularityStatusQuery } from "@/features/post-popularity/queries";
 import { orpcClient } from "@/lib/orpc";
 import { formatDate } from "@/lib/utils";
+import { StatusText } from "@/components/ui/status-text";
 import { m } from "@/paraglide/messages";
 
 export function PostPopularityMaintenance() {
@@ -49,9 +50,9 @@ export function PostPopularityMaintenance() {
           {m.settings_maintenance_popularity_auto()}
         </p>
         {status?.lastError ? (
-          <p className="mt-1 text-xs text-(--fuwari-danger-fg) break-words">
+          <StatusText error role={undefined} className="mt-1 break-words">
             {status.lastError}
-          </p>
+          </StatusText>
         ) : null}
       </div>
       <Button

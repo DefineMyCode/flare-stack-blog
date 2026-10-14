@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { SearchField } from "@/components/ui/search-field";
 import { Select } from "@/components/ui/select";
 import { Spinner } from "@/components/ui/spinner";
+import { EmptyState } from "@/components/ui/empty-state";
 import { m } from "@/paraglide/messages";
 import type { TaxonomyState } from "./taxonomy-state";
 import type {
@@ -96,21 +97,28 @@ export function TaxonomyExplorer({
             <Spinner size={18} />
           </div>
         ) : navError ? (
-          <div className="taxonomy-empty" role="alert">
-            <p>{m.error_desc()}</p>
-            <Button variant="text" onClick={onRetry}>
-              {m.error_retry()}
-            </Button>
-          </div>
+          <EmptyState
+            size="compact"
+            role="alert"
+            description={m.error_desc()}
+            action={
+              <Button variant="text" onClick={onRetry}>
+                {m.error_retry()}
+              </Button>
+            }
+          />
         ) : (
           <>
             {visibleItems.map(navRow)}
             {tagMode && visibleItems.length === 0 ? (
-              <p className="taxonomy-nav-empty">
-                {items.length
-                  ? m.tag_manager_no_match()
-                  : m.tag_manager_empty()}
-              </p>
+              <EmptyState
+                size="compact"
+                description={
+                  items.length
+                    ? m.tag_manager_no_match()
+                    : m.tag_manager_empty()
+                }
+              />
             ) : null}
             {!tagMode ? (
               <div className="taxonomy-uncategorized">

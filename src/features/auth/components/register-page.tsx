@@ -1,4 +1,5 @@
 import { Link } from "@tanstack/react-router";
+import { CircleAlert } from "lucide-react";
 import type { ReactNode } from "react";
 import { Button, buttonClass } from "@/components/ui/button";
 import { FormField } from "@/components/ui/form-field";
@@ -6,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { PasswordInput } from "@/components/ui/password-input";
 import type { useRegisterForm } from "../hooks/use-register-form";
 import { AuthHeading, AuthStatus } from "./auth-elements";
+import { Callout } from "@/components/ui/callout";
 import { m } from "@/paraglide/messages";
 
 export function RegisterPage({
@@ -95,9 +97,9 @@ export function RegisterPage({
           </FormField>
         </fieldset>
         {form.submitError && (
-          <p className="auth-feedback" role="alert">
+          <Callout tone="danger" icon={CircleAlert} role="alert">
             {form.submitError}
-          </p>
+          </Callout>
         )}
         <div className="auth-verification">{turnstileElement}</div>
         <Button

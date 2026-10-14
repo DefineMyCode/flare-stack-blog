@@ -1,9 +1,12 @@
 import { useInfiniteQuery } from "@tanstack/react-query";
+import { CircleAlert } from "lucide-react";
 import { useEffect, useState, type ReactNode } from "react";
 import { remainingPublishedReplies } from "@/features/comments/comment-thread";
 import type { RootCommentWithReplyCount } from "@/features/comments/comments.schema";
 import { repliesByRootIdInfiniteQuery } from "@/features/comments/queries";
 import { Button } from "@/components/ui/button";
+import { EmptyState } from "@/components/ui/empty-state";
+import { Callout } from "@/components/ui/callout";
 import { m } from "@/paraglide/messages";
 import { CommentItem } from "./comment-item";
 import { CommentReveal } from "./comment-reveal";
@@ -23,7 +26,7 @@ interface CommentListProps {
 }
 export function CommentList({ rootComments, ...props }: CommentListProps) {
   if (!rootComments.length)
-    return <p className="comments-empty">{m.comments_list_empty()}</p>;
+    return <EmptyState size="compact" description={m.comments_list_empty()} />;
   return (
     <div className="comment-list">
       {rootComments.map((root) => (
@@ -131,21 +134,28 @@ function CommentThread({
             {extra.map(renderReply)}
           </CommentReveal>
           {expanded && query.isError && (
-            <div className="comment-load-error" role="alert">
-              <span>{m.comments_replies_failed()}</span>
-              <Button
-                variant="text"
-                size="sm"
-                onClick={() =>
-                  void (query.isFetchNextPageError
-                    ? query.fetchNextPage()
-                    : query.refetch())
-                }
-                disabled={query.isFetching}
-              >
-                {m.comments_retry()}
-              </Button>
-            </div>
+            <Callout
+              className="comment-load-error"
+              tone="danger"
+              icon={CircleAlert}
+              role="alert"
+              action={
+                <Button
+                  variant="text"
+                  size="sm"
+                  onClick={() =>
+                    void (query.isFetchNextPageError
+                      ? query.fetchNextPage()
+                      : query.refetch())
+                  }
+                  disabled={query.isFetching}
+                >
+                  {m.comments_retry()}
+                </Button>
+              }
+            >
+              {m.comments_replies_failed()}
+            </Callout>
           )}
           {expanded && !query.isError && query.isFetching && (
             <p className="comment-load-state" role="status">

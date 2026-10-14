@@ -128,11 +128,6 @@
   color: var(--fuwari-fg-50);
   overflow-wrap: anywhere;
 }
-.friends-empty {
-  padding: 64px 0;
-  text-align: center;
-  color: var(--fuwari-fg-50);
-}
 @media (max-width: 639px) {
   .friends-page {
     padding: 24px;

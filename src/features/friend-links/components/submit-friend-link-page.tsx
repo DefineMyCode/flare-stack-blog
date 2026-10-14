@@ -15,9 +15,11 @@ import DropdownMenu from "@/components/ui/dropdown-menu";
 import { FormField } from "@/components/ui/form-field";
 import { Input, Textarea } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
+import { StatusIcon } from "@/components/ui/status-icon";
 import type { FriendLink } from "@/lib/db/schema";
 import { useContentMotion } from "@/hooks/use-motion";
 import { useFriendLinkSubmitForm } from "../hooks/use-friend-link-submit-form";
+import { StatusText } from "@/components/ui/status-text";
 import { m } from "@/paraglide/messages";
 import "./submit-friend-link-page.css";
 
@@ -91,18 +93,16 @@ export function SubmitFriendLinkPage({
           />
         ) : (
           <div className="friend-application-status" role="status">
-            <div
-              className="friend-application-state-icon"
-              data-status={current.status}
-            >
-              {current.status === "pending" ? (
-                <Clock size={26} />
-              ) : current.status === "approved" ? (
-                <Check size={26} />
-              ) : (
-                <XCircle size={26} />
-              )}
-            </div>
+            <StatusIcon
+              icon={
+                current.status === "pending"
+                  ? Clock
+                  : current.status === "approved"
+                    ? Check
+                    : XCircle
+              }
+              tone={current.status === "rejected" ? "danger" : "primary"}
+            />
             <h2>
               {current.status === "pending"
                 ? m.friend_apply_pending()
@@ -268,9 +268,9 @@ function ApplicationForm({
         <Turnstile {...form.turnstileProps} />
       </div>
       {form.submitError && (
-        <p className="friend-application-error" role="alert">
+        <StatusText error className="friend-application-error">
           {form.submitError}
-        </p>
+        </StatusText>
       )}
       <div className="friend-application-actions">
         {onCancel && (

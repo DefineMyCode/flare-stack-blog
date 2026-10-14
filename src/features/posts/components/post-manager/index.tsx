@@ -8,6 +8,7 @@ import { AdminPagination } from "@/components/admin/admin-pagination";
 import { orpc, orpcClient } from "@/lib/orpc";
 import { ADMIN_ITEMS_PER_PAGE } from "@/lib/constants";
 import { useContentMotion } from "@/hooks/use-motion";
+import { EmptyState } from "@/components/ui/empty-state";
 import { m } from "@/paraglide/messages";
 import { PostRow, PostsToolbar } from "./components";
 import { Button } from "@/components/ui/button";
@@ -187,16 +188,15 @@ export function PostManager({
         tabIndex={0}
       >
         {error ? (
-          <div className="post-list-empty">
-            <p>{m.error_desc()}</p>
-            <Button
-              variant="text"
-              className="post-list-empty-action"
-              onClick={() => void refetch()}
-            >
-              {m.error_retry()}
-            </Button>
-          </div>
+          <EmptyState
+            className="post-list-empty"
+            description={m.error_desc()}
+            action={
+              <Button variant="text" onClick={() => void refetch()}>
+                {m.error_retry()}
+              </Button>
+            }
+          />
         ) : (
           <>
             <div className="post-list-table-wrap" aria-busy={isFetching}>
@@ -239,24 +239,28 @@ export function PostManager({
               </table>
             </div>
             {!isPending && posts.length === 0 && (
-              <div className="post-list-empty">
-                <Search size={30} aria-hidden="true" />
-                <p>
-                  {isEmptyLibrary
+              <EmptyState
+                className="post-list-empty"
+                icon={Search}
+                description={
+                  isEmptyLibrary
                     ? m.admin_posts_empty_library()
-                    : m.admin_posts_no_match()}
-                </p>
-                <Button
-                  variant="text"
-                  className="post-list-empty-action"
-                  disabled={isCreating}
-                  onClick={() =>
-                    isEmptyLibrary ? createPost() : resetFilters()
-                  }
-                >
-                  {isEmptyLibrary ? createLabel : m.admin_posts_clear_filters()}
-                </Button>
-              </div>
+                    : m.admin_posts_no_match()
+                }
+                action={
+                  <Button
+                    variant="text"
+                    disabled={isCreating}
+                    onClick={() =>
+                      isEmptyLibrary ? createPost() : resetFilters()
+                    }
+                  >
+                    {isEmptyLibrary
+                      ? createLabel
+                      : m.admin_posts_clear_filters()}
+                  </Button>
+                }
+              />
             )}
           </>
         )}

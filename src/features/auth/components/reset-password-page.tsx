@@ -1,9 +1,11 @@
 import { Link } from "@tanstack/react-router";
+import { CircleAlert } from "lucide-react";
 import { Button, buttonClass } from "@/components/ui/button";
 import { FormField } from "@/components/ui/form-field";
 import { PasswordInput } from "@/components/ui/password-input";
 import type { useResetPasswordForm } from "../hooks/use-reset-password-form";
 import { AuthHeading, AuthStatus } from "./auth-elements";
+import { Callout } from "@/components/ui/callout";
 import { m } from "@/paraglide/messages";
 
 export function ResetPasswordPage({
@@ -96,12 +98,19 @@ export function ResetPasswordPage({
           />
         </FormField>
         {form.submitError && (
-          <div className="auth-feedback" role="alert">
-            <p>{form.submitError}</p>
-            <Link to="/forgot-password">
-              {m.reset_password_request_new_link()}
-            </Link>
-          </div>
+          <Callout
+            className="auth-feedback"
+            tone="danger"
+            icon={CircleAlert}
+            role="alert"
+            action={
+              <Link to="/forgot-password">
+                {m.reset_password_request_new_link()}
+              </Link>
+            }
+          >
+            {form.submitError}
+          </Callout>
         )}
         <Button
           type="submit"

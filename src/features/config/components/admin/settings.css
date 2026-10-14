@@ -73,18 +73,12 @@
   border-top: 1px solid var(--settings-rule);
   padding: 14px calc(30 * var(--settings-unit, 1px));
   flex-shrink: 0;
+  --fuwari-callout-font-size: calc(13 * var(--settings-unit, 1px));
 }
-.settings-savebar p {
-  font-size: calc(13 * var(--settings-unit, 1px));
-  color: var(--fuwari-fg-50);
-}
-.settings-savebar > div {
+.settings-savebar > div:not(.fuwari-callout) {
   display: flex;
   gap: 10px;
   flex-shrink: 0;
-}
-.settings-savebar p.settings-error {
-  color: var(--fuwari-danger-fg);
 }
 .settings-workspace
   :is(button, a, summary):not(
@@ -173,25 +167,10 @@
   font-size: 12px;
   color: var(--fuwari-fg-50);
 }
-.settings-secret-more summary {
-  cursor: pointer;
-}
 .notify-webhook {
   border-top: 1px solid var(--settings-rule);
   margin-top: 28px;
   padding-top: 20px;
-}
-.notify-webhook > summary {
-  cursor: pointer;
-  font-size: calc(16 * var(--settings-unit, 1px));
-  font-weight: 550;
-}
-.notify-webhook > summary span {
-  margin-left: 18px;
-  font-size: calc(12 * var(--settings-unit, 1px));
-  font-weight: 400;
-  color: var(--fuwari-fg-50);
-  overflow-wrap: anywhere;
 }
 .notify-webhook-content {
   display: grid;
@@ -217,14 +196,6 @@
 }
 .settings-maintenance > div > button {
   min-width: calc(116 * var(--settings-unit, 1px));
-}
-.settings-operation-result {
-  margin-top: 8px;
-  font-size: 13px;
-  color: var(--fuwari-fg-50);
-}
-.settings-operation-result[data-error="true"] {
-  color: var(--fuwari-danger-fg);
 }
 @media (max-width: 1050px) {
   .notify-email {
@@ -264,12 +235,10 @@
     padding: 12px 18px;
     flex-wrap: wrap;
     gap: 10px;
+    --fuwari-callout-font-size: 12px;
   }
-  .settings-savebar > div {
+  .settings-savebar > div:not(.fuwari-callout) {
     margin-left: auto;
-  }
-  .settings-savebar p {
-    font-size: 12px;
   }
   .settings-maintenance > div:not(.settings-section-heading) {
     flex-wrap: wrap;
@@ -294,11 +263,6 @@
     transition: none;
   }
 }
-.notify-preview summary {
-  cursor: pointer;
-  font-weight: 600;
-  font-size: calc(17 * var(--settings-unit, 1px));
-}
 .settings-disclosure-trigger {
   display: flex;
   align-items: center;
@@ -310,29 +274,6 @@
 .settings-disclosure-trigger > span {
   min-width: 0;
   overflow-wrap: anywhere;
-}
-.settings-disclosure-trigger > svg {
-  flex-shrink: 0;
-  transition: transform 320ms cubic-bezier(0.22, 1, 0.36, 1);
-}
-.settings-disclosure-trigger[aria-expanded="true"] > svg {
-  transform: rotate(180deg);
-}
-.settings-disclosure-content {
-  display: grid;
-  grid-template-rows: 0fr;
-  opacity: 0;
-  transition:
-    grid-template-rows 320ms cubic-bezier(0.22, 1, 0.36, 1),
-    opacity 220ms ease;
-}
-.settings-disclosure-content[data-open="true"] {
-  grid-template-rows: 1fr;
-  opacity: 1;
-}
-.settings-disclosure-content > div {
-  overflow: hidden;
-  min-height: 0;
 }
 .notify-preview .settings-disclosure-trigger {
   font-size: calc(17 * var(--settings-unit, 1px));
@@ -346,30 +287,7 @@
   margin-left: 18px;
   font-weight: 400;
 }
-@media (prefers-reduced-motion: reduce) {
-  .settings-disclosure-content,
-  .settings-disclosure-trigger > svg {
-    transition: none;
-  }
-}
 
-.settings-savebar > div {
+.settings-savebar > div:not(.fuwari-callout) {
   margin-left: auto;
-}
-.settings-savebar p.settings-save-notice {
-  display: flex;
-  align-items: center;
-  gap: 9px;
-  padding: 9px 12px;
-  border-radius: 10px;
-  color: var(--fuwari-warning-fg);
-  background: var(--fuwari-warning-bg);
-  font-weight: 500;
-}
-.settings-save-notice > svg {
-  flex-shrink: 0;
-}
-.settings-savebar p.settings-save-notice.settings-error {
-  color: var(--fuwari-danger-fg);
-  background: var(--fuwari-danger-bg);
 }
