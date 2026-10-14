@@ -3,6 +3,7 @@ import type {
   VideoSource,
 } from "@/features/posts/utils/video-source";
 import { videoMetaOf, videoPageUrl } from "@/features/posts/utils/video-source";
+import { rawHttpsGet } from "@/lib/http/raw-https";
 
 const BILIBILI_VIEW = "https://api.bilibili.com/x/web-interface/view";
 const YOUTUBE_OEMBED = "https://www.youtube.com/oembed";
@@ -30,7 +31,7 @@ function warnLookupFailed(url: URL, detail: Record<string, unknown>) {
 
 /**
  * `url`'s JSON body, or `null` when it fails, is not OK or is not JSON; the
- * reason is logged, since providers refuse some server IPs.
+ * reason is logged, since providers refuse some servers.
  */
 async function getJson(url: URL): Promise<unknown> {
   try {
@@ -54,9 +55,10 @@ async function getJson(url: URL): Promise<unknown> {
 }
 
 /**
- * Bilibili's video info endpoint is public but undocumented. A browser-like
- * User-Agent without Bilibili's cookies gets a 412 block page, so the request
- * sends none.
+ * Bilibili's video info endpoint is public but undocumented. It refuses
+ * Workers' `fetch()` outright (412 "request was banned", for the cf-* headers
+ * fetch adds), so the request goes over a plain socket, and it refuses a
+ * browser-like User-Agent without Bilibili's cookies, so it sends none.
  */
 async function fetchBilibiliMeta(source: VideoSource) {
   const url = new URL(BILIBILI_VIEW);
@@ -64,8 +66,23 @@ async function fetchBilibiliMeta(source: VideoSource) {
   if (av) url.searchParams.set("aid", av[1]);
   else url.searchParams.set("bvid", source.videoId);
 
-  const body = (await getJson(url)) as BilibiliView | null;
-  if (!body) return null;
+  let body: BilibiliView;
+  try {
+    const response = await rawHttpsGet(url, { Accept: "application/json" });
+    if (response.status !== 200) {
+      warnLookupFailed(url, {
+        status: response.status,
+        body: response.body.slice(0, 200),
+      });
+      return null;
+    }
+    body = JSON.parse(response.body) as BilibiliView;
+  } catch (error) {
+    warnLookupFailed(url, {
+      error: error instanceof Error ? error.message : String(error),
+    });
+    return null;
+  }
   if (body.code !== 0 || !body.data) {
     warnLookupFailed(url, { code: body.code, body: body.message });
     return null;

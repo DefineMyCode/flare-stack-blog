@@ -198,7 +198,7 @@ it("fills in a new Bilibili video's metadata, outside the undo history", async (
   expect(target.getJSON().content?.[0].type).toBe("paragraph");
 });
 
-it("asks once per video, and not in a read-only editor", async () => {
+it("asks once per video across every editor using the same lookup, and not in a read-only editor", async () => {
   const fetchMeta = vi.fn(async () => null);
   const content = {
     type: "doc",
@@ -207,10 +207,16 @@ it("asks once per video, and not in a read-only editor", async () => {
       { type: "video", attrs: SOURCE },
     ],
   };
-  const target = withMeta(fetchMeta, content);
-  target.commands.insertContent("<p>x</p>");
+  const first = withMeta(fetchMeta, content);
+  first.commands.insertContent("<p>x</p>");
+  const second = new HeadlessEditor({
+    element: document.createElement("div"),
+    extensions: [StarterKit, VideoEditing.configure({ fetchMeta })],
+    content,
+  });
   await vi.waitFor(() => expect(fetchMeta).toHaveBeenCalledTimes(1));
-  target.destroy();
+  second.destroy();
+  first.destroy();
 
   const readOnly = vi.fn(async () => META);
   withMeta(readOnly, content, false);

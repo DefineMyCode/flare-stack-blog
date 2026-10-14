@@ -122,9 +122,17 @@ function fillMeta(view: EditorView, source: VideoSource, meta: VideoMeta) {
 }
 
 /**
+/**
+ * The videos each `fetchMeta` was already asked about, shared by every editor
+ * that uses it: the post editor page runs more than one, and each would
+ * otherwise ask again.
+ */
+const askedBy = new WeakMap<object, Set<string>>();
+
+/**
  * A plugin that looks up metadata for videos that have none: new ones, and
  * ones embedded while the provider could not be reached. Each video is
- * asked about once per editor.
+ * asked about once per page load.
  */
 function videoMetaPlugin(
   editor: Editor,
@@ -133,7 +141,8 @@ function videoMetaPlugin(
   return new Plugin({
     key: new PluginKey("videoMeta"),
     view: (view) => {
-      const asked = new Set<string>();
+      let asked = askedBy.get(fetchMeta);
+      if (!asked) askedBy.set(fetchMeta, (asked = new Set()));
       let destroyed = false;
       const scan = () => {
         if (!editor.isEditable) return;
