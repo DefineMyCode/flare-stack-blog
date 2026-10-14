@@ -4,7 +4,7 @@ import {
   resolveUmamiApiConfig,
   umamiClient,
   type UmamiApiConfig,
-} from "@/features/post-popularity/data/umami.client";
+} from "@/features/post-popularity/data/umami-api";
 import {
   buildPostPopularitySnapshot,
   getPostPopularityWindow,
