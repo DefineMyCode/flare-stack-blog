@@ -6,6 +6,7 @@ import { FuwariModal } from "@/components/ui/fuwari-modal";
 import { IconButton } from "@/components/ui/icon-button";
 import { Input } from "@/components/ui/input";
 import { m } from "@/paraglide/messages";
+import "./taxonomy-name-dialog.css";
 
 export function TaxonomyNameDialog({
   open,

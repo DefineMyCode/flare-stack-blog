@@ -20,6 +20,13 @@
   gap: calc(24 * var(--admin-unit));
   padding: calc(26 * var(--admin-unit)) 0 calc(23 * var(--admin-unit));
 }
+.post-list-filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: calc(10 * var(--admin-unit));
+  min-width: 0;
+}
 .post-list-search {
   width: min(calc(390 * var(--admin-unit)), 100%);
 }
@@ -201,6 +208,7 @@
     gap: calc(14 * var(--admin-unit));
     padding: calc(20 * var(--admin-unit)) 0;
   }
+  .post-list-filters,
   .post-list-search {
     width: 100%;
   }
