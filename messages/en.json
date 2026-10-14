@@ -401,7 +401,6 @@
   "admin_sidebar_logout_failed_desc": "Please try again.",
   "admin_overview_title": "Overview",
   "admin_overview_continue_writing": "Continue writing",
-  "admin_overview_recent_comments": "New comments",
   "admin_overview_popularity_failed": "Popularity sync failed",
   "admin_overview_popularity_expired": "Popularity data expired",
   "admin_overview_activity_anonymous": "Anonymous",
@@ -1091,8 +1090,6 @@
   "dashboard_resume": "Continue editing",
   "dashboard_first_post": "Start with your first post",
   "dashboard_recent_edits": "Recently edited",
-  "dashboard_tasks": "Needs attention",
-  "dashboard_pending_links": "{count} friend link applications to review",
   "muted_manager_hint": "Manage muted users and restore their ability to comment.",
   "muted_manager_count": "{count} users",
   "muted_manager_search": "Search usernames",
@@ -1196,5 +1193,80 @@
   "comments_send_failed_keep_draft": "Could not send your comment. Your draft is preserved; please try again.",
   "comments_load_failed": "Comments could not be loaded.",
   "comments_replies_failed": "Replies could not be loaded.",
-  "comments_retry": "Retry"
+  "comments_retry": "Retry",
+  "admin_overview_email_needs_setup_desc": "You won't get emails about new comments or friend link requests",
+  "admin_overview_popularity_failed_desc": "See why on the maintenance page and sync again",
+  "admin_overview_popularity_expired_desc": "Not synced for over 7 days; the homepage shows pinned and recent posts instead",
+  "admin_overview_default_site_identity_desc": "Set your own site title and author",
+  "admin_overview_update_available": "Version {version} is available",
+  "admin_overview_update_available_desc": "You're on v{current}. See what's new",
+  "dashboard_stats_label": "Blog at a glance",
+  "dashboard_stat_posts": "Posts",
+  "dashboard_stat_drafts": [
+    {
+      "declarations": ["input count", "local formattedCountEn = count: number"],
+      "match": {
+        "count=1": "{formattedCountEn} draft",
+        "count=*": "{formattedCountEn} drafts"
+      }
+    }
+  ],
+  "dashboard_stat_no_drafts": "No drafts",
+  "dashboard_stat_views": "Views, last 30 days",
+  "dashboard_stat_views_unconfigured": "Umami not connected",
+  "dashboard_stat_views_missing": "Not synced yet",
+  "dashboard_stat_views_expired": "Data is out of date",
+  "dashboard_stat_comments": "Comments",
+  "dashboard_stat_comments_recent": [
+    {
+      "declarations": ["input count", "local formattedCountEn = count: number"],
+      "match": {
+        "count=1": "+{formattedCountEn} in the last 7 days",
+        "count=*": "+{formattedCountEn} in the last 7 days"
+      }
+    }
+  ],
+  "dashboard_stat_comments_none_recent": "None in the last 7 days",
+  "dashboard_stat_friend_links": "Friend links",
+  "dashboard_stat_friend_links_pending": [
+    {
+      "declarations": ["input count", "local formattedCountEn = count: number"],
+      "match": {
+        "count=1": "{formattedCountEn} awaiting review",
+        "count=*": "{formattedCountEn} awaiting review"
+      }
+    }
+  ],
+  "dashboard_stat_friend_links_none_pending": "None awaiting review",
+  "dashboard_popular_title": "Popular in the last 30 days",
+  "dashboard_popular_expired": "Out of date",
+  "dashboard_popular_open_public": "Open public page",
+  "dashboard_popular_unconfigured_title": "Umami isn't connected",
+  "dashboard_popular_unconfigured_desc": "Once connected, your most-read posts of the last 30 days show up here",
+  "dashboard_popular_missing_title": "No popularity data yet",
+  "dashboard_popular_missing_desc": "Popularity syncs once a day, or you can sync it now",
+  "dashboard_popular_sync": "Sync now",
+  "dashboard_popular_no_views": "No post was read in the last 30 days",
+  "dashboard_unreplied_title": "Awaiting your reply",
+  "dashboard_unreplied_more": [
+    {
+      "declarations": ["input count", "local formattedCountEn = count: number"],
+      "match": {
+        "count=1": "{formattedCountEn} more awaiting reply",
+        "count=*": "{formattedCountEn} more awaiting reply"
+      }
+    }
+  ],
+  "dashboard_unreplied_empty_title": "All caught up",
+  "dashboard_unreplied_empty_desc": "New visitor comments will show up here",
+  "dashboard_pending_links_title": "Friend links to review",
+  "dashboard_pending_links_more": [
+    {
+      "declarations": ["input count", "local formattedCountEn = count: number"],
+      "match": {
+        "count=1": "{formattedCountEn} more request",
+        "count=*": "{formattedCountEn} more requests"
+      }
+    }
+  ]
 }

@@ -14,8 +14,41 @@ import * as FriendLinkRepo from "@/features/friend-links/data/friend-links.data"
 import * as MutedUserService from "@/features/muted-users/service/muted-users.service";
 import { postPopularityService } from "@/features/post-popularity/service/post-popularity.service";
 import * as PostService from "@/features/posts/services/posts.service";
-import { PostsTable } from "@/lib/db/schema";
+import * as kvStore from "@/features/cache/kv-store";
+import { VERSION_CACHE_KEYS } from "@/features/version/version.schema";
+import type {
+  PostPopularitySnapshot,
+  PostPopularitySyncStatus,
+} from "@/features/post-popularity/post-popularity.schema";
+import { CommentsTable, PostsTable } from "@/lib/db/schema";
 import { unwrap } from "@/lib/errors";
+
+function popularityStatus(
+  overrides: Partial<PostPopularitySyncStatus> = {},
+): PostPopularitySyncStatus {
+  return {
+    configured: true,
+    expired: false,
+    postCount: 0,
+    lastAttemptAt: 1,
+    lastSuccessAt: 1,
+    expiresAt: null,
+    lastError: null,
+    windowStart: null,
+    windowEnd: null,
+    ...overrides,
+  };
+}
+
+function mockPopularity(
+  status: PostPopularitySyncStatus,
+  snapshot: PostPopularitySnapshot | null,
+) {
+  vi.spyOn(postPopularityService, "getStatusWithSnapshot").mockResolvedValue({
+    status,
+    snapshot,
+  });
+}
 
 describe("Dashboard overview", () => {
   let adminContext: ReturnType<typeof createAdminTestContext>;
@@ -54,6 +87,7 @@ describe("Dashboard overview", () => {
     const first = await publishPost("first");
     await publishPost("second");
     await publishPost("third");
+    await publishPost("fourth");
     unwrap(
       await PostService.updatePost(adminContext, {
         id: first,
@@ -68,9 +102,105 @@ describe("Dashboard overview", () => {
     const overview = await getDashboardOverview(adminContext);
     expect(overview.recentPosts.map((post) => post.title)).toEqual([
       "first-edited",
+      "fourth",
       "third",
-      "second",
     ]);
+    expect(overview.latestDraft).toBeNull();
+  });
+
+  it("offers the latest draft once and keeps it out of recent edits", async () => {
+    await publishPost("published");
+    const older = await PostService.createEmptyPost(adminContext);
+    unwrap(
+      await PostService.updatePost(adminContext, {
+        id: older.id,
+        data: { title: "older draft" },
+      }),
+    );
+    const newer = await PostService.createEmptyPost(adminContext);
+    unwrap(
+      await PostService.updatePost(adminContext, {
+        id: newer.id,
+        data: { title: "newer draft" },
+      }),
+    );
+    await adminContext.db
+      .update(PostsTable)
+      .set({ updatedAt: new Date(Date.now() + 5_000) })
+      .where(eq(PostsTable.id, newer.id));
+
+    const overview = await getDashboardOverview(adminContext);
+    expect(overview.latestDraft).toMatchObject({
+      id: newer.id,
+      title: "newer draft",
+      status: "draft",
+    });
+    expect(overview.recentPosts.map((post) => post.title)).toEqual([
+      "older draft",
+      "published",
+    ]);
+  });
+
+  it("counts posts, public comments and friend links", async () => {
+    const postId = await publishPost("counted");
+    for (const title of ["first draft", "second draft"]) {
+      const draft = await PostService.createEmptyPost(adminContext);
+      unwrap(
+        await PostService.updatePost(adminContext, {
+          id: draft.id,
+          data: { title },
+        }),
+      );
+    }
+    const old = unwrap(
+      await CommentService.createComment(userContext, {
+        postId,
+        content: "Old",
+      }),
+    );
+    await adminContext.db
+      .update(CommentsTable)
+      .set({ createdAt: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000) })
+      .where(eq(CommentsTable.id, old.id));
+    unwrap(
+      await CommentService.createComment(userContext, {
+        postId,
+        content: "New",
+      }),
+    );
+    unwrap(
+      await CommentService.createComment(adminContext, {
+        postId,
+        content: "Admin",
+      }),
+    );
+    const deleted = unwrap(
+      await CommentService.createComment(userContext, {
+        postId,
+        content: "Deleted",
+      }),
+    );
+    unwrap(await CommentService.deleteComment(userContext, { id: deleted.id }));
+    for (const [i, status] of (
+      ["approved", "approved", "approved", "pending", "rejected"] as const
+    ).entries()) {
+      await FriendLinkRepo.insertFriendLink(adminContext.db, {
+        siteName: `Site ${i}`,
+        siteUrl: `https://count-${i}.example`,
+        status,
+        userId: userContext.session.user.id,
+      });
+    }
+
+    const overview = await getDashboardOverview(adminContext);
+    expect(overview.stats).toEqual({
+      publishedPosts: 1,
+      draftPosts: 2,
+      comments: 3,
+      recentComments: 2,
+      approvedFriendLinks: 3,
+      pendingFriendLinks: 1,
+    });
   });
 
   it("caps pending friend links and reports the remainder", async () => {
@@ -106,7 +236,7 @@ describe("Dashboard overview", () => {
     ).toBeTruthy();
   });
 
-  it("lists visitor comments on published posts and skips the rest", async () => {
+  it("lists unreplied visitor comments on public posts and skips the rest", async () => {
     const postId = await publishPost("public-post");
     unwrap(
       await CommentService.createComment(adminContext, {
@@ -132,16 +262,6 @@ describe("Dashboard overview", () => {
       }),
     );
 
-    const draftId = await PostService.createEmptyPost(adminContext).then(
-      (post) => post.id,
-    );
-    unwrap(
-      await PostService.updatePost(adminContext, {
-        id: draftId,
-        data: { title: "draft", slug: `draft-${draftId}` },
-      }),
-    );
-
     const unpublishedId = await publishPost("gone");
     unwrap(
       await CommentService.createComment(userContext, {
@@ -154,10 +274,120 @@ describe("Dashboard overview", () => {
     );
 
     const overview = await getDashboardOverview(adminContext);
-    expect(overview.recentComments.map((comment) => comment.snippet)).toEqual([
-      "Still here",
-    ]);
-    expect(overview.recentComments[0]?.postSlug).toBe(`public-post-${postId}`);
+    expect(
+      overview.unrepliedComments.items.map((comment) => comment.snippet),
+    ).toEqual(["Still here"]);
+    expect(overview.unrepliedComments.total).toBe(1);
+    expect(overview.unrepliedComments.items[0]?.postSlug).toBe(
+      `public-post-${postId}`,
+    );
+  });
+
+  it("drops a comment once an Admin replies to it", async () => {
+    const postId = await publishPost("replies");
+    const answered = unwrap(
+      await CommentService.createComment(userContext, {
+        postId,
+        content: "Answered root",
+      }),
+    );
+    const open = unwrap(
+      await CommentService.createComment(userContext, {
+        postId,
+        content: "Open root",
+      }),
+    );
+    const followUp = unwrap(
+      await CommentService.createComment(userContext, {
+        postId,
+        content: "Follow-up",
+        rootId: open.id,
+        replyToCommentId: open.id,
+      }),
+    );
+    const legacy = unwrap(
+      await CommentService.createComment(userContext, {
+        postId,
+        content: "Legacy root",
+      }),
+    );
+    const retracted = unwrap(
+      await CommentService.createComment(userContext, {
+        postId,
+        content: "Reply retracted",
+      }),
+    );
+
+    unwrap(
+      await CommentService.createComment(adminContext, {
+        postId,
+        content: "Thanks",
+        rootId: answered.id,
+        replyToCommentId: answered.id,
+      }),
+    );
+    // Answering the follow-up leaves its root waiting.
+    unwrap(
+      await CommentService.createComment(adminContext, {
+        postId,
+        content: "On the follow-up",
+        rootId: open.id,
+        replyToCommentId: followUp.id,
+      }),
+    );
+    // A thread reply written before reply targets existed.
+    const legacyReply = unwrap(
+      await CommentService.createComment(adminContext, {
+        postId,
+        content: "Old-style reply",
+        rootId: legacy.id,
+      }),
+    );
+    await adminContext.db
+      .update(CommentsTable)
+      .set({ replyToCommentId: null })
+      .where(eq(CommentsTable.id, legacyReply.id));
+    const deletedReply = unwrap(
+      await CommentService.createComment(adminContext, {
+        postId,
+        content: "Never mind",
+        rootId: retracted.id,
+        replyToCommentId: retracted.id,
+      }),
+    );
+    unwrap(
+      await CommentService.deleteComment(adminContext, { id: deletedReply.id }),
+    );
+
+    const overview = await getDashboardOverview(adminContext);
+    expect(
+      overview.unrepliedComments.items.map((comment) => comment.id).sort(),
+    ).toEqual([open.id, retracted.id].sort());
+    expect(overview.unrepliedComments.total).toBe(2);
+  });
+
+  it("caps unreplied comments at five, newest first, with the total", async () => {
+    const postId = await publishPost("busy");
+    const ids: Array<number> = [];
+    for (let i = 0; i < 7; i++) {
+      const comment = unwrap(
+        await CommentService.createComment(userContext, {
+          postId,
+          content: `Comment ${i}`,
+        }),
+      );
+      await adminContext.db
+        .update(CommentsTable)
+        .set({ createdAt: new Date(Date.now() + i * 1_000) })
+        .where(eq(CommentsTable.id, comment.id));
+      ids.push(comment.id);
+    }
+
+    const overview = await getDashboardOverview(adminContext);
+    expect(overview.unrepliedComments.total).toBe(7);
+    expect(
+      overview.unrepliedComments.items.map((comment) => comment.id),
+    ).toEqual(ids.slice(2).reverse());
   });
 
   it("carries what the Admin needs to reply to, delete or mute a comment", async () => {
@@ -178,7 +408,7 @@ describe("Dashboard overview", () => {
     );
 
     let overview = await getDashboardOverview(adminContext);
-    expect(overview.recentComments).toEqual(
+    expect(overview.unrepliedComments.items).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
           id: root.id,
@@ -193,23 +423,138 @@ describe("Dashboard overview", () => {
 
     unwrap(await MutedUserService.muteUser(adminContext, { userId: "user-1" }));
     overview = await getDashboardOverview(adminContext);
-    expect(overview.recentComments.every((comment) => comment.userMuted)).toBe(
-      true,
+    expect(
+      overview.unrepliedComments.items.every((comment) => comment.userMuted),
+    ).toBe(true);
+  });
+
+  it("ranks the most viewed public posts from the popularity snapshot", async () => {
+    const ids: Array<number> = [];
+    for (const title of [
+      "alpha",
+      "beta",
+      "gamma",
+      "delta",
+      "epsilon",
+      "zeta",
+    ]) {
+      ids.push(await publishPost(title));
+    }
+    const [alpha, beta, gamma, delta, epsilon, zeta] = ids as [
+      number,
+      number,
+      number,
+      number,
+      number,
+      number,
+    ];
+    const hidden = await publishPost("hidden");
+    unwrap(await PostService.unpublishPost(adminContext, { id: hidden }));
+    mockPopularity(popularityStatus(), {
+      entries: [
+        { postId: hidden, score: 5_000 },
+        { postId: gamma, score: 1_200 },
+        { postId: alpha, score: 900 },
+        { postId: zeta, score: 300 },
+        { postId: beta, score: 120 },
+        { postId: delta, score: 40 },
+        { postId: epsilon, score: 2 },
+      ],
+      windowStart: 1_000,
+      windowEnd: 2_000,
+      syncedAt: Date.now(),
+    });
+
+    const overview = await getDashboardOverview(adminContext);
+    expect(overview.popularity).toMatchObject({
+      state: "ready",
+      windowStart: 1_000,
+      windowEnd: 2_000,
+      totalViews: 7_562,
+    });
+    expect(
+      overview.popularity.topPosts.map((post) => [post.title, post.views]),
+    ).toEqual([
+      ["gamma", 1_200],
+      ["alpha", 900],
+      ["zeta", 300],
+      ["beta", 120],
+      ["delta", 40],
+    ]);
+    expect(overview.popularity.topPosts[0]?.slug).toBe(`gamma-${gamma}`);
+  });
+
+  it("keeps an expired snapshot visible and marks it", async () => {
+    const postId = await publishPost("stale");
+    mockPopularity(popularityStatus({ expired: true }), {
+      entries: [{ postId, score: 10 }],
+      windowStart: 1,
+      windowEnd: 2,
+      syncedAt: 0,
+    });
+
+    const overview = await getDashboardOverview(adminContext);
+    expect(overview.popularity.state).toBe("expired");
+    expect(overview.popularity.totalViews).toBe(10);
+    expect(overview.popularityAlert).toBe("expired");
+  });
+
+  it("reports no traffic without Umami or a snapshot", async () => {
+    mockPopularity(popularityStatus({ configured: false }), null);
+    let overview = await getDashboardOverview(adminContext);
+    expect(overview.popularity).toEqual({
+      state: "unconfigured",
+      windowStart: null,
+      windowEnd: null,
+      totalViews: 0,
+      topPosts: [],
+    });
+
+    mockPopularity(popularityStatus(), null);
+    overview = await getDashboardOverview(adminContext);
+    expect(overview.popularity.state).toBe("missing");
+  });
+
+  it("announces a newer release only from the cached version check", async () => {
+    const fetch = vi.spyOn(globalThis, "fetch");
+    let overview = await getDashboardOverview(adminContext);
+    expect(overview.update).toBeNull();
+
+    await kvStore.put(
+      adminContext,
+      VERSION_CACHE_KEYS.latestRelease,
+      JSON.stringify({
+        version: "v99.0.0",
+        releaseUrl:
+          "https://github.com/du2333/flare-stack-blog/releases/tag/v99.0.0",
+      }),
     );
+    overview = await getDashboardOverview(adminContext);
+    expect(overview.update).toEqual({
+      latestVersion: "v99.0.0",
+      releaseUrl:
+        "https://github.com/du2333/flare-stack-blog/releases/tag/v99.0.0",
+    });
+
+    await kvStore.put(
+      adminContext,
+      VERSION_CACHE_KEYS.latestRelease,
+      JSON.stringify({
+        version: `v${__APP_VERSION__}`,
+        releaseUrl: `https://github.com/du2333/flare-stack-blog/releases/tag/v${__APP_VERSION__}`,
+      }),
+    );
+    overview = await getDashboardOverview(adminContext);
+    expect(overview.update).toBeNull();
+    expect(fetch).not.toHaveBeenCalled();
+    await kvStore.remove(adminContext, VERSION_CACHE_KEYS.latestRelease);
   });
 
   it("surfaces a failed popularity sync", async () => {
-    vi.spyOn(postPopularityService, "getStatus").mockResolvedValue({
-      configured: true,
-      expired: false,
-      postCount: 0,
-      lastAttemptAt: 1,
-      lastSuccessAt: null,
-      expiresAt: null,
-      lastError: "umami 502",
-      windowStart: null,
-      windowEnd: null,
-    });
+    mockPopularity(
+      popularityStatus({ lastSuccessAt: null, lastError: "umami 502" }),
+      null,
+    );
 
     const overview = await getDashboardOverview(adminContext);
     expect(overview.popularityAlert).toBe("failed");

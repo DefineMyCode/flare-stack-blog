@@ -18,7 +18,7 @@ const DashboardPendingFriendLinkSchema = z.object({
   createdAt: coercedDate,
 });
 
-const DashboardRecentCommentSchema = z.object({
+const DashboardCommentSchema = z.object({
   id: z.number().int().positive(),
   postId: z.number().int().positive(),
   rootId: z.number().int().positive().nullable(),
@@ -32,16 +32,60 @@ const DashboardRecentCommentSchema = z.object({
   createdAt: coercedDate,
 });
 
+const count = z.number().int().nonnegative();
+
+const DashboardStatsSchema = z.object({
+  publishedPosts: count,
+  draftPosts: count,
+  /** Published Comments on public Posts. */
+  comments: count,
+  /** Of those, created in the last DASHBOARD_RECENT_COMMENT_DAYS days. */
+  recentComments: count,
+  approvedFriendLinks: count,
+  pendingFriendLinks: count,
+});
+
+const DashboardTopPostSchema = z.object({
+  id: z.number().int().positive(),
+  title: z.string(),
+  slug: z.string(),
+  views: count,
+});
+
+const DashboardPopularitySchema = z.object({
+  state: z.enum(["unconfigured", "missing", "expired", "ready"]),
+  /** The snapshot's UTC window, in milliseconds. */
+  windowStart: count.nullable(),
+  windowEnd: count.nullable(),
+  totalViews: count,
+  topPosts: z.array(DashboardTopPostSchema),
+});
+
+const DashboardUpdateSchema = z.object({
+  latestVersion: z.string(),
+  releaseUrl: z.url(),
+});
+
 export const DashboardOverviewSchema = z.object({
   popularityAlert: z.enum(["failed", "expired"]).nullable(),
   adminEmailNeedsSetup: z.boolean(),
   defaultSiteIdentity: z.boolean(),
+  /** A newer stable release, known only from the version check's cache. */
+  update: DashboardUpdateSchema.nullable(),
+  stats: DashboardStatsSchema,
+  popularity: DashboardPopularitySchema,
+  latestDraft: DashboardRecentPostSchema.nullable(),
+  /** Most recently edited Posts, without `latestDraft`. */
   recentPosts: z.array(DashboardRecentPostSchema),
   pendingFriendLinks: z.object({
     items: z.array(DashboardPendingFriendLinkSchema),
-    remainingCount: z.number().int().nonnegative(),
+    remainingCount: count,
   }),
-  recentComments: z.array(DashboardRecentCommentSchema),
+  /** Visitor Comments no Admin has replied to, newest first. */
+  unrepliedComments: z.object({
+    items: z.array(DashboardCommentSchema),
+    total: count,
+  }),
 });
 
 export type DashboardOverview = z.infer<typeof DashboardOverviewSchema>;

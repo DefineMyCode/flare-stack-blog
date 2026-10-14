@@ -1,10 +1,12 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { ClientOnly, Link } from "@tanstack/react-router";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, MessageCircleHeart } from "lucide-react";
 import { useRef, useState } from "react";
 import { toast } from "sonner";
 import { Turnstile, useTurnstile } from "@/components/common/turnstile";
 import { ActionMenu, type ActionMenuItem } from "@/components/ui/action-menu";
+import { Badge } from "@/components/ui/badge";
+import { EmptyState } from "@/components/ui/empty-state";
 import { SectionHeading } from "@/components/ui/page-heading";
 import { CommentConfirmationModal } from "@/features/comments/components/comment-confirmation-modal";
 import { CommentEditor } from "@/features/comments/components/comment-editor";
@@ -15,20 +17,29 @@ import { useMutedUsers } from "@/features/muted-users/hooks/use-muted-users";
 import { useMediaQuery } from "@/hooks/use-motion";
 import { authClient } from "@/lib/auth/auth-client";
 import { orpc } from "@/lib/orpc";
-import { formatTimeAgo } from "@/lib/utils";
+import { cn, formatTimeAgo } from "@/lib/utils";
 import { m } from "@/paraglide/messages";
 import "@/features/comments/components/comments.css";
 import { DashboardIdentity } from "./dashboard-identity";
+import { formatCount } from "./format";
 
-type RecentComment = DashboardOverview["recentComments"][number];
+type RecentComment = DashboardOverview["unrepliedComments"]["items"][number];
 type PendingAction =
   | { kind: "delete"; comment: RecentComment }
   | { kind: "mute"; comment: RecentComment; userId: string };
 
+/**
+ * Visitor Comments still waiting for an Admin reply, with reply, delete and
+ * mute at hand. A replied Comment leaves the list when the overview reloads.
+ */
 export function DashboardComments({
   comments,
+  total,
+  className,
 }: {
   comments: Array<RecentComment>;
+  total: number;
+  className?: string;
 }) {
   const queryClient = useQueryClient();
   const { data: session } = authClient.useSession();
@@ -88,106 +99,131 @@ export function DashboardComments({
   };
 
   return (
-    <section className="dashboard-comments">
+    <section
+      id="dashboard-unreplied"
+      className={cn("dashboard-panel dashboard-comments", className)}
+    >
       <SectionHeading
-        className="dashboard-section-heading"
         size="md"
-        title={m.admin_overview_recent_comments()}
+        title={
+          <span className="dashboard-heading-count">
+            {m.dashboard_unreplied_title()}
+            {total > 0 ? (
+              <Badge tone="primary">{formatCount(total)}</Badge>
+            ) : null}
+          </span>
+        }
         titleProps={{ ref: headingRef, tabIndex: -1 }}
       />
-      <ul className="dashboard-list">
-        {comments.map((comment) => {
-          const userName =
-            comment.userName || m.admin_overview_activity_anonymous();
-          const userId = comment.userId;
-          const actions: Array<ActionMenuItem> = [
-            {
-              label: m.comments_item_reply(),
-              onSelect: (trigger) => {
-                replyTrigger.current = trigger;
-                setReplyingId(comment.id);
+      {comments.length === 0 ? (
+        <EmptyState
+          size="compact"
+          icon={MessageCircleHeart}
+          title={m.dashboard_unreplied_empty_title()}
+          description={m.dashboard_unreplied_empty_desc()}
+        />
+      ) : (
+        <ul className="dashboard-list">
+          {comments.map((comment) => {
+            const userName =
+              comment.userName || m.admin_overview_activity_anonymous();
+            const userId = comment.userId;
+            const actions: Array<ActionMenuItem> = [
+              {
+                label: m.comments_item_reply(),
+                onSelect: (trigger) => {
+                  replyTrigger.current = trigger;
+                  setReplyingId(comment.id);
+                },
               },
-            },
-            {
-              label: m.comments_item_delete(),
-              danger: true,
-              onSelect: () => setPending({ kind: "delete", comment }),
-            },
-          ];
-          if (userId && userId !== session?.user.id && !comment.userMuted)
-            actions.push({
-              label: m.admin_overview_comment_mute(),
-              danger: true,
-              onSelect: () => setPending({ kind: "mute", comment, userId }),
-            });
-          return (
-            <li key={comment.id}>
-              <div className="dashboard-comment-row">
-                <Link
-                  to="/post/$slug"
-                  params={{ slug: comment.postSlug }}
-                  search={{ comment: comment.id }}
-                  className="dashboard-comment"
-                >
-                  <DashboardIdentity kind="user" image={comment.userImage} />
-                  <div className="dashboard-row-copy">
-                    <div className="dashboard-comment-byline">
-                      <strong>{userName}</strong>
-                      <time className="dashboard-time">
-                        <ClientOnly fallback="—">
-                          {formatTimeAgo(comment.createdAt)}
-                        </ClientOnly>
-                      </time>
-                    </div>
-                    {comment.snippet && (
-                      <p className="dashboard-comment-snippet">
-                        {comment.snippet}
+              {
+                label: m.comments_item_delete(),
+                danger: true,
+                onSelect: () => setPending({ kind: "delete", comment }),
+              },
+            ];
+            if (userId && userId !== session?.user.id && !comment.userMuted)
+              actions.push({
+                label: m.admin_overview_comment_mute(),
+                danger: true,
+                onSelect: () => setPending({ kind: "mute", comment, userId }),
+              });
+            return (
+              <li key={comment.id}>
+                <div className="dashboard-comment-row">
+                  <Link
+                    to="/post/$slug"
+                    params={{ slug: comment.postSlug }}
+                    search={{ comment: comment.id }}
+                    className="dashboard-comment"
+                  >
+                    <DashboardIdentity kind="user" image={comment.userImage} />
+                    <div className="dashboard-row-copy">
+                      <div className="dashboard-comment-byline">
+                        <strong>{userName}</strong>
+                        <time className="dashboard-time">
+                          <ClientOnly fallback="—">
+                            {formatTimeAgo(comment.createdAt)}
+                          </ClientOnly>
+                        </time>
+                      </div>
+                      {comment.snippet && (
+                        <p className="dashboard-comment-snippet">
+                          {comment.snippet}
+                        </p>
+                      )}
+                      <p className="dashboard-comment-source">
+                        <span className="dashboard-comment-source-title">
+                          {comment.postTitle}
+                        </span>
+                        <ArrowRight size={14} aria-hidden="true" />
                       </p>
-                    )}
-                    <p className="dashboard-comment-source">
-                      {comment.postTitle}
-                      <ArrowRight size={14} />
-                    </p>
+                    </div>
+                  </Link>
+                  <div className="dashboard-comment-actions">
+                    <ActionMenu
+                      items={actions}
+                      label={m.comments_more_actions()}
+                      placement="bottom-end"
+                    />
                   </div>
-                </Link>
-                <div className="dashboard-comment-actions">
-                  <ActionMenu
-                    items={actions}
-                    label={m.comments_more_actions()}
-                    placement="bottom-end"
-                  />
                 </div>
-              </div>
-              <CommentReveal open={replyingId === comment.id}>
-                <div className="dashboard-comment-reply">
-                  <CommentEditor
-                    value={drafts[comment.id] ?? ""}
-                    onChange={(value) =>
-                      setDrafts((previous) => ({
-                        ...previous,
-                        [comment.id]: value,
-                      }))
-                    }
-                    onSubmit={submitReply}
-                    isSubmitting={isCreating}
-                    challengePending={challengePending}
-                    autoFocus
-                    onCancel={closeReply}
-                    submitLabel={m.comments_editor_submit_reply()}
-                    label={m.comments_item_reply_to({ name: userName })}
-                    challenge={
-                      <Turnstile
-                        {...turnstileProps}
-                        size={compactChallenge ? "compact" : "normal"}
-                      />
-                    }
-                  />
-                </div>
-              </CommentReveal>
-            </li>
-          );
-        })}
-      </ul>
+                <CommentReveal open={replyingId === comment.id}>
+                  <div className="dashboard-comment-reply">
+                    <CommentEditor
+                      value={drafts[comment.id] ?? ""}
+                      onChange={(value) =>
+                        setDrafts((previous) => ({
+                          ...previous,
+                          [comment.id]: value,
+                        }))
+                      }
+                      onSubmit={submitReply}
+                      isSubmitting={isCreating}
+                      challengePending={challengePending}
+                      autoFocus
+                      onCancel={closeReply}
+                      submitLabel={m.comments_editor_submit_reply()}
+                      label={m.comments_item_reply_to({ name: userName })}
+                      challenge={
+                        <Turnstile
+                          {...turnstileProps}
+                          size={compactChallenge ? "compact" : "normal"}
+                        />
+                      }
+                    />
+                  </div>
+                </CommentReveal>
+              </li>
+            );
+          })}
+        </ul>
+      )}
+      {total > comments.length ? (
+        <p className="dashboard-panel-footnote">
+          {m.dashboard_unreplied_more({ count: total - comments.length })}
+        </p>
+      ) : null}
       <CommentConfirmationModal
         isOpen={pending?.kind === "delete"}
         onClose={() => setPending(null)}
