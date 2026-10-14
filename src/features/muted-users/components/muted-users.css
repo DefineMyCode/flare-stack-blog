@@ -1,30 +1,13 @@
-.muted-workspace {
-  --fuwari-field-height: calc(42 * var(--admin-unit));
-  --fuwari-field-font-size: calc(14 * var(--admin-unit));
-  --fuwari-button-height: calc(38 * var(--admin-unit));
-  --fuwari-button-font-size: calc(13 * var(--admin-unit));
-  --fuwari-button-padding-x: calc(14 * var(--admin-unit));
+.settings-workspace[data-section="muted-users"] .settings-body {
+  display: flex;
+  overflow: hidden;
+}
+.muted-users {
   display: flex;
   flex-direction: column;
   flex: 1;
-  height: 100%;
   min-height: 0;
   min-width: 0;
-  overflow: hidden;
-  padding: calc(28 * var(--admin-unit));
-  color: var(--fuwari-fg-90);
-}
-.muted-heading {
-  padding-bottom: calc(26 * var(--admin-unit));
-}
-.muted-count {
-  background: var(--fuwari-btn-regular-bg);
-  color: var(--fuwari-primary);
-  padding: 8px 14px;
-  border-radius: 12px;
-  font-size: calc(13 * var(--admin-unit));
-  flex-shrink: 0;
-  font-variant-numeric: tabular-nums;
 }
 .muted-toolbar {
   display: flex;
@@ -49,10 +32,6 @@
 }
 .muted-sort > div {
   min-width: calc(135 * var(--admin-unit));
-}
-.muted-sort > div > button {
-  min-height: calc(42 * var(--admin-unit));
-  font-size: calc(14 * var(--admin-unit));
 }
 .muted-list-scroll {
   flex: 1;
@@ -95,7 +74,7 @@
   flex: 1;
   min-width: 0;
 }
-.muted-user h2 {
+.muted-user h3 {
   font-size: calc(16 * var(--admin-unit));
   font-weight: 550;
   overflow-wrap: anywhere;
@@ -113,22 +92,7 @@
   font-size: calc(12 * var(--admin-unit));
   color: var(--fuwari-fg-50);
 }
-.muted-workspace
-  button:not(.fuwari-field-button, .fuwari-button):focus-visible {
-  outline: 2px solid var(--fuwari-primary);
-  outline-offset: 3px;
-}
 @media (max-width: 600px) {
-  .muted-workspace {
-    padding: 18px;
-  }
-  .muted-heading {
-    gap: 12px;
-    padding-bottom: 18px;
-  }
-  .muted-heading p {
-    max-width: 30ch;
-  }
   .muted-toolbar {
     flex-wrap: wrap;
     gap: 12px;
@@ -144,7 +108,7 @@
     gap: 12px;
     padding: 18px 4px;
   }
-  .muted-user h2 {
+  .muted-user h3 {
     font-size: 15px;
   }
   .muted-avatar {
@@ -154,8 +118,12 @@
   .muted-user p {
     line-height: 1.6;
   }
-  .muted-count {
-    padding: 7px 10px;
+}
+@media (max-height: 540px) {
+  .settings-workspace[data-section="muted-users"] .settings-body,
+  .muted-users {
+    display: block;
+    overflow: visible;
   }
 }
 @media (prefers-reduced-motion: reduce) {
