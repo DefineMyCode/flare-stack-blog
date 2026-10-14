@@ -64,6 +64,8 @@ async function listPosts(apiKey: string, query: string) {
       id: number;
       title: string;
       summary: string | null;
+      slug: string;
+      publicSlug: string | null;
       contentJson?: unknown;
     }>;
     total: number;
@@ -417,6 +419,45 @@ describe("Admin posts list for external editors", () => {
     // Snapshot, so the unpublished draft body must not ride along.
     expect(category.items).toHaveLength(1);
     expect(category.items.some((item) => "contentJson" in item)).toBe(false);
+  });
+
+  it("returns the live page's slug, not the draft's, until the post is unpublished", async () => {
+    const apiKey = await seedAdminApiKey();
+    const context = createAdminTestContext();
+    const id = await createPostWithBody(context, 0);
+    const readBoth = async () => {
+      const page = await listPosts(apiKey, "sortBy=id&sortDir=ASC");
+      const response = await callAdminApi(apiKey, `/admin/posts/${id}`);
+      expect(response.status).toBe(200);
+      const post = (await response.json()) as {
+        slug: string;
+        publicSlug: string | null;
+      };
+      return { listed: page.items[0], post };
+    };
+
+    let { listed, post } = await readBoth();
+    expect(listed).toMatchObject({ slug: "post-0", publicSlug: null });
+    expect(post).toMatchObject({ slug: "post-0", publicSlug: null });
+
+    unwrap(await PostService.publishPost(context, { id }));
+    unwrap(
+      await PostService.updatePost(context, {
+        id,
+        data: { slug: "renamed-draft" },
+      }),
+    );
+    ({ listed, post } = await readBoth());
+    expect(listed).toMatchObject({
+      slug: "renamed-draft",
+      publicSlug: "post-0",
+    });
+    expect(post).toMatchObject({ slug: "renamed-draft", publicSlug: "post-0" });
+
+    unwrap(await PostService.unpublishPost(context, { id }));
+    ({ listed, post } = await readBoth());
+    expect(listed.publicSlug).toBeNull();
+    expect(post.publicSlug).toBeNull();
   });
 
   it("keeps the existing page size limit", async () => {

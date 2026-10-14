@@ -402,6 +402,7 @@ export async function findPostById(
 
   return {
     ...stripPublicSnapshot(post),
+    publicSlug: post.publicSlug,
     coverMediaId: coverMedia ? post.coverMediaId : null,
     cover: coverMedia ? toAdminCover(coverMedia) : null,
     hasPublicSnapshot: post.publicSnapshotJson != null,

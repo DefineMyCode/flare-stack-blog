@@ -1,8 +1,9 @@
 import { formatPublicPostDate } from "@/features/posts/utils/format-public-post-date";
 import { ClientOnly, Link } from "@tanstack/react-router";
-import { Pin, Trash2 } from "lucide-react";
-import { ActionMenu } from "@/components/ui/action-menu";
+import { ExternalLink, EyeOff, Pin, PinOff, Trash2 } from "lucide-react";
+import { ActionMenu, type ActionMenuItem } from "@/components/ui/action-menu";
 import { PostStatusBadge } from "@/features/posts/components/post-status-badge";
+import { openPublicPost } from "@/features/posts/utils/open-public-post";
 import { formatDate } from "@/lib/utils";
 import { m } from "@/paraglide/messages";
 import type { TaxonomyReturn } from "@/components/admin/taxonomy-state";
@@ -16,11 +17,54 @@ interface PostRowProps {
     post: AdminPostListItem,
     trigger: HTMLButtonElement | null,
   ) => void;
+  onTogglePin?: (post: AdminPostListItem) => void;
+  pinPending?: boolean;
+  onUnpublish?: (post: AdminPostListItem, trigger: HTMLButtonElement) => void;
 }
 
-export function PostRow({ post, sortBy, onDelete, editorState }: PostRowProps) {
+export function PostRow({
+  post,
+  sortBy,
+  onDelete,
+  onTogglePin,
+  pinPending,
+  onUnpublish,
+  editorState,
+}: PostRowProps) {
   const title = post.title.trim() || m.common_untitled();
   const date = post[sortBy];
+  const published = post.status === "published";
+  const { publicSlug } = post;
+  const actions: Array<ActionMenuItem> = [];
+  if (published && publicSlug)
+    actions.push({
+      label: m.admin_posts_action_view_live(),
+      icon: ExternalLink,
+      onSelect: () => openPublicPost(publicSlug),
+    });
+  if (onTogglePin)
+    actions.push({
+      label: post.pinnedAt
+        ? m.admin_posts_action_unpin()
+        : m.admin_posts_action_pin(),
+      icon: post.pinnedAt ? PinOff : Pin,
+      disabled: pinPending,
+      onSelect: () => onTogglePin(post),
+    });
+  if (published && onUnpublish)
+    actions.push({
+      label: m.editor_header_unpublish(),
+      icon: EyeOff,
+      danger: true,
+      onSelect: (trigger) => onUnpublish(post, trigger),
+    });
+  actions.push({
+    label: m.admin_posts_action_delete_post(),
+    icon: Trash2,
+    danger: true,
+    separator: actions.length > 0,
+    onSelect: (trigger) => onDelete(post, trigger),
+  });
   return (
     <tr>
       <td>
@@ -74,14 +118,7 @@ export function PostRow({ post, sortBy, onDelete, editorState }: PostRowProps) {
           </Link>
           <ActionMenu
             label={m.admin_posts_more_named({ title })}
-            items={[
-              {
-                label: m.admin_posts_action_delete_post(),
-                icon: Trash2,
-                danger: true,
-                onSelect: (trigger) => onDelete(post, trigger),
-              },
-            ]}
+            items={actions}
           />
         </div>
       </td>
