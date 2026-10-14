@@ -18,6 +18,7 @@ function answer(body: unknown, status = 200) {
 
 afterEach(() => {
   vi.unstubAllGlobals();
+  vi.restoreAllMocks();
 });
 
 it("asks Bilibili for the video by its BV ID, without a browser User-Agent", async () => {
@@ -71,7 +72,8 @@ it("drops a cover that is not on Bilibili's image CDN", async () => {
   });
 });
 
-it("returns null when Bilibili refuses, errors or cannot be reached", async () => {
+it("returns null when Bilibili refuses, errors or cannot be reached, logging why", async () => {
+  const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
   answer({ code: -404, message: "啥都木有" });
   expect(await fetchVideoMeta(VIDEO)).toBeNull();
 
@@ -80,6 +82,11 @@ it("returns null when Bilibili refuses, errors or cannot be reached", async () =
     vi.fn(async () => new Response("<html>412</html>", { status: 412 })),
   );
   expect(await fetchVideoMeta(VIDEO)).toBeNull();
+  expect(JSON.parse(String(warn.mock.calls.at(-1)?.[0]))).toMatchObject({
+    message: "video meta lookup failed",
+    host: "api.bilibili.com",
+    status: 412,
+  });
 
   vi.stubGlobal(
     "fetch",

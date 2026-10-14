@@ -9,6 +9,7 @@ const YOUTUBE_OEMBED = "https://www.youtube.com/oembed";
 
 interface BilibiliView {
   code: number;
+  message?: unknown;
   data?: {
     title?: unknown;
     pic?: unknown;
@@ -17,15 +18,37 @@ interface BilibiliView {
   };
 }
 
-/** `url`'s JSON body, or `null` when it fails, is not OK or is not JSON. */
+function warnLookupFailed(url: URL, detail: Record<string, unknown>) {
+  console.warn(
+    JSON.stringify({
+      message: "video meta lookup failed",
+      host: url.hostname,
+      ...detail,
+    }),
+  );
+}
+
+/**
+ * `url`'s JSON body, or `null` when it fails, is not OK or is not JSON; the
+ * reason is logged, since providers refuse some server IPs.
+ */
 async function getJson(url: URL): Promise<unknown> {
   try {
     const response = await fetch(url, {
       headers: { accept: "application/json" },
       signal: AbortSignal.timeout(8_000),
     });
-    return response.ok ? await response.json() : null;
-  } catch {
+    if (response.ok) return await response.json();
+    const body = await response.text().catch(() => "");
+    warnLookupFailed(url, {
+      status: response.status,
+      body: body.slice(0, 200),
+    });
+    return null;
+  } catch (error) {
+    warnLookupFailed(url, {
+      error: error instanceof Error ? error.message : String(error),
+    });
     return null;
   }
 }
@@ -42,7 +65,11 @@ async function fetchBilibiliMeta(source: VideoSource) {
   else url.searchParams.set("bvid", source.videoId);
 
   const body = (await getJson(url)) as BilibiliView | null;
-  if (body?.code !== 0 || !body.data) return null;
+  if (!body) return null;
+  if (body.code !== 0 || !body.data) {
+    warnLookupFailed(url, { code: body.code, body: body.message });
+    return null;
+  }
   const { data } = body;
   // A part of a multi-part video has a length of its own.
   const part = data.pages?.find((page) => page.page === (source.page ?? 1));
