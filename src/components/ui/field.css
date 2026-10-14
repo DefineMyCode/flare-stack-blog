@@ -243,8 +243,9 @@
   }
 
   @media (max-width: 639px) {
-    /* Below 16px, iOS zooms the page on focus. */
-    .fuwari-input,
+    /* Below 16px, iOS zooms the page on focus into a text field. */
+    input.fuwari-input,
+    textarea.fuwari-input,
     .fuwari-field-shell {
       font-size: max(16px, var(--fuwari-field-font-size, 15px));
     }
