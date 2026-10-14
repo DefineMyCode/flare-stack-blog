@@ -91,8 +91,8 @@ const EditorVideo = schemaVideo.extend({
 export interface VideoEditingOptions {
   /**
    * Looks up a video's title, cover and length. The editor asks once for
-   * each embedded Bilibili video that has none yet, and fills them in
-   * without an undo step of their own.
+   * each embedded video that has none yet, and fills them in without an
+   * undo step of their own.
    */
   fetchMeta?: (source: VideoSource) => Promise<VideoMeta | null>;
 }
@@ -122,9 +122,9 @@ function fillMeta(view: EditorView, source: VideoSource, meta: VideoMeta) {
 }
 
 /**
- * A plugin that looks up metadata for Bilibili videos that have none: new
- * ones, and ones embedded while the provider could not be reached. Each
- * video is asked about once per editor.
+ * A plugin that looks up metadata for videos that have none: new ones, and
+ * ones embedded while the provider could not be reached. Each video is
+ * asked about once per editor.
  */
 function videoMetaPlugin(
   editor: Editor,
@@ -141,9 +141,9 @@ function videoMetaPlugin(
           if (node.type.name !== VIDEO) return true;
           const source = videoSourceOf(node.attrs);
           const meta = videoMetaOf(node.attrs);
-          if (!source || source.provider !== "bilibili") return false;
+          if (!source) return false;
           if (meta.title || meta.cover) return false;
-          const key = `${source.videoId}:${source.page ?? 1}`;
+          const key = `${source.provider}:${source.videoId}:${source.page ?? 1}`;
           if (asked.has(key)) return false;
           asked.add(key);
           void fetchMeta(source).then((found) => {

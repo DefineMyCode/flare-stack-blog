@@ -90,14 +90,32 @@ it("returns null when Bilibili refuses, errors or cannot be reached", async () =
   expect(await fetchVideoMeta(VIDEO)).toBeNull();
 });
 
-it("does not ask anything for YouTube", async () => {
-  const fetch = answer({});
+it("asks YouTube's oEmbed endpoint for the title only", async () => {
+  const fetch = answer({
+    title: "ふわり feat.MIMI",
+    thumbnail_url: "https://i.ytimg.com/vi/5gIf0_xpFPI/hqdefault.jpg",
+  });
   expect(
     await fetchVideoMeta({
-      ...VIDEO,
       provider: "youtube",
       videoId: "5gIf0_xpFPI",
+      page: null,
+      start: 30,
+    }),
+  ).toEqual({ title: "ふわり feat.MIMI", cover: null, duration: null });
+  expect(String(fetch.mock.calls[0]?.[0])).toBe(
+    "https://www.youtube.com/oembed?url=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3D5gIf0_xpFPI&format=json",
+  );
+});
+
+it("returns null for a YouTube video oEmbed does not know", async () => {
+  answer({ error: "Bad Request" }, 400);
+  expect(
+    await fetchVideoMeta({
+      provider: "youtube",
+      videoId: "aaaaaaaaaaa",
+      page: null,
+      start: null,
     }),
   ).toBeNull();
-  expect(fetch).not.toHaveBeenCalled();
 });

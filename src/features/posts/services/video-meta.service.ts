@@ -2,9 +2,10 @@ import type {
   VideoMeta,
   VideoSource,
 } from "@/features/posts/utils/video-source";
-import { videoMetaOf } from "@/features/posts/utils/video-source";
+import { videoMetaOf, videoPageUrl } from "@/features/posts/utils/video-source";
 
 const BILIBILI_VIEW = "https://api.bilibili.com/x/web-interface/view";
+const YOUTUBE_OEMBED = "https://www.youtube.com/oembed";
 
 interface BilibiliView {
   code: number;
@@ -16,44 +17,64 @@ interface BilibiliView {
   };
 }
 
-/**
- * The title, cover and length of `source`, from the provider, or `null` when
- * the provider has none to give or cannot be reached. Only Bilibili is asked:
- * YouTube's thumbnail has a fixed URL already.
- *
- * Bilibili's video info endpoint is public but undocumented. A browser-like
- * User-Agent without Bilibili's cookies gets a 412 block page, so the request
- * sends none.
- */
-export async function fetchVideoMeta(
-  source: VideoSource,
-): Promise<VideoMeta | null> {
-  if (source.provider !== "bilibili") return null;
-  const url = new URL(BILIBILI_VIEW);
-  const av = /^av(\d+)$/i.exec(source.videoId);
-  if (av) url.searchParams.set("aid", av[1]);
-  else url.searchParams.set("bvid", source.videoId);
-
-  let body: BilibiliView;
+/** `url`'s JSON body, or `null` when it fails, is not OK or is not JSON. */
+async function getJson(url: URL): Promise<unknown> {
   try {
     const response = await fetch(url, {
       headers: { accept: "application/json" },
       signal: AbortSignal.timeout(8_000),
     });
-    if (!response.ok) return null;
-    body = (await response.json()) as BilibiliView;
+    return response.ok ? await response.json() : null;
   } catch {
     return null;
   }
-  if (body.code !== 0 || !body.data) return null;
+}
 
+/**
+ * Bilibili's video info endpoint is public but undocumented. A browser-like
+ * User-Agent without Bilibili's cookies gets a 412 block page, so the request
+ * sends none.
+ */
+async function fetchBilibiliMeta(source: VideoSource) {
+  const url = new URL(BILIBILI_VIEW);
+  const av = /^av(\d+)$/i.exec(source.videoId);
+  if (av) url.searchParams.set("aid", av[1]);
+  else url.searchParams.set("bvid", source.videoId);
+
+  const body = (await getJson(url)) as BilibiliView | null;
+  if (body?.code !== 0 || !body.data) return null;
   const { data } = body;
   // A part of a multi-part video has a length of its own.
   const part = data.pages?.find((page) => page.page === (source.page ?? 1));
-  const meta = videoMetaOf({
+  return videoMetaOf({
     title: data.title,
     cover: data.pic,
     duration: part?.duration ?? data.duration,
   });
-  return meta.title || meta.cover ? meta : null;
+}
+
+/**
+ * YouTube's oEmbed endpoint gives the title only; the thumbnail has a fixed
+ * URL already, and the length is not public without an API key.
+ */
+async function fetchYoutubeMeta(source: VideoSource) {
+  const url = new URL(YOUTUBE_OEMBED);
+  url.searchParams.set("url", videoPageUrl({ ...source, start: null }));
+  url.searchParams.set("format", "json");
+  const body = (await getJson(url)) as { title?: unknown } | null;
+  return body ? videoMetaOf({ title: body.title }) : null;
+}
+
+/**
+ * The title, cover and length of `source` as far as its provider tells, or
+ * `null` when it tells nothing or cannot be reached.
+ */
+export async function fetchVideoMeta(
+  source: VideoSource,
+): Promise<VideoMeta | null> {
+  const meta =
+    source.provider === "bilibili"
+      ? await fetchBilibiliMeta(source)
+      : await fetchYoutubeMeta(source);
+  return meta?.title || meta?.cover ? meta : null;
 }
