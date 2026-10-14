@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useTheme } from "@/components/common/theme-provider";
 import { ThemeToggle } from "@/components/common/theme-toggle";
 import type { NavOption, UserInfo } from "@/components/layout/layout-props";
+import { SegmentedControl } from "@/components/ui/segmented-control";
 import { PublicNavLink } from "./public-nav-link";
 import { Skeleton } from "@/components/ui/skeleton";
 import { m } from "@/paraglide/messages";
@@ -52,26 +53,18 @@ export function MobileMenu({
           </nav>
           <div className="public-menu-preferences">
             <ThemeToggle className="public-menu-theme" label={themeLabel} />
-            <div
+            <SegmentedControl
               className="public-menu-languages"
-              role="group"
               aria-label={m.common_switch_language()}
-            >
-              <button
-                type="button"
-                aria-pressed={getLocale() === "zh"}
-                onClick={() => setLocale("zh")}
-              >
-                中文
-              </button>
-              <button
-                type="button"
-                aria-pressed={getLocale() === "en"}
-                onClick={() => setLocale("en")}
-              >
-                English
-              </button>
-            </div>
+              track={false}
+              size="sm"
+              value={getLocale()}
+              onValueChange={(locale) => setLocale(locale)}
+              items={[
+                { value: "zh", label: "中文" },
+                { value: "en", label: "English" },
+              ]}
+            />
           </div>
         </>
       )}

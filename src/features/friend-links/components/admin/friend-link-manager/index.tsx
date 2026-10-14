@@ -5,6 +5,8 @@ import { useAdminChrome } from "@/components/admin/admin-chrome";
 import { AdminPagination } from "@/components/admin/admin-pagination";
 import { Button } from "@/components/ui/button";
 import ConfirmationModal from "@/components/ui/confirmation-modal";
+import { PageHeader } from "@/components/ui/page-heading";
+import { Tabs } from "@/components/ui/tabs";
 import type {
   FriendLinkStatusCounts,
   FriendLinkWithUser,
@@ -13,7 +15,6 @@ import { useAdminFriendLinks } from "@/features/friend-links/hooks/use-friend-li
 import { allFriendLinksQuery } from "@/features/friend-links/queries";
 import type { FriendLinkStatus } from "@/lib/db/schema";
 import { ADMIN_ITEMS_PER_PAGE } from "@/lib/constants";
-import { cn } from "@/lib/utils";
 import { m } from "@/paraglide/messages";
 import { FriendLinkFormDialog } from "./friend-link-form-dialog";
 import { FriendLinkRejectDialog } from "./friend-link-reject-dialog";
@@ -111,34 +112,30 @@ export function FriendLinkManager({
   }[status];
 
   return (
-    <div className="friend-workspace fuwari-card-base">
-      <header className="friend-header">
-        <div>
-          <h1>{m.friend_links_admin_title()}</h1>
-          <p>{m.friend_review_hint()}</p>
-        </div>
-        <Button onClick={openCreate}>{m.friend_links_admin_add()}</Button>
-      </header>
-      <nav className="friend-tabs" aria-label={m.friend_links_admin_title()}>
-        {STATUSES.map((item) => (
-          <button
-            key={item}
-            type="button"
-            aria-current={status === item ? "page" : undefined}
-            onClick={() => onStatusChange(item)}
-            className={cn(status === item && "active")}
-          >
-            {
-              {
-                pending: m.friend_links_tab_pending(),
-                approved: m.friend_links_tab_approved(),
-                rejected: m.friend_links_tab_rejected(),
-              }[item]
-            }{" "}
-            <span>{counts[item]}</span>
-          </button>
-        ))}
-      </nav>
+    <div className="friend-workspace admin-workspace fuwari-card-base">
+      <PageHeader
+        className="friend-header"
+        title={m.friend_links_admin_title()}
+        description={m.friend_review_hint()}
+        actions={
+          <Button onClick={openCreate}>{m.friend_links_admin_add()}</Button>
+        }
+      />
+      <Tabs
+        className="friend-tabs"
+        aria-label={m.friend_links_admin_title()}
+        value={status}
+        onValueChange={onStatusChange}
+        items={STATUSES.map((item) => ({
+          value: item,
+          label: {
+            pending: m.friend_links_tab_pending(),
+            approved: m.friend_links_tab_approved(),
+            rejected: m.friend_links_tab_rejected(),
+          }[item],
+          count: counts[item],
+        }))}
+      />
       <FriendLinkReview
         key={status}
         items={items}

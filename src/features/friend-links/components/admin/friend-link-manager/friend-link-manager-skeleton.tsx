@@ -1,4 +1,6 @@
 import { Skeleton, SkeletonListRows } from "@/components/ui/skeleton";
+import "@/components/ui/page-heading.css";
+import "@/components/ui/tabs.css";
 import "./friend-link-manager.css";
 export function FriendLinkManagerSkeleton() {
   return (
@@ -12,11 +14,14 @@ export function FriendLinkManagerSkeleton() {
 
 export function FriendLinkManagerPageSkeleton() {
   return (
-    <div className="friend-workspace fuwari-card-base" aria-hidden="true">
-      <div className="friend-header">
+    <div
+      className="friend-workspace admin-workspace fuwari-card-base"
+      aria-hidden="true"
+    >
+      <div className="fuwari-page-header friend-header">
         <Skeleton className="h-8 w-36" />
       </div>
-      <div className="friend-tabs py-4">
+      <div className="fuwari-tabs friend-tabs py-4">
         <Skeleton className="h-6 w-64" />
       </div>
       <div className="friend-body">

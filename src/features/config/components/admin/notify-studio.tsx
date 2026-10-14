@@ -28,6 +28,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { FormField } from "@/components/ui/form-field";
 import { Input, Textarea } from "@/components/ui/input";
+import { SectionHeading } from "@/components/ui/page-heading";
 import { Select } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { cn } from "@/lib/utils";
@@ -145,26 +146,24 @@ function EmailChannel() {
   return (
     <section className="notify-email">
       <div className="notify-form">
-        <div className="flex items-start justify-between gap-3">
-          <div>
-            <h2 className="text-base font-medium fuwari-text-90">
-              {m.settings_tab_email()}
-            </h2>
-            <p className="settings-muted">{m.settings_design_email_hint()}</p>
-          </div>
-          <Badge
-            role="status"
-            tone={
-              connectionStatus === "verified"
-                ? "success"
-                : connectionStatus === "failed"
-                  ? "danger"
-                  : "neutral"
-            }
-          >
-            {connectionLabels[connectionStatus]}
-          </Badge>
-        </div>
+        <SectionHeading
+          title={m.settings_tab_email()}
+          description={m.settings_design_email_hint()}
+          actions={
+            <Badge
+              role="status"
+              tone={
+                connectionStatus === "verified"
+                  ? "success"
+                  : connectionStatus === "failed"
+                    ? "danger"
+                    : "neutral"
+              }
+            >
+              {connectionLabels[connectionStatus]}
+            </Badge>
+          }
+        />
 
         <Switch
           className="notify-switch"
@@ -187,7 +186,12 @@ function EmailChannel() {
           }
         />
 
-        <h3 className="settings-group-title">{m.settings_email_account()}</h3>
+        <SectionHeading
+          className="settings-group-title"
+          level={3}
+          size="md"
+          title={m.settings_email_account()}
+        />
         <div className="settings-field-grid">
           <FormField label={m.settings_email_creds_host_label()}>
             <Input
@@ -590,7 +594,7 @@ function WebhookChannel() {
                       })
                     }
                     className={cn(
-                      "rounded-xl h-8 px-3 text-sm border border-(--settings-rule) fuwari-text-75 hover:bg-(--fuwari-btn-regular-bg)",
+                      "rounded-xl h-8 px-3 text-sm border border-(--admin-rule) fuwari-text-75 hover:bg-(--fuwari-btn-regular-bg)",
                       webhook?.chatId === chat.id &&
                         "border-(--fuwari-primary) fuwari-text-90",
                     )}

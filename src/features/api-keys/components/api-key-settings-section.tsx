@@ -8,6 +8,7 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { FormField } from "@/components/ui/form-field";
 import { FuwariModal } from "@/components/ui/fuwari-modal";
 import { Input } from "@/components/ui/input";
+import { SectionHeading } from "@/components/ui/page-heading";
 import { useApiKeys } from "@/features/api-keys/hooks/use-api-keys";
 import { formatDate } from "@/lib/utils";
 import { m } from "@/paraglide/messages";
@@ -50,24 +51,25 @@ export function ApiKeySettingsSection() {
   };
   return (
     <div className="settings-keys">
-      <div className="settings-section-heading">
-        <div>
-          <h2>{m.settings_nav_api_keys()}</h2>
-          <p className="settings-muted">{m.settings_design_keys_hint()}</p>
-        </div>
-        <Button
-          ref={createRef}
-          variant="primary"
-          onClick={() => {
-            setName("");
-            setRevealedKey(null);
-            setOpen(true);
-          }}
-          icon={<Plus size={16} />}
-        >
-          {m.settings_api_keys_create()}
-        </Button>
-      </div>
+      <SectionHeading
+        className="settings-section-heading"
+        title={m.settings_nav_api_keys()}
+        description={m.settings_design_keys_hint()}
+        actions={
+          <Button
+            ref={createRef}
+            variant="primary"
+            onClick={() => {
+              setName("");
+              setRevealedKey(null);
+              setOpen(true);
+            }}
+            icon={<Plus size={16} />}
+          >
+            {m.settings_api_keys_create()}
+          </Button>
+        }
+      />
       <div className="settings-key-list" aria-busy={isLoading}>
         {isError ? (
           <EmptyState

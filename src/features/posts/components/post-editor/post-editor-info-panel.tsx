@@ -3,6 +3,7 @@ import { useEffect, useId, useRef } from "react";
 import type { ReactNode } from "react";
 import { Button } from "@/components/ui/button";
 import { IconButton } from "@/components/ui/icon-button";
+import { SectionHeading } from "@/components/ui/page-heading";
 import { MOTION, useMotionPresence } from "@/hooks/use-motion";
 import { m } from "@/paraglide/messages";
 
@@ -59,17 +60,22 @@ export function PostEditorInfoPanel({
           }
         }}
       >
-        <header className="post-editor-panel-heading">
-          <h2 id={titleId}>{m.editor_info_title()}</h2>
-          <IconButton
-            ref={closeRef}
-            size="md"
-            onClick={onClose}
-            label={m.common_close()}
-          >
-            <X size={18} />
-          </IconButton>
-        </header>
+        <SectionHeading
+          className="post-editor-panel-heading"
+          size="sm"
+          title={m.editor_info_title()}
+          titleProps={{ id: titleId }}
+          actions={
+            <IconButton
+              ref={closeRef}
+              size="md"
+              onClick={onClose}
+              label={m.common_close()}
+            >
+              <X size={18} />
+            </IconButton>
+          }
+        />
         {children}
         <footer className="post-editor-info-footer">
           <Button onClick={onClose}>{m.editor_info_done()}</Button>

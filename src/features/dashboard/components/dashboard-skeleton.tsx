@@ -1,10 +1,14 @@
 import { Skeleton } from "@/components/ui/skeleton";
+import "@/components/ui/page-heading.css";
 import "./dashboard.css";
 
 export function DashboardSkeleton() {
   return (
-    <div className="dashboard-workspace fuwari-card-base" aria-hidden="true">
-      <div className="dashboard-header">
+    <div
+      className="dashboard-workspace admin-workspace fuwari-card-base"
+      aria-hidden="true"
+    >
+      <div className="fuwari-page-header dashboard-header">
         <div className="space-y-3">
           <Skeleton className="h-8 w-24" />
           <Skeleton className="h-4 w-56" />

@@ -1,6 +1,7 @@
 import { useState, type ReactNode } from "react";
 import { Button } from "@/components/ui/button";
 import { SearchField } from "@/components/ui/search-field";
+import { SegmentedControl } from "@/components/ui/segmented-control";
 import { Select } from "@/components/ui/select";
 import { Spinner } from "@/components/ui/spinner";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -58,29 +59,20 @@ export function TaxonomyExplorer({
       className="taxonomy-explorer"
       aria-label={m.taxonomy_manager_title()}
     >
-      <div
+      <SegmentedControl
         className="taxonomy-mode-tabs"
-        role="group"
         aria-label={m.taxonomy_manager_title()}
-      >
-        <button
-          type="button"
-          aria-pressed={!tagMode}
-          onClick={() => {
-            setNavSearch("");
-            onChoose("category");
-          }}
-        >
-          {m.category_manager_title()}
-        </button>
-        <button
-          type="button"
-          aria-pressed={tagMode}
-          onClick={() => onChoose("tag")}
-        >
-          {m.tag_manager_title()}
-        </button>
-      </div>
+        stretch
+        value={tagMode ? "tag" : "category"}
+        onValueChange={(kind) => {
+          if (kind === "category") setNavSearch("");
+          onChoose(kind);
+        }}
+        items={[
+          { value: "category", label: m.category_manager_title() },
+          { value: "tag", label: m.tag_manager_title() },
+        ]}
+      />
       {tagMode ? (
         <SearchField
           className="taxonomy-nav-search"

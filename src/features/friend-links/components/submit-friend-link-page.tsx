@@ -1,6 +1,5 @@
 import { Link } from "@tanstack/react-router";
 import {
-  ArrowLeft,
   Check,
   Clock,
   ExternalLink,
@@ -14,6 +13,7 @@ import { Button, buttonClass } from "@/components/ui/button";
 import DropdownMenu from "@/components/ui/dropdown-menu";
 import { FormField } from "@/components/ui/form-field";
 import { Input, Textarea } from "@/components/ui/input";
+import { PublicPageHeading } from "@/components/ui/page-heading";
 import { Spinner } from "@/components/ui/spinner";
 import { StatusIcon } from "@/components/ui/status-icon";
 import type { FriendLink } from "@/lib/db/schema";
@@ -47,14 +47,11 @@ export function SubmitFriendLinkPage({
   );
   return (
     <section className="friend-application fuwari-card-base">
-      <header className="friend-application-heading">
-        <h1>{m.friend_link_submit_title()}</h1>
-        <Link to="/friend-links">
-          <ArrowLeft size={16} />
-          {m.friend_link_back_to_list()}
-        </Link>
-        <p>{m.friend_apply_intro()}</p>
-      </header>
+      <PublicPageHeading
+        title={m.friend_link_submit_title()}
+        back={{ to: "/friend-links", label: m.friend_link_back_to_list() }}
+        description={m.friend_apply_intro()}
+      />
       {myLinks.length > 1 && (
         <div className="friend-application-switcher">
           <DropdownMenu

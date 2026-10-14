@@ -1,6 +1,7 @@
 import type { Ref } from "react";
 import DropdownMenu from "@/components/ui/dropdown-menu";
 import { SearchField } from "@/components/ui/search-field";
+import { Tabs } from "@/components/ui/tabs";
 import type { AdminPostStatusCounts } from "@/features/posts/schema/posts.schema";
 import { m } from "@/paraglide/messages";
 import type { SortField, StatusFilter } from "../types";
@@ -41,24 +42,17 @@ export function PostsToolbar({
     : undefined;
   return (
     <>
-      <div
+      <Tabs
         className="post-list-tabs"
-        role="group"
         aria-label={m.admin_posts_filter_status()}
-      >
-        {STATUS_FILTERS.map((value) => (
-          <button
-            key={value}
-            type="button"
-            aria-pressed={status === value}
-            className={status === value ? "selected" : undefined}
-            onClick={() => onStatusChange(value)}
-          >
-            {labels[value]}
-            <span>{counts?.[value] ?? "—"}</span>
-          </button>
-        ))}
-      </div>
+        value={status}
+        onValueChange={onStatusChange}
+        items={STATUS_FILTERS.map((value) => ({
+          value,
+          label: labels[value],
+          count: counts?.[value] ?? "—",
+        }))}
+      />
       <div className="post-list-controls">
         <SearchField
           ref={searchRef}

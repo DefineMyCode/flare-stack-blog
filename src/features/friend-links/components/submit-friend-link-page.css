@@ -5,43 +5,6 @@
   padding: 32px;
   color: var(--fuwari-fg);
 }
-.friend-application-heading {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  gap: 12px 20px;
-  margin-bottom: 30px;
-}
-.friend-application-heading h1 {
-  position: relative;
-  padding-left: 20px;
-  font-size: 28px;
-  font-weight: 700;
-}
-.friend-application-heading h1::before {
-  content: "";
-  position: absolute;
-  left: 0;
-  top: 0.3em;
-  width: 5px;
-  height: 1em;
-  background: var(--fuwari-primary);
-  border-radius: 3px;
-}
-.friend-application-heading > a {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  color: var(--fuwari-primary);
-  font-size: 14px;
-  min-height: 44px;
-}
-.friend-application-heading > p {
-  grid-column: 1 / -1;
-  color: var(--fuwari-fg-50);
-  font-size: 14px;
-  line-height: 1.6;
-  padding-left: 20px;
-}
 .friend-application-form fieldset {
   display: grid;
   gap: 24px;
@@ -179,19 +142,6 @@
 @media (max-width: 639px) {
   .friend-application {
     padding: 24px;
-  }
-  .friend-application-heading {
-    gap: 8px;
-    margin-bottom: 24px;
-  }
-  .friend-application-heading h1 {
-    font-size: 24px;
-  }
-  .friend-application-heading > a {
-    font-size: 12px;
-  }
-  .friend-application-heading > p {
-    padding-left: 0;
   }
   .friend-application-core {
     grid-template-columns: minmax(0, 1fr);

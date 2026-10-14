@@ -5,6 +5,7 @@ import { useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { FuwariModal } from "@/components/ui/fuwari-modal";
 import { IconButton } from "@/components/ui/icon-button";
+import { SectionHeading } from "@/components/ui/page-heading";
 import {
   MOTION,
   useContentMotion,
@@ -72,17 +73,21 @@ export function MediaDetail({
 
   const content = (
     <>
-      <header className="media-inspector-header">
-        <h2>{m.media_preview_title()}</h2>
-        <IconButton
-          label={m.common_close()}
-          size="md"
-          disabled={preventClose || busy}
-          onClick={onClose}
-        >
-          <X size={19} />
-        </IconButton>
-      </header>
+      <SectionHeading
+        className="media-inspector-header"
+        size="sm"
+        title={m.media_preview_title()}
+        actions={
+          <IconButton
+            label={m.common_close()}
+            size="md"
+            disabled={preventClose || busy}
+            onClick={onClose}
+          >
+            <X size={19} />
+          </IconButton>
+        }
+      />
       <div ref={contentRef}>
         <div className="media-inspector-preview">
           <img
@@ -202,7 +207,7 @@ export function MediaDetail({
       open={open}
       onClose={onClose}
       busy={preventClose || busy}
-      className="media-inspector media-inspector-dialog"
+      className="media-inspector media-inspector-dialog admin-workspace"
       label={m.media_preview_title()}
     >
       {content}

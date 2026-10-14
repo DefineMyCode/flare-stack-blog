@@ -5,6 +5,7 @@ import { useEffect, useRef } from "react";
 import { useAdminChrome } from "@/components/admin/admin-chrome";
 import { Button, buttonClass } from "@/components/ui/button";
 import ConfirmationModal from "@/components/ui/confirmation-modal";
+import { SectionHeading } from "@/components/ui/page-heading";
 import { postRevisionListQuery } from "@/features/posts/queries";
 import { formatMonthDayTime } from "@/lib/utils";
 import { m } from "@/paraglide/messages";
@@ -165,9 +166,11 @@ export function PostHistoryPage({
           className="post-history-sidebar"
           aria-label={m.editor_history_list_title()}
         >
-          <h2 className="post-editor-panel-heading">
-            {m.editor_history_list_title()}
-          </h2>
+          <SectionHeading
+            className="post-editor-panel-heading"
+            size="sm"
+            title={m.editor_history_list_title()}
+          />
           <PostEditorHistoryList
             postId={postId}
             revisions={history.revisions}

@@ -1,4 +1,5 @@
 import { Skeleton, SkeletonListRows } from "@/components/ui/skeleton";
+import "@/components/ui/page-heading.css";
 import "./muted-users.css";
 export function MutedUsersListSkeleton() {
   return (
@@ -12,8 +13,11 @@ export function MutedUsersListSkeleton() {
 
 export function MutedUsersPageSkeleton() {
   return (
-    <div className="muted-workspace fuwari-card-base" aria-hidden="true">
-      <div className="muted-heading">
+    <div
+      className="muted-workspace admin-workspace fuwari-card-base"
+      aria-hidden="true"
+    >
+      <div className="fuwari-page-header muted-heading">
         <div className="space-y-3">
           <Skeleton className="h-8 w-28" />
           <Skeleton className="h-4 w-56" />

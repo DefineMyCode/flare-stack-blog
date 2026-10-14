@@ -1,10 +1,10 @@
-import { Link } from "@tanstack/react-router";
-import { ArrowLeft, LogOut, UserRound } from "lucide-react";
+import { LogOut, UserRound } from "lucide-react";
 import { lazy, Suspense, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { DisclosureChevron, DisclosurePanel } from "@/components/ui/disclosure";
 import { FormField } from "@/components/ui/form-field";
 import { Input } from "@/components/ui/input";
+import { PublicPageHeading } from "@/components/ui/page-heading";
 import { PasswordInput } from "@/components/ui/password-input";
 import { Switch } from "@/components/ui/switch";
 import type { useProfileForm } from "../hooks/use-profile-form";
@@ -50,14 +50,11 @@ export function ProfilePage({
   const image = profileForm.image;
   return (
     <section className="account-page fuwari-card-base">
-      <header className="account-heading">
-        <h1>{m.account_title()}</h1>
-        <Link to="/">
-          <ArrowLeft size={16} />
-          {m.account_back()}
-        </Link>
-        <p>{m.account_intro()}</p>
-      </header>
+      <PublicPageHeading
+        title={m.account_title()}
+        back={{ to: "/", label: m.account_back() }}
+        description={m.account_intro()}
+      />
       <form
         className="account-profile"
         onSubmit={profileForm.handleSubmit}

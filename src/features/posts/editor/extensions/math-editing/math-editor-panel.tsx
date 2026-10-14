@@ -3,6 +3,7 @@ import type { Ref } from "react";
 import { useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/input";
+import { SegmentedControl } from "@/components/ui/segmented-control";
 import { cn } from "@/lib/utils";
 import { m } from "@/paraglide/messages";
 import type { MathType } from "./state";
@@ -112,26 +113,17 @@ export function MathEditorPanel({
         )}
       </output>
       <div className="flex flex-wrap items-center gap-2">
-        <div className="flex gap-1">
-          {(["inline", "block"] as const).map((option) => (
-            <button
-              key={option}
-              type="button"
-              aria-pressed={shownAs === option}
-              onClick={() => setShownAs(option)}
-              className={cn(
-                "h-7 rounded-lg px-2.5 text-xs font-medium",
-                shownAs === option
-                  ? "fuwari-btn-primary"
-                  : "fuwari-btn-regular",
-              )}
-            >
-              {option === "inline"
-                ? m.editor_formula_inline()
-                : m.editor_formula_block()}
-            </button>
-          ))}
-        </div>
+        <SegmentedControl
+          aria-label={m.editor_formula_display()}
+          track={false}
+          size="sm"
+          value={shownAs}
+          onValueChange={setShownAs}
+          items={[
+            { value: "inline", label: m.editor_formula_inline() },
+            { value: "block", label: m.editor_formula_block() },
+          ]}
+        />
         <span className="mr-auto hidden text-xs fuwari-text-50 sm:inline">
           {m.editor_formula_shortcut()}
         </span>

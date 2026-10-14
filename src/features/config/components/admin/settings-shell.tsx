@@ -2,6 +2,7 @@ import { CircleAlert } from "lucide-react";
 import { useEffect, useRef, type ReactNode } from "react";
 import { useAdminChrome } from "@/components/admin/admin-chrome";
 import { Button } from "@/components/ui/button";
+import { PageHeader } from "@/components/ui/page-heading";
 import { useContentMotion } from "@/hooks/use-motion";
 import { SettingsNav } from "./settings-nav";
 import type { SettingsPageId } from "./settings-pages";
@@ -42,11 +43,15 @@ export function SettingsShell({
       ? m.settings_config_save_site()
       : m.settings_config_save_notifications();
   return (
-    <div className="settings-workspace fuwari-card-base" data-section={nav}>
-      <header className="settings-heading">
-        <h1>{m.settings_header_title()}</h1>
-        <p>{m.settings_design_intro()}</p>
-      </header>
+    <div
+      className="settings-workspace admin-workspace fuwari-card-base"
+      data-section={nav}
+    >
+      <PageHeader
+        className="settings-heading"
+        title={m.settings_header_title()}
+        description={m.settings_design_intro()}
+      />
       {nav && <SettingsNav current={nav} />}
       <div className="settings-body" ref={scrollRef} aria-label={title}>
         {children}

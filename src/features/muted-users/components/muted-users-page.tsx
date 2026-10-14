@@ -4,6 +4,7 @@ import { Search, ShieldCheck, UserRound } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import ConfirmationModal from "@/components/ui/confirmation-modal";
+import { PageHeader } from "@/components/ui/page-heading";
 import { SearchField } from "@/components/ui/search-field";
 import { Select } from "@/components/ui/select";
 import { useContentMotion } from "@/hooks/use-motion";
@@ -56,18 +57,19 @@ export function MutedUsersPage() {
     searchRef.current?.focus();
   };
   return (
-    <div className="muted-workspace fuwari-card-base">
-      <header className="muted-heading">
-        <div>
-          <h1>{m.muted_users_title()}</h1>
-          <p>{m.muted_manager_hint()}</p>
-        </div>
-        <span className="muted-count">
-          {isPending || isError
-            ? "—"
-            : m.muted_manager_count({ count: data?.length ?? 0 })}
-        </span>
-      </header>
+    <div className="muted-workspace admin-workspace fuwari-card-base">
+      <PageHeader
+        className="muted-heading"
+        title={m.muted_users_title()}
+        description={m.muted_manager_hint()}
+        actions={
+          <span className="muted-count">
+            {isPending || isError
+              ? "—"
+              : m.muted_manager_count({ count: data?.length ?? 0 })}
+          </span>
+        }
+      />
       <div className="muted-toolbar">
         <SearchField
           ref={searchRef}

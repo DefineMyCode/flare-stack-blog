@@ -8,6 +8,7 @@ import { ArrowRight, FileText, Pin, Plus } from "lucide-react";
 import { useEffect } from "react";
 import { useAdminChrome } from "@/components/admin/admin-chrome";
 import { Button, buttonClass } from "@/components/ui/button";
+import { PageHeader, SectionHeading } from "@/components/ui/page-heading";
 import type { DashboardOverview } from "@/features/dashboard/dashboard.schema";
 import { dashboardOverviewQuery } from "@/features/dashboard/queries";
 import { PostStatusBadge } from "@/features/posts/components/post-status-badge";
@@ -75,20 +76,21 @@ export function DashboardPage() {
     !!popularityAlert;
 
   return (
-    <div className="dashboard-workspace fuwari-card-base">
-      <header className="dashboard-header">
-        <div>
-          <h1>{m.admin_overview_title()}</h1>
-          <p>{m.dashboard_intro()}</p>
-        </div>
-        <Button
-          onClick={() => createPost()}
-          loading={isCreating}
-          icon={<Plus size={18} />}
-        >
-          {createLabel}
-        </Button>
-      </header>
+    <div className="dashboard-workspace admin-workspace fuwari-card-base">
+      <PageHeader
+        className="dashboard-header"
+        title={m.admin_overview_title()}
+        description={m.dashboard_intro()}
+        actions={
+          <Button
+            onClick={() => createPost()}
+            loading={isCreating}
+            icon={<Plus size={18} />}
+          >
+            {createLabel}
+          </Button>
+        }
+      />
       <div className="dashboard-layout">
         <section
           className="dashboard-resume"
@@ -139,16 +141,20 @@ export function DashboardPage() {
         </section>
         {otherPosts.length > 0 && (
           <section className="dashboard-recent">
-            <div className="dashboard-section-heading">
-              <h2>{m.dashboard_recent_edits()}</h2>
-              <Link
-                to="/admin/posts"
-                className={buttonClass({ variant: "text", size: "sm" })}
-              >
-                {m.admin_overview_all_posts()}
-                <ArrowRight size={16} />
-              </Link>
-            </div>
+            <SectionHeading
+              className="dashboard-section-heading"
+              size="sm"
+              title={m.dashboard_recent_edits()}
+              actions={
+                <Link
+                  to="/admin/posts"
+                  className={buttonClass({ variant: "text", size: "sm" })}
+                >
+                  {m.admin_overview_all_posts()}
+                  <ArrowRight size={16} />
+                </Link>
+              }
+            />
             <ul className="dashboard-posts">
               {otherPosts.map((post) => (
                 <li key={post.id}>
@@ -196,9 +202,11 @@ export function DashboardPage() {
           >
             {showTasks && (
               <section className="dashboard-tasks">
-                <div className="dashboard-section-heading">
-                  <h2>{m.dashboard_tasks()}</h2>
-                </div>
+                <SectionHeading
+                  className="dashboard-section-heading"
+                  size="md"
+                  title={m.dashboard_tasks()}
+                />
                 <div className="dashboard-task-scroll">
                   {showFriendLinks && (
                     <>
@@ -266,9 +274,11 @@ export function DashboardPage() {
             )}
             {showComments && (
               <section className="dashboard-comments">
-                <div className="dashboard-section-heading">
-                  <h2>{m.admin_overview_recent_comments()}</h2>
-                </div>
+                <SectionHeading
+                  className="dashboard-section-heading"
+                  size="md"
+                  title={m.admin_overview_recent_comments()}
+                />
                 <ul className="dashboard-list">
                   {recentComments.map((comment) => (
                     <li key={comment.id}>

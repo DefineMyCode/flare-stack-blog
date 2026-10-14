@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import ConfirmationModal from "@/components/ui/confirmation-modal";
 import { IconButton } from "@/components/ui/icon-button";
+import { PageHeader } from "@/components/ui/page-heading";
 import {
   CategoryManager,
   type CategoryEdit,
@@ -120,20 +121,21 @@ export function TaxonomyWorkspace({
     ) : null;
 
   return (
-    <div className="taxonomy-workspace fuwari-card-base">
-      <header className="taxonomy-heading">
-        <div>
-          <h1>{m.taxonomy_manager_title()}</h1>
-          <p>{m.taxonomy_workspace_hint()}</p>
-        </div>
-        <Button
-          variant="primary"
-          icon={<Plus size={17} />}
-          onClick={openCreate}
-        >
-          {m.taxonomy_manager_create_category()}
-        </Button>
-      </header>
+    <div className="taxonomy-workspace admin-workspace fuwari-card-base">
+      <PageHeader
+        className="taxonomy-heading"
+        title={m.taxonomy_manager_title()}
+        description={m.taxonomy_workspace_hint()}
+        actions={
+          <Button
+            variant="primary"
+            icon={<Plus size={17} />}
+            onClick={openCreate}
+          >
+            {m.taxonomy_manager_create_category()}
+          </Button>
+        }
+      />
 
       <div className="taxonomy-browser">
         <TaxonomyExplorer

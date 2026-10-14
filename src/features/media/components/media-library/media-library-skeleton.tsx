@@ -1,5 +1,6 @@
 import { Skeleton } from "@/components/ui/skeleton";
 import type { MediaView } from "./components/media-toolbar";
+import "@/components/ui/page-heading.css";
 import "./media-library.css";
 
 export function MediaCollectionSkeleton({
@@ -21,8 +22,8 @@ export function MediaCollectionSkeleton({
 
 export function MediaLibraryPageSkeleton() {
   return (
-    <div className="media-workspace fuwari-card-base">
-      <div className="media-workspace-header">
+    <div className="media-workspace admin-workspace fuwari-card-base">
+      <div className="fuwari-page-header media-workspace-header">
         <Skeleton className="media-skeleton-label" />
       </div>
       <div className="media-workspace-toolbar" />
