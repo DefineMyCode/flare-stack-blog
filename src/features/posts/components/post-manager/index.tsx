@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Link, useNavigate } from "@tanstack/react-router";
+import { useNavigate } from "@tanstack/react-router";
 import { Plus, Search } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
@@ -10,8 +10,8 @@ import { ADMIN_ITEMS_PER_PAGE } from "@/lib/constants";
 import { useContentMotion } from "@/hooks/use-motion";
 import { EmptyState } from "@/components/ui/empty-state";
 import { m } from "@/paraglide/messages";
-import { PostRow, PostsToolbar } from "./components";
-import { Button, buttonClass } from "@/components/ui/button";
+import { PostRow, PostsToolbar, TaxonomySheet } from "./components";
+import { Button } from "@/components/ui/button";
 import ConfirmationModal from "@/components/ui/confirmation-modal";
 import { PageHeader } from "@/components/ui/page-heading";
 import { Spinner } from "@/components/ui/spinner";
@@ -44,6 +44,11 @@ interface PostManagerProps {
   onSearchChange: (search: string) => void;
   onCategoryChange: (category?: CategoryFilter, replace?: boolean) => void;
   onTagChange: (tag?: number, replace?: boolean) => void;
+  /** Filters by one category or tag, dropping the other taxonomy filter. */
+  onTaxonomyFilter: (filter: {
+    category?: CategoryFilter;
+    tag?: number;
+  }) => void;
   onResetFilters: () => void;
 }
 
@@ -60,6 +65,7 @@ export function PostManager({
   onSearchChange,
   onCategoryChange,
   onTagChange,
+  onTaxonomyFilter,
   onResetFilters,
 }: PostManagerProps) {
   const navigate = useNavigate();
@@ -70,6 +76,7 @@ export function PostManager({
   );
   const [postToUnpublish, setPostToUnpublish] =
     useState<AdminPostListItem | null>(null);
+  const [taxonomyOpen, setTaxonomyOpen] = useState(false);
   const deleteTriggerRef = useRef<HTMLButtonElement | null>(null);
   const searchRef = useRef<HTMLInputElement>(null);
   const searchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -191,20 +198,15 @@ export function PostManager({
           </>
         }
         actions={
-          <>
-            <Link to="/admin/tags" className={buttonClass({ variant: "text" })}>
-              {m.admin_posts_manage_taxonomy()}
-            </Link>
-            <Button
-              variant="primary"
-              className="post-list-create"
-              onClick={() => createPost()}
-              loading={isCreating}
-              icon={<Plus size={19} />}
-            >
-              {createLabel}
-            </Button>
-          </>
+          <Button
+            variant="primary"
+            className="post-list-create"
+            onClick={() => createPost()}
+            loading={isCreating}
+            icon={<Plus size={19} />}
+          >
+            {createLabel}
+          </Button>
         }
       />
       <PostsToolbar
@@ -220,6 +222,7 @@ export function PostManager({
         onTagChange={onTagChange}
         sortBy={sortBy}
         onSortByChange={onSortByChange}
+        onManageTaxonomy={() => setTaxonomyOpen(true)}
       />
       <div
         ref={scrollRef}
@@ -342,6 +345,16 @@ export function PostManager({
         </footer>
       )}
 
+      <TaxonomySheet
+        open={taxonomyOpen}
+        onClose={() => setTaxonomyOpen(false)}
+        onPick={(kind, id) => {
+          setTaxonomyOpen(false);
+          onTaxonomyFilter(
+            kind === "category" ? { category: id } : { tag: id },
+          );
+        }}
+      />
       <ConfirmationModal
         isOpen={!!postToDelete}
         title={m.admin_posts_delete_confirm_title()}

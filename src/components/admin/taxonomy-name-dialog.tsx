@@ -15,9 +15,7 @@ export function TaxonomyNameDialog({
   onNameChange,
   onClose,
   onSave,
-  onDelete,
   busy,
-  description,
   submitLabel = m.category_manager_save(),
   maxLength,
   fallbackFocus,
@@ -28,9 +26,7 @@ export function TaxonomyNameDialog({
   onNameChange: (name: string) => void;
   onClose: () => void;
   onSave: () => void;
-  onDelete?: () => void;
   busy: boolean;
-  description?: string;
   submitLabel?: string;
   maxLength?: number;
   fallbackFocus?: () => HTMLElement | null;
@@ -57,7 +53,6 @@ export function TaxonomyNameDialog({
             <X size={18} />
           </IconButton>
         </header>
-        {description ? <p>{description}</p> : null}
         <form
           onSubmit={(event) => {
             event.preventDefault();
@@ -74,17 +69,6 @@ export function TaxonomyNameDialog({
             autoComplete="off"
           />
           <footer>
-            {onDelete ? (
-              <Button
-                variant="text"
-                tone="danger"
-                className="taxonomy-delete"
-                disabled={busy}
-                onClick={onDelete}
-              >
-                {m.category_manager_delete()}
-              </Button>
-            ) : null}
             <Button disabled={busy} onClick={onClose}>
               {m.category_manager_cancel()}
             </Button>

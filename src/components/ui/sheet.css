@@ -10,6 +10,9 @@
     background: var(--fuwari-card-bg);
     outline: none;
   }
+  .fuwari-sheet[data-size="lg"] {
+    width: min(100%, 25rem);
+  }
   .fuwari-sheet[data-side="left"] {
     --fuwari-sheet-offset: -24px;
     left: 0;

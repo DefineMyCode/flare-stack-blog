@@ -50,8 +50,8 @@ export function useMutedUsers(
           ? {
               action: {
                 label: m.admin_overview_view_muted_users(),
-                // Untyped href: the old path keeps redirecting if the list moves.
-                onClick: () => void navigate({ href: "/admin/muted-users" }),
+                onClick: () =>
+                  void navigate({ to: "/admin/settings/muted-users" }),
               },
             }
           : undefined,

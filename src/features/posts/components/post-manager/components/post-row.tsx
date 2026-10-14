@@ -6,13 +6,11 @@ import { PostStatusBadge } from "@/features/posts/components/post-status-badge";
 import { openPublicPost } from "@/features/posts/utils/open-public-post";
 import { formatDate } from "@/lib/utils";
 import { m } from "@/paraglide/messages";
-import type { TaxonomyReturn } from "@/components/admin/taxonomy-state";
 import type { AdminPostListItem, SortField } from "../types";
 
 interface PostRowProps {
   post: AdminPostListItem;
   sortBy: SortField;
-  editorState?: () => { taxonomyReturn: TaxonomyReturn };
   onDelete: (
     post: AdminPostListItem,
     trigger: HTMLButtonElement | null,
@@ -29,7 +27,6 @@ export function PostRow({
   onTogglePin,
   pinPending,
   onUnpublish,
-  editorState,
 }: PostRowProps) {
   const title = post.title.trim() || m.common_untitled();
   const date = post[sortBy];
@@ -77,7 +74,6 @@ export function PostRow({
           <Link
             to="/admin/posts/edit/$id"
             params={{ id: String(post.id) }}
-            state={editorState}
             className="post-list-title-link"
           >
             <strong>{title}</strong>
@@ -111,7 +107,6 @@ export function PostRow({
           <Link
             to="/admin/posts/edit/$id"
             params={{ id: String(post.id) }}
-            state={editorState}
             aria-label={m.admin_posts_edit_named({ title })}
           >
             {m.admin_posts_action_edit()}

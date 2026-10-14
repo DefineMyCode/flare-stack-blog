@@ -104,6 +104,9 @@ function PostManagerPage() {
       onTagChange={(nextTag?: number, replace?: boolean) =>
         updateSearch({ tag: nextTag }, replace)
       }
+      onTaxonomyFilter={(filter) =>
+        updateSearch({ category: undefined, tag: undefined, ...filter })
+      }
       onResetFilters={handleResetFilters}
     />
   );
