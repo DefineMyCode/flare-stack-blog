@@ -2,6 +2,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { MoreHorizontal, Plus } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import ConfirmationModal from "@/components/ui/confirmation-modal";
+import { PageHeader } from "@/components/ui/page-heading";
 import {
   CategoryManager,
   type CategoryEdit,
@@ -119,21 +120,22 @@ export function TaxonomyWorkspace({
     ) : null;
 
   return (
-    <div className="taxonomy-workspace fuwari-card-base">
-      <header className="taxonomy-heading">
-        <div>
-          <h1>{m.taxonomy_manager_title()}</h1>
-          <p>{m.taxonomy_workspace_hint()}</p>
-        </div>
-        <button
-          type="button"
-          className="fuwari-btn-primary taxonomy-create"
-          onClick={openCreate}
-        >
-          <Plus size={17} />
-          {m.taxonomy_manager_create_category()}
-        </button>
-      </header>
+    <div className="taxonomy-workspace admin-workspace fuwari-card-base">
+      <PageHeader
+        className="taxonomy-heading"
+        title={m.taxonomy_manager_title()}
+        description={m.taxonomy_workspace_hint()}
+        actions={
+          <button
+            type="button"
+            className="fuwari-btn-primary taxonomy-create"
+            onClick={openCreate}
+          >
+            <Plus size={17} />
+            {m.taxonomy_manager_create_category()}
+          </button>
+        }
+      />
 
       <div className="taxonomy-browser">
         <TaxonomyExplorer

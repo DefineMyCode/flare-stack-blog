@@ -1,6 +1,7 @@
 import { X } from "lucide-react";
 import { useEffect, useId, useRef } from "react";
 import type { ReactNode } from "react";
+import { SectionHeading } from "@/components/ui/page-heading";
 import { MOTION, useMotionPresence } from "@/hooks/use-motion";
 import { m } from "@/paraglide/messages";
 
@@ -57,18 +58,23 @@ export function PostEditorInfoPanel({
           }
         }}
       >
-        <header className="post-editor-panel-heading">
-          <h2 id={titleId}>{m.editor_info_title()}</h2>
-          <button
-            ref={closeRef}
-            type="button"
-            onClick={onClose}
-            className="post-editor-icon-button"
-            aria-label={m.common_close()}
-          >
-            <X size={18} />
-          </button>
-        </header>
+        <SectionHeading
+          className="post-editor-panel-heading"
+          size="sm"
+          title={m.editor_info_title()}
+          titleProps={{ id: titleId }}
+          actions={
+            <button
+              ref={closeRef}
+              type="button"
+              onClick={onClose}
+              className="post-editor-icon-button"
+              aria-label={m.common_close()}
+            >
+              <X size={18} />
+            </button>
+          }
+        />
         {children}
         <footer className="post-editor-info-footer">
           <button

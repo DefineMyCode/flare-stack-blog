@@ -11,6 +11,7 @@ import { useContentMotion } from "@/hooks/use-motion";
 import { m } from "@/paraglide/messages";
 import { PostRow, PostsToolbar } from "./components";
 import ConfirmationModal from "@/components/ui/confirmation-modal";
+import { PageHeader } from "@/components/ui/page-heading";
 import { useListScroll } from "./hooks/use-list-scroll";
 import { useDeletePost, usePosts } from "./hooks";
 import { PostManagerSkeleton } from "./post-manager-skeleton";
@@ -143,11 +144,12 @@ export function PostManager({
   const isEmptyLibrary = !hasContentFilter && totalCount === 0;
 
   return (
-    <section className="post-manager fuwari-card-base">
-      <header className="post-list-heading">
-        <div>
-          <h1>{m.admin_posts_title()}</h1>
-          <p>
+    <section className="post-manager admin-workspace fuwari-card-base">
+      <PageHeader
+        className="post-list-heading"
+        title={m.admin_posts_title()}
+        description={
+          <>
             {statusCounts
               ? m.admin_posts_total({
                   count: statusCounts.draft + statusCounts.published,
@@ -160,18 +162,20 @@ export function PostManager({
                 aria-hidden="true"
               />
             )}
-          </p>
-        </div>
-        <button
-          type="button"
-          className="post-list-create fuwari-btn-primary"
-          onClick={() => createPost()}
-          disabled={isCreating}
-        >
-          <Plus size={19} />
-          {createLabel}
-        </button>
-      </header>
+          </>
+        }
+        actions={
+          <button
+            type="button"
+            className="post-list-create fuwari-btn-primary"
+            onClick={() => createPost()}
+            disabled={isCreating}
+          >
+            <Plus size={19} />
+            {createLabel}
+          </button>
+        }
+      />
       <PostsToolbar
         searchTerm={searchInput}
         onSearchChange={handleSearchChange}

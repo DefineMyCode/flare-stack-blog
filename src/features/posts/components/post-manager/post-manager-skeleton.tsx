@@ -1,3 +1,5 @@
+import "@/components/ui/page-heading.css";
+import "@/components/ui/tabs.css";
 import "./post-manager.css";
 
 function PostRowSkeleton() {
@@ -29,12 +31,15 @@ export function PostManagerSkeleton() {
 
 export function PostManagerPageSkeleton() {
   return (
-    <div className="post-manager fuwari-card-base" aria-busy="true">
-      <div className="post-list-heading animate-pulse">
+    <div
+      className="post-manager admin-workspace fuwari-card-base"
+      aria-busy="true"
+    >
+      <div className="fuwari-page-header post-list-heading animate-pulse">
         <div className="h-8 w-28 rounded bg-(--fuwari-btn-regular-bg)" />
         <div className="h-10 w-24 rounded bg-(--fuwari-btn-regular-bg)" />
       </div>
-      <div className="flex gap-6 h-12 items-center animate-pulse">
+      <div className="fuwari-tabs post-list-tabs h-12 items-center animate-pulse">
         {[1, 2, 3].map((id) => (
           <div
             key={id}

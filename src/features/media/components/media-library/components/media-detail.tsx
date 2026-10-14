@@ -3,6 +3,7 @@ import { Link } from "@tanstack/react-router";
 import { Copy, ExternalLink, FileText, Upload, X } from "lucide-react";
 import { useEffect, useRef } from "react";
 import { FuwariModal } from "@/components/ui/fuwari-modal";
+import { SectionHeading } from "@/components/ui/page-heading";
 import {
   MOTION,
   useContentMotion,
@@ -70,17 +71,21 @@ export function MediaDetail({
 
   const content = (
     <>
-      <header className="media-inspector-header">
-        <h2>{m.media_preview_title()}</h2>
-        <button
-          type="button"
-          aria-label={m.common_close()}
-          disabled={preventClose || busy}
-          onClick={onClose}
-        >
-          <X size={19} />
-        </button>
-      </header>
+      <SectionHeading
+        className="media-inspector-header"
+        size="sm"
+        title={m.media_preview_title()}
+        actions={
+          <button
+            type="button"
+            aria-label={m.common_close()}
+            disabled={preventClose || busy}
+            onClick={onClose}
+          >
+            <X size={19} />
+          </button>
+        }
+      />
       <div ref={contentRef}>
         <div className="media-inspector-preview">
           <img
@@ -201,7 +206,7 @@ export function MediaDetail({
       open={open}
       onClose={onClose}
       busy={preventClose || busy}
-      className="media-inspector media-inspector-dialog"
+      className="media-inspector media-inspector-dialog admin-workspace"
       label={m.media_preview_title()}
     >
       {content}

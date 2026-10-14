@@ -3,7 +3,9 @@ import { Link } from "@tanstack/react-router";
 import { BookOpen, Hash, Loader2 } from "lucide-react";
 import { useEffect, useRef, type ReactNode, type RefObject } from "react";
 import DropdownMenu from "@/components/ui/dropdown-menu";
+import { SectionHeading } from "@/components/ui/page-heading";
 import { SearchField } from "@/components/ui/search-field";
+import { Tabs } from "@/components/ui/tabs";
 import { PostRow } from "@/features/posts/components/post-manager/components/post-row";
 import { PostManagerSkeleton } from "@/features/posts/components/post-manager/post-manager-skeleton";
 import type {
@@ -108,15 +110,17 @@ export function TaxonomyPosts({
 
   return (
     <section className="taxonomy-results">
-      <header className="taxonomy-selection-heading">
-        <h2 ref={focusTargets.heading} tabIndex={-1}>
-          {selected?.name ??
-            (state.kind === "tag"
-              ? m.tag_manager_title()
-              : m.category_manager_title())}
-        </h2>
-        {action}
-      </header>
+      <SectionHeading
+        className="taxonomy-selection-heading"
+        title={
+          selected?.name ??
+          (state.kind === "tag"
+            ? m.tag_manager_title()
+            : m.category_manager_title())
+        }
+        titleProps={{ ref: focusTargets.heading, tabIndex: -1 }}
+        actions={action}
+      />
       <TaxonomyPostControls
         state={state}
         selected={selected}
@@ -176,33 +180,31 @@ function TaxonomyPostControls({
 }) {
   return (
     <>
-      <div
+      <Tabs
         className="taxonomy-scope-tabs"
-        role="group"
         aria-label={m.taxonomy_usage_summary({
           current: selected?.postCount ?? 0,
           public: selected?.publicPostCount ?? 0,
         })}
+        value={state.scope}
+        onValueChange={(scope) => search.changeContext({ scope })}
+        items={[
+          {
+            value: "current",
+            label: m.taxonomy_scope_current(),
+            count: selected?.postCount ?? "—",
+            disabled: !selected,
+          },
+          {
+            value: "public",
+            label: m.taxonomy_scope_public(),
+            count: selected?.publicPostCount ?? "—",
+            disabled: !selected,
+          },
+        ]}
       >
-        <button
-          type="button"
-          disabled={!selected}
-          aria-pressed={state.scope === "current"}
-          onClick={() => search.changeContext({ scope: "current" })}
-        >
-          {m.taxonomy_scope_current()} <span>{selected?.postCount ?? "—"}</span>
-        </button>
-        <button
-          type="button"
-          disabled={!selected}
-          aria-pressed={state.scope === "public"}
-          onClick={() => search.changeContext({ scope: "public" })}
-        >
-          {m.taxonomy_scope_public()}{" "}
-          <span>{selected?.publicPostCount ?? "—"}</span>
-        </button>
         {isFetching ? <Loader2 size={14} className="animate-spin" /> : null}
-      </div>
+      </Tabs>
       <p className="taxonomy-scope-hint">
         {state.scope === "current"
           ? m.taxonomy_scope_current_hint()

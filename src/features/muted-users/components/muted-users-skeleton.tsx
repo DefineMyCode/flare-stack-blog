@@ -1,3 +1,4 @@
+import "@/components/ui/page-heading.css";
 import "./muted-users.css";
 export function MutedUsersListSkeleton() {
   return (
@@ -21,10 +22,10 @@ export function MutedUsersListSkeleton() {
 export function MutedUsersPageSkeleton() {
   return (
     <div
-      className="muted-workspace fuwari-card-base animate-pulse"
+      className="muted-workspace admin-workspace fuwari-card-base animate-pulse"
       aria-hidden="true"
     >
-      <div className="muted-heading">
+      <div className="fuwari-page-header muted-heading">
         <div className="space-y-3">
           <div className="h-8 w-28 rounded-lg bg-(--fuwari-btn-regular-bg)" />
           <div className="h-4 w-56 rounded-lg bg-(--fuwari-btn-regular-bg)" />

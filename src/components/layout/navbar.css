@@ -136,7 +136,7 @@
   display: none;
 }
 .public-navbar a:focus-visible,
-.public-navbar button:focus-visible {
+.public-navbar button:not(.fuwari-segment):focus-visible {
   outline: 2px solid var(--fuwari-primary);
   outline-offset: 3px;
 }
@@ -230,19 +230,8 @@
   border-radius: 8px;
 }
 .public-menu-languages {
-  display: flex;
-  gap: 2px;
-}
-.public-menu-languages button {
-  min-height: 44px;
-  padding: 0 8px;
-  border-radius: 8px;
-  font-size: 12px;
-  color: var(--fuwari-fg-50);
-}
-.public-menu-languages button[aria-pressed="true"] {
-  color: var(--fuwari-primary);
-  background: var(--fuwari-btn-regular-bg);
+  --fuwari-segment-height: 44px;
+  --fuwari-segment-padding-x: 8px;
 }
 .public-menu-loading {
   padding: 16px;

@@ -1,6 +1,5 @@
 /* Content-list layout; colors remain shared with the Fuwari workbench. */
 .post-manager {
-  --admin-unit: clamp(1px, 0.07vw, 1.5px);
   --list-rule: color-mix(in srgb, var(--fuwari-fg) 9%, transparent);
   --fuwari-field-height: calc(42 * var(--admin-unit));
   --fuwari-field-font-size: calc(14 * var(--admin-unit));
@@ -9,22 +8,7 @@
   min-height: calc(100dvh - 52px);
 }
 .post-list-heading {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
   margin-bottom: calc(24 * var(--admin-unit));
-}
-.post-list-heading h1 {
-  font-size: calc(28 * var(--admin-unit));
-  font-weight: 700;
-  line-height: 1.4;
-  letter-spacing: -0.02em;
-  color: var(--fuwari-fg);
-}
-.post-list-heading p {
-  font-size: calc(14 * var(--admin-unit));
-  margin-top: calc(8 * var(--admin-unit));
-  color: var(--fuwari-fg-50);
 }
 .post-list-create {
   gap: calc(8 * var(--admin-unit));
@@ -33,33 +17,6 @@
   border-radius: calc(9 * var(--admin-unit));
   font-size: calc(14 * var(--admin-unit));
   font-weight: 500;
-}
-.post-list-tabs {
-  display: flex;
-  gap: calc(32 * var(--admin-unit));
-  border-bottom: 1px solid var(--list-rule);
-}
-.post-list-tabs button {
-  display: flex;
-  align-items: center;
-  gap: calc(12 * var(--admin-unit));
-  min-height: calc(46 * var(--admin-unit));
-  padding: 0 calc(6 * var(--admin-unit));
-  border-bottom: 2px solid transparent;
-  font-size: calc(14 * var(--admin-unit));
-  color: var(--fuwari-fg-75);
-}
-.post-list-tabs button span {
-  font-size: calc(13 * var(--admin-unit));
-  font-variant-numeric: tabular-nums;
-}
-.post-list-tabs button.selected {
-  border-bottom-color: var(--fuwari-primary);
-  color: var(--fuwari-primary);
-  font-weight: 500;
-}
-.post-list-tabs button:hover {
-  color: var(--fuwari-primary);
 }
 .post-list-controls {
   display: flex;
@@ -284,7 +241,8 @@
   margin-top: calc(22 * var(--admin-unit));
   font-size: calc(14 * var(--admin-unit));
 }
-.post-manager :is(button:not(.fuwari-field-button), a, select):focus-visible {
+.post-manager
+  :is(button:not(.fuwari-field-button, .fuwari-tab), a, select):focus-visible {
   outline: 2px solid var(--fuwari-primary);
   outline-offset: 3px;
 }
@@ -332,12 +290,6 @@
 @media (max-width: 620px) {
   .post-manager {
     padding: calc(20 * var(--admin-unit)) calc(18 * var(--admin-unit));
-  }
-  .post-list-tabs {
-    gap: calc(24 * var(--admin-unit));
-  }
-  .post-list-tabs button {
-    gap: calc(7 * var(--admin-unit));
   }
   .post-list-controls {
     flex-wrap: wrap;
@@ -565,7 +517,6 @@
 }
 
 .post-row-menu {
-  --admin-unit: clamp(1px, 0.07vw, 1.5px);
   position: fixed;
   z-index: 80;
   min-width: calc(150 * var(--admin-unit));

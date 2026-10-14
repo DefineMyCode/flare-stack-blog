@@ -1,12 +1,13 @@
+import "@/components/ui/page-heading.css";
 import "./dashboard.css";
 
 export function DashboardSkeleton() {
   return (
     <div
-      className="dashboard-workspace fuwari-card-base animate-pulse"
+      className="dashboard-workspace admin-workspace fuwari-card-base animate-pulse"
       aria-hidden="true"
     >
-      <div className="dashboard-header">
+      <div className="fuwari-page-header dashboard-header">
         <div className="space-y-3">
           <div className="h-8 w-24 rounded-lg bg-(--fuwari-btn-regular-bg)" />
           <div className="h-4 w-56 rounded-lg bg-(--fuwari-btn-regular-bg)" />

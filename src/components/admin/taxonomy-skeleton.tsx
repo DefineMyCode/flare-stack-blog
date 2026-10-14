@@ -1,17 +1,22 @@
+import "@/components/ui/page-heading.css";
+import "@/components/ui/segmented-control.css";
 import "./taxonomy.css";
 
 export function TaxonomySkeleton() {
   return (
     <div
-      className="taxonomy-workspace fuwari-card-base animate-pulse"
+      className="taxonomy-workspace admin-workspace fuwari-card-base animate-pulse"
       aria-busy="true"
     >
-      <header className="taxonomy-heading">
+      <header className="fuwari-page-header taxonomy-heading">
         <div className="taxonomy-skeleton-line" />
       </header>
       <div className="taxonomy-browser">
         <aside className="taxonomy-explorer">
-          <div className="taxonomy-mode-tabs h-10" />
+          <div
+            className="fuwari-segmented taxonomy-mode-tabs h-10"
+            data-track
+          />
           {Array.from({ length: 5 }, (_, i) => (
             <div key={i} className="taxonomy-skeleton-row">
               <div className="taxonomy-skeleton-line" />
@@ -19,7 +24,7 @@ export function TaxonomySkeleton() {
           ))}
         </aside>
         <section className="taxonomy-results">
-          <div className="taxonomy-selection-heading">
+          <div className="fuwari-section-heading taxonomy-selection-heading">
             <div className="taxonomy-skeleton-line" />
           </div>
           <div className="taxonomy-post-scroll">

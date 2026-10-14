@@ -2,6 +2,7 @@ import { Upload } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { useAdminChrome } from "@/components/admin/admin-chrome";
+import { PageHeader } from "@/components/ui/page-heading";
 import { ACCEPTED_IMAGE_TYPES } from "@/features/media/media.schema";
 import { cn, formatBytes } from "@/lib/utils";
 import {
@@ -127,7 +128,7 @@ export function MediaLibrary() {
 
   return (
     <div
-      className="media-workspace fuwari-card-base"
+      className="media-workspace admin-workspace fuwari-card-base"
       onDragEnter={(event) => {
         if (!event.dataTransfer.types.includes("Files")) return;
         event.preventDefault();
@@ -150,29 +151,30 @@ export function MediaLibrary() {
           handleFiles(event.dataTransfer.files);
       }}
     >
-      <header className="media-workspace-header">
-        <div>
-          <h1>{m.media_title()}</h1>
-          <p>
-            {stats
-              ? m.media_stats({
-                  count: stats.totalCount,
-                  size: formatBytes(stats.totalBytes),
-                })
-              : "—"}
-          </p>
-        </div>
-        <button
-          ref={uploadRef}
-          type="button"
-          className="fuwari-btn-primary"
-          disabled={isUploading}
-          onClick={openFilePicker}
-        >
-          <Upload size={17} />
-          {m.media_upload()}
-        </button>
-      </header>
+      <PageHeader
+        className="media-workspace-header"
+        title={m.media_title()}
+        description={
+          stats
+            ? m.media_stats({
+                count: stats.totalCount,
+                size: formatBytes(stats.totalBytes),
+              })
+            : "—"
+        }
+        actions={
+          <button
+            ref={uploadRef}
+            type="button"
+            className="fuwari-btn-primary"
+            disabled={isUploading}
+            onClick={openFilePicker}
+          >
+            <Upload size={17} />
+            {m.media_upload()}
+          </button>
+        }
+      />
       <MediaToolbar
         unusedOnly={unusedOnly}
         onUnusedOnlyChange={(value) => {
