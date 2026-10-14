@@ -12,6 +12,7 @@ import {
 } from "@/features/dashboard/dashboard";
 import type { DashboardOverview } from "@/features/dashboard/dashboard.schema";
 import * as FriendLinkRepo from "@/features/friend-links/data/friend-links.data";
+import { isMuted } from "@/features/muted-users/muted-users";
 import { postPopularityService } from "@/features/post-popularity/service/post-popularity.service";
 
 export async function getDashboardOverview(
@@ -62,8 +63,12 @@ export async function getDashboardOverview(
       return [
         {
           id: comment.id,
+          postId: comment.postId,
+          rootId: comment.rootId,
+          userId: comment.userId,
           userName: comment.userName,
           userImage: comment.userImage,
+          userMuted: isMuted(comment.userMutedAt),
           postTitle: comment.postTitle,
           postSlug: comment.postSlug,
           snippet: commentSnippet(comment.content),

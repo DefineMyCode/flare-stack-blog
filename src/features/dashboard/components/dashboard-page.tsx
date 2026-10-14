@@ -17,6 +17,7 @@ import { cn, formatTimeAgo } from "@/lib/utils";
 import { m } from "@/paraglide/messages";
 import "@/components/ui/callout.css";
 import "./dashboard.css";
+import { DashboardComments } from "./dashboard-comments";
 import { DashboardIdentity } from "./dashboard-identity";
 
 export function DashboardPage() {
@@ -272,54 +273,7 @@ export function DashboardPage() {
                 </div>
               </section>
             )}
-            {showComments && (
-              <section className="dashboard-comments">
-                <SectionHeading
-                  className="dashboard-section-heading"
-                  size="md"
-                  title={m.admin_overview_recent_comments()}
-                />
-                <ul className="dashboard-list">
-                  {recentComments.map((comment) => (
-                    <li key={comment.id}>
-                      <Link
-                        to="/post/$slug"
-                        params={{ slug: comment.postSlug }}
-                        search={{ comment: comment.id }}
-                        className="dashboard-comment"
-                      >
-                        <DashboardIdentity
-                          kind="user"
-                          image={comment.userImage}
-                        />
-                        <div className="dashboard-row-copy">
-                          <div className="dashboard-comment-byline">
-                            <strong>
-                              {comment.userName ||
-                                m.admin_overview_activity_anonymous()}
-                            </strong>
-                            <time className="dashboard-time">
-                              <ClientOnly fallback="—">
-                                {formatTimeAgo(comment.createdAt)}
-                              </ClientOnly>
-                            </time>
-                          </div>
-                          {comment.snippet && (
-                            <p className="dashboard-comment-snippet">
-                              {comment.snippet}
-                            </p>
-                          )}
-                          <p className="dashboard-comment-source">
-                            {comment.postTitle}
-                            <ArrowRight size={14} />
-                          </p>
-                        </div>
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              </section>
-            )}
+            {showComments && <DashboardComments comments={recentComments} />}
           </div>
         )}
       </div>
