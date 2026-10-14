@@ -1,15 +1,7 @@
 import { formatPublicPostDate } from "@/features/posts/utils/format-public-post-date";
 import { ClientOnly, Link } from "@tanstack/react-router";
-import { MoreHorizontal, Pin, Trash2 } from "lucide-react";
-import {
-  useEffect,
-  useLayoutEffect,
-  useRef,
-  useState,
-  type CSSProperties,
-} from "react";
-import { createPortal } from "react-dom";
-import { MOTION, useMotionPresence } from "@/hooks/use-motion";
+import { Pin, Trash2 } from "lucide-react";
+import { ActionMenu } from "@/components/ui/action-menu";
 import { formatDate } from "@/lib/utils";
 import { m } from "@/paraglide/messages";
 import type { TaxonomyReturn } from "@/components/admin/taxonomy-state";
@@ -83,114 +75,19 @@ export function PostRow({ post, sortBy, onDelete, editorState }: PostRowProps) {
           >
             {m.admin_posts_action_edit()}
           </Link>
-          <PostRowMenu
-            title={title}
-            onDelete={(trigger) => onDelete(post, trigger)}
+          <ActionMenu
+            label={m.admin_posts_more_named({ title })}
+            items={[
+              {
+                label: m.admin_posts_action_delete_post(),
+                icon: Trash2,
+                danger: true,
+                onSelect: (trigger) => onDelete(post, trigger),
+              },
+            ]}
           />
         </div>
       </td>
     </tr>
-  );
-}
-
-function PostRowMenu({
-  title,
-  onDelete,
-}: {
-  title: string;
-  onDelete: (trigger: HTMLButtonElement | null) => void;
-}) {
-  const [open, setOpen] = useState(false);
-  const present = useMotionPresence(open, MOTION.popover);
-  const triggerRef = useRef<HTMLButtonElement>(null);
-  const menuRef = useRef<HTMLDivElement>(null);
-  const [position, setPosition] = useState<CSSProperties | null>(null);
-  useLayoutEffect(() => {
-    if (!present) {
-      setPosition(null);
-      return;
-    }
-    if (!open) return;
-    const rect = triggerRef.current?.getBoundingClientRect();
-    if (!rect) return;
-    const above = window.innerHeight - rect.bottom < 100;
-    setPosition({
-      right: Math.max(8, window.innerWidth - rect.right),
-      top: above ? undefined : rect.bottom + 4,
-      bottom: above ? window.innerHeight - rect.top + 4 : undefined,
-      transformOrigin: above ? "bottom right" : "top right",
-    });
-    const close = () => setOpen(false);
-    document.addEventListener("scroll", close, true);
-    window.addEventListener("resize", close);
-    return () => {
-      document.removeEventListener("scroll", close, true);
-      window.removeEventListener("resize", close);
-    };
-  }, [open, present]);
-  useEffect(() => {
-    if (!open) return;
-    menuRef.current
-      ?.querySelector<HTMLElement>('[role="menuitem"]')
-      ?.focus({ preventScroll: true });
-    const outside = (event: MouseEvent) => {
-      const target = event.target as Node;
-      if (
-        !menuRef.current?.contains(target) &&
-        !triggerRef.current?.contains(target)
-      )
-        setOpen(false);
-    };
-    document.addEventListener("mousedown", outside);
-    return () => document.removeEventListener("mousedown", outside);
-  }, [open, position]);
-  return (
-    <div className="post-list-menu">
-      <button
-        ref={triggerRef}
-        type="button"
-        aria-label={m.admin_posts_more_named({ title })}
-        aria-haspopup="menu"
-        aria-expanded={open}
-        onClick={() => setOpen((value) => !value)}
-      >
-        <MoreHorizontal size={18} />
-      </button>
-      {present && position
-        ? createPortal(
-            <div
-              ref={menuRef}
-              role="menu"
-              aria-label={m.admin_posts_more_named({ title })}
-              className="post-row-menu fuwari-popover-motion"
-              data-state={open ? "open" : "closing"}
-              inert={!open}
-              aria-hidden={!open}
-              style={position}
-              onKeyDown={(event) => {
-                if (event.key === "Escape") {
-                  event.preventDefault();
-                  event.stopPropagation();
-                  setOpen(false);
-                  triggerRef.current?.focus({ preventScroll: true });
-                }
-              }}
-            >
-              <button
-                type="button"
-                role="menuitem"
-                onClick={() => {
-                  setOpen(false);
-                  onDelete(triggerRef.current);
-                }}
-              >
-                <Trash2 size={15} />
-                {m.admin_posts_action_delete_post()}
-              </button>
-            </div>,
-            document.body,
-          )
-        : null}
-    </div>
   );
 }

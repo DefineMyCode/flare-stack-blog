@@ -270,6 +270,8 @@ it.each(["sort", "page"] as const)(
       fireEvent.click(
         screen.getByRole("button", { name: m.admin_posts_sort_label() }),
       );
+      // The menu shows once its position has been measured.
+      await act(async () => {});
       fireEvent.click(
         screen.getByRole("menuitemradio", {
           name: m.admin_posts_sort_recent_pub(),

@@ -74,7 +74,6 @@ export function PostsToolbar({
           <DropdownMenu
             value={sortBy}
             ariaLabel={m.admin_posts_sort_label()}
-            triggerClassName="post-list-sort-trigger"
             onChange={(value) => onSortByChange(value as SortField)}
             options={[
               { value: "updatedAt", label: m.admin_posts_sort_recent_upd() },

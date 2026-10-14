@@ -1,15 +1,11 @@
 import { CellSelection } from "@tiptap/pm/tables";
 import type { Editor } from "@tiptap/react";
 import { useEditorState } from "@tiptap/react";
-import { Check, ChevronDown } from "lucide-react";
+import { ChevronDown } from "lucide-react";
 import type React from "react";
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
-import { createPortal } from "react-dom";
+import { useLayoutEffect, useRef, useState } from "react";
+import { ActionMenu } from "@/components/ui/action-menu";
 import { IconButton } from "@/components/ui/icon-button";
-import {
-  POPOVER_PANEL_CLASS,
-  useAnchoredPopover,
-} from "@/components/ui/use-anchored-popover";
 import { MOTION, useMotionPresence } from "@/hooks/use-motion";
 import { cn } from "@/lib/utils";
 import { m } from "@/paraglide/messages";
@@ -60,110 +56,33 @@ function TableActionMenu({
   state: ControlState;
   size: Size;
 }) {
-  const [open, setOpen] = useState(false);
-  const { triggerRef, popoverRef, style } = useAnchoredPopover({
-    open,
-    onDismiss: () => setOpen(false),
-    width: 12 * 16,
-    maxHeight: 240,
-  });
-  const actions = group.actions.filter((action) => state[action.id]?.available);
-
-  useEffect(() => {
-    if (open && style && !popoverRef.current?.contains(document.activeElement))
-      popoverRef.current?.querySelector("button")?.focus();
-  }, [open, style]);
-
-  const pick = (action: TableAction) => {
-    setOpen(false);
-    action.run(editor);
-  };
-
   return (
-    <>
-      <button
-        ref={triggerRef}
-        type="button"
-        aria-haspopup="menu"
-        aria-expanded={open}
-        onClick={() => setOpen(!open)}
-        className={cn(
-          textButtonClass(size),
-          open && "bg-(--fuwari-btn-regular-bg) text-(--fuwari-primary)",
-        )}
-      >
-        {group.label()}
-        <ChevronDown
-          size={12}
-          className={cn(
-            "transition-transform duration-200",
-            open && "rotate-180",
-          )}
-        />
-      </button>
-      {style &&
-        createPortal(
-          <div
-            ref={popoverRef}
-            role="menu"
-            aria-label={group.label()}
-            data-state={open ? "open" : "closing"}
-            inert={!open}
-            className={cn(POPOVER_PANEL_CLASS, "p-1")}
-            style={style}
-            onKeyDown={(event) => {
-              if (event.key === "Escape") {
-                event.preventDefault();
-                event.stopPropagation();
-                setOpen(false);
-                triggerRef.current?.focus();
-              }
-              if (event.key === "ArrowDown" || event.key === "ArrowUp") {
-                event.preventDefault();
-                const items = Array.from(
-                  popoverRef.current?.querySelectorAll("button") ?? [],
-                );
-                const index = items.indexOf(
-                  document.activeElement as HTMLButtonElement,
-                );
-                const step = event.key === "ArrowDown" ? 1 : -1;
-                items[(index + step + items.length) % items.length]?.focus();
-              }
-            }}
-          >
-            {actions.map((action) => {
-              const active = state[action.id]?.active;
-              const Icon = action.icon;
-              return (
-                <button
-                  key={action.id}
-                  type="button"
-                  role={active === undefined ? "menuitem" : "menuitemcheckbox"}
-                  aria-checked={active}
-                  onClick={() => pick(action)}
-                  className={cn(
-                    "flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm transition-colors",
-                    action.destructive
-                      ? cn("fuwari-text-75", DESTRUCTIVE_CLASS)
-                      : "fuwari-text-75 hover:bg-(--fuwari-btn-regular-bg)/70 hover:fuwari-text-90",
-                  )}
-                >
-                  <Icon size={14} aria-hidden className="shrink-0" />
-                  <span className="flex-1">{action.label()}</span>
-                  {active && (
-                    <Check
-                      size={14}
-                      aria-hidden
-                      className="shrink-0 text-(--fuwari-primary)"
-                    />
-                  )}
-                </button>
-              );
-            })}
-          </div>,
-          document.body,
-        )}
-    </>
+    <ActionMenu
+      label={group.label()}
+      trigger={
+        <>
+          {group.label()}
+          <ChevronDown
+            size={12}
+            className="transition-transform duration-200 group-aria-expanded:rotate-180"
+          />
+        </>
+      }
+      triggerClassName={cn(
+        "group",
+        textButtonClass(size),
+        "aria-expanded:bg-(--fuwari-btn-regular-bg) aria-expanded:text-(--fuwari-primary)",
+      )}
+      items={group.actions
+        .filter((action) => state[action.id]?.available)
+        .map((action) => ({
+          label: action.label(),
+          icon: action.icon,
+          danger: action.destructive,
+          checked: state[action.id]?.active,
+          onSelect: () => action.run(editor),
+        }))}
+    />
   );
 }
 
