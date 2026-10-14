@@ -86,12 +86,13 @@ function createTitle(event: NotificationEvent, locale: Locale) {
   }
 }
 
+/** Where the notification takes the Admin: the comment, or the review page. */
 function linkOf(event: NotificationEvent) {
-  return "commentUrl" in event.data
-    ? event.data.commentUrl
-    : "siteUrl" in event.data
-      ? event.data.siteUrl
-      : "";
+  const data = event.data;
+  if ("commentUrl" in data) return data.commentUrl;
+  if ("reviewUrl" in data) return data.reviewUrl;
+  if ("blogUrl" in data) return data.blogUrl;
+  return "";
 }
 
 export function createWebhookBody(

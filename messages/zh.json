@@ -930,6 +930,7 @@
   "settings_webhook_field_template": "请求体模板",
   "settings_webhook_template_variables": "可用变量",
   "settings_webhook_field_secret_optional": "签名密钥（可选）",
+  "settings_webhook_docs_link": "格式与签名说明",
   "settings_webhook_endpoint_btn_test": "发送测试",
   "settings_webhook_endpoint_field_url": "URL",
   "settings_webhook_endpoint_field_url_ph": "https://hooks.example.com/notify",

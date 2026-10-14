@@ -401,6 +401,9 @@ const PROVIDER_COPY: Record<
   },
 };
 
+const WEBHOOK_DOCS_URL =
+  "https://github.com/du2333/flare-stack-blog/blob/main/docs/webhook.md";
+
 const GENERIC_STARTER =
   '{"title": "{{title}}", "message": "{{message}}", "url": "{{url}}"}';
 
@@ -547,6 +550,19 @@ function WebhookChannel() {
           />
           <p className="text-xs fuwari-text-50 leading-relaxed">
             {copy.hint()}
+            {provider === "generic" || provider === "custom" ? (
+              <>
+                {" "}
+                <a
+                  href={WEBHOOK_DOCS_URL}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-(--fuwari-primary) hover:underline"
+                >
+                  {m.settings_webhook_docs_link()}
+                </a>
+              </>
+            ) : null}
           </p>
         </Field>
 

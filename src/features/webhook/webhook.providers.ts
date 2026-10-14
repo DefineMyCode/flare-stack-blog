@@ -13,7 +13,7 @@ export interface WebhookContent {
   title: string;
   /** The full plain-text notification, link included. */
   message: string;
-  /** The comment, or the site asking to be a friend link. */
+  /** The comment, or the review page of a friend link request. */
   url: string;
   data: Record<string, unknown>;
 }

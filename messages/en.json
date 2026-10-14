@@ -937,6 +937,7 @@
   "settings_webhook_field_template": "Body template",
   "settings_webhook_template_variables": "Variables",
   "settings_webhook_field_secret_optional": "Signing key (optional)",
+  "settings_webhook_docs_link": "Payload and signature guide",
   "settings_webhook_endpoint_btn_test": "Test",
   "settings_webhook_endpoint_field_url": "URL",
   "settings_webhook_endpoint_field_url_ph": "https://hooks.example.com/notify",
