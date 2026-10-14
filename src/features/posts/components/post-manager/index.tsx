@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useNavigate } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
 import { Plus, Search } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
@@ -11,14 +11,24 @@ import { useContentMotion } from "@/hooks/use-motion";
 import { EmptyState } from "@/components/ui/empty-state";
 import { m } from "@/paraglide/messages";
 import { PostRow, PostsToolbar } from "./components";
-import { Button } from "@/components/ui/button";
+import { Button, buttonClass } from "@/components/ui/button";
 import ConfirmationModal from "@/components/ui/confirmation-modal";
 import { PageHeader } from "@/components/ui/page-heading";
 import { Spinner } from "@/components/ui/spinner";
 import { useListScroll } from "./hooks/use-list-scroll";
-import { useDeletePost, usePosts } from "./hooks";
+import {
+  useDeletePost,
+  usePosts,
+  useTogglePostPin,
+  useUnpublishPost,
+} from "./hooks";
 import { PostManagerSkeleton } from "./post-manager-skeleton";
-import type { AdminPostListItem, SortField, StatusFilter } from "./types";
+import type {
+  AdminPostListItem,
+  CategoryFilter,
+  SortField,
+  StatusFilter,
+} from "./types";
 import "./post-manager.css";
 
 interface PostManagerProps {
@@ -26,10 +36,14 @@ interface PostManagerProps {
   status: StatusFilter;
   sortBy: SortField;
   search: string;
+  category?: CategoryFilter;
+  tag?: number;
   onPageChange: (page: number) => void;
   onStatusChange: (status: StatusFilter) => void;
   onSortByChange: (sortBy: SortField) => void;
   onSearchChange: (search: string) => void;
+  onCategoryChange: (category?: CategoryFilter, replace?: boolean) => void;
+  onTagChange: (tag?: number, replace?: boolean) => void;
   onResetFilters: () => void;
 }
 
@@ -38,10 +52,14 @@ export function PostManager({
   status,
   sortBy,
   search,
+  category,
+  tag,
   onPageChange,
   onStatusChange,
   onSortByChange,
   onSearchChange,
+  onCategoryChange,
+  onTagChange,
   onResetFilters,
 }: PostManagerProps) {
   const navigate = useNavigate();
@@ -50,6 +68,8 @@ export function PostManager({
   const [postToDelete, setPostToDelete] = useState<AdminPostListItem | null>(
     null,
   );
+  const [postToUnpublish, setPostToUnpublish] =
+    useState<AdminPostListItem | null>(null);
   const deleteTriggerRef = useRef<HTMLButtonElement | null>(null);
   const searchRef = useRef<HTMLInputElement>(null);
   const searchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -89,17 +109,17 @@ export function PostManager({
     isPlaceholderData,
     error,
     refetch,
-  } = usePosts({ page, status, sortBy, search });
+  } = usePosts({ page, status, sortBy, search, category, tag });
   const contentRef = useRef<HTMLTableSectionElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   useListScroll(
     scrollRef,
-    { page, status, sortBy, search },
+    { page, status, sortBy, search, category, tag },
     !isPending && !isPlaceholderData && !error,
   );
   const motionKey = useRef("");
   if (!isPlaceholderData)
-    motionKey.current = `${page}:${status}:${sortBy}:${search}:${isPending}:${posts.map((post) => post.id).join(",")}`;
+    motionKey.current = `${page}:${status}:${sortBy}:${search}:${category}:${tag}:${isPending}:${posts.map((post) => post.id).join(",")}`;
   useContentMotion(contentRef, motionKey.current);
 
   useEffect(() => {
@@ -141,9 +161,18 @@ export function PostManager({
   const deleteMutation = useDeletePost({
     onSuccess: () => setPostToDelete(null),
   });
+  const hasTaxonomyFilter = category !== undefined || tag !== undefined;
+  const unpublishMutation = useUnpublishPost({
+    onSuccess: () => setPostToUnpublish(null),
+  });
+  const pinMutation = useTogglePostPin();
   const hasActiveFilters =
-    status !== "ALL" || sortBy !== "updatedAt" || Boolean(searchInput);
-  const hasContentFilter = status !== "ALL" || Boolean(search.trim());
+    status !== "ALL" ||
+    sortBy !== "updatedAt" ||
+    Boolean(searchInput) ||
+    hasTaxonomyFilter;
+  const hasContentFilter =
+    status !== "ALL" || Boolean(search.trim()) || hasTaxonomyFilter;
   const isEmptyLibrary = !hasContentFilter && totalCount === 0;
 
   return (
@@ -162,15 +191,20 @@ export function PostManager({
           </>
         }
         actions={
-          <Button
-            variant="primary"
-            className="post-list-create"
-            onClick={() => createPost()}
-            loading={isCreating}
-            icon={<Plus size={19} />}
-          >
-            {createLabel}
-          </Button>
+          <>
+            <Link to="/admin/tags" className={buttonClass({ variant: "text" })}>
+              {m.admin_posts_manage_taxonomy()}
+            </Link>
+            <Button
+              variant="primary"
+              className="post-list-create"
+              onClick={() => createPost()}
+              loading={isCreating}
+              icon={<Plus size={19} />}
+            >
+              {createLabel}
+            </Button>
+          </>
         }
       />
       <PostsToolbar
@@ -180,6 +214,10 @@ export function PostManager({
         status={status}
         statusCounts={statusCounts}
         onStatusChange={onStatusChange}
+        category={category}
+        onCategoryChange={onCategoryChange}
+        tag={tag}
+        onTagChange={onTagChange}
         sortBy={sortBy}
         onSortByChange={onSortByChange}
       />
@@ -235,6 +273,15 @@ export function PostManager({
                         onDelete={(target, trigger) => {
                           deleteTriggerRef.current = trigger;
                           setPostToDelete(target);
+                        }}
+                        onTogglePin={(target) => pinMutation.mutate(target)}
+                        pinPending={
+                          pinMutation.isPending &&
+                          pinMutation.variables.id === post.id
+                        }
+                        onUnpublish={(target, trigger) => {
+                          deleteTriggerRef.current = trigger;
+                          setPostToUnpublish(target);
                         }}
                       />
                     ))
@@ -307,6 +354,23 @@ export function PostManager({
         onClose={() => setPostToDelete(null)}
         onConfirm={() => {
           if (postToDelete) deleteMutation.mutate(postToDelete);
+        }}
+        returnFocus={() =>
+          deleteTriggerRef.current?.isConnected
+            ? deleteTriggerRef.current
+            : searchRef.current
+        }
+      />
+      <ConfirmationModal
+        isOpen={!!postToUnpublish}
+        title={m.editor_unpublish_confirm_title()}
+        message={m.editor_unpublish_confirm_desc()}
+        confirmLabel={m.editor_header_unpublish()}
+        isDanger
+        isLoading={unpublishMutation.isPending}
+        onClose={() => setPostToUnpublish(null)}
+        onConfirm={() => {
+          if (postToUnpublish) unpublishMutation.mutate(postToUnpublish.id);
         }}
         returnFocus={() =>
           deleteTriggerRef.current?.isConnected

@@ -11,6 +11,7 @@ import { DEFAULT_CONFIG } from "@/features/config/config.schema";
 import * as ConfigRepo from "@/features/config/data/config.data";
 import { getDashboardOverview } from "@/features/dashboard/service/dashboard.service";
 import * as FriendLinkRepo from "@/features/friend-links/data/friend-links.data";
+import * as MutedUserService from "@/features/muted-users/service/muted-users.service";
 import { postPopularityService } from "@/features/post-popularity/service/post-popularity.service";
 import * as PostService from "@/features/posts/services/posts.service";
 import { PostsTable } from "@/lib/db/schema";
@@ -157,6 +158,44 @@ describe("Dashboard overview", () => {
       "Still here",
     ]);
     expect(overview.recentComments[0]?.postSlug).toBe(`public-post-${postId}`);
+  });
+
+  it("carries what the Admin needs to reply to, delete or mute a comment", async () => {
+    const postId = await publishPost("actions-post");
+    const root = unwrap(
+      await CommentService.createComment(userContext, {
+        postId,
+        content: "Root",
+      }),
+    );
+    const reply = unwrap(
+      await CommentService.createComment(userContext, {
+        postId,
+        content: "Reply",
+        rootId: root.id,
+        replyToCommentId: root.id,
+      }),
+    );
+
+    let overview = await getDashboardOverview(adminContext);
+    expect(overview.recentComments).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          id: root.id,
+          postId,
+          rootId: null,
+          userId: "user-1",
+          userMuted: false,
+        }),
+        expect.objectContaining({ id: reply.id, postId, rootId: root.id }),
+      ]),
+    );
+
+    unwrap(await MutedUserService.muteUser(adminContext, { userId: "user-1" }));
+    overview = await getDashboardOverview(adminContext);
+    expect(overview.recentComments.every((comment) => comment.userMuted)).toBe(
+      true,
+    );
   });
 
   it("surfaces a failed popularity sync", async () => {

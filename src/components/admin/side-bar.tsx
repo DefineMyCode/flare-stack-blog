@@ -1,8 +1,12 @@
 import { useQueryClient } from "@tanstack/react-query";
-import { Link, useNavigate, useRouteContext } from "@tanstack/react-router";
+import {
+  Link,
+  useLocation,
+  useNavigate,
+  useRouteContext,
+} from "@tanstack/react-router";
 import {
   ArrowUpRight,
-  Ban,
   FileText,
   Home,
   Image as ImageIcon,
@@ -12,7 +16,6 @@ import {
   PanelLeftClose,
   PanelLeftOpen,
   Settings,
-  Tag,
   User,
   X,
 } from "lucide-react";
@@ -34,6 +37,8 @@ interface NavItem {
   icon: React.ElementType;
   label: string;
   exact: boolean;
+  /** Pages reached from this one that keep it highlighted. */
+  alsoActiveOn?: string;
 }
 
 export function SideBar({
@@ -52,6 +57,7 @@ export function SideBar({
   const { siteConfig } = useRouteContext({ from: "__root__" });
   const { data: session } = authClient.useSession();
   const user = session?.user;
+  const pathname = useLocation({ select: (location) => location.pathname });
 
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
@@ -95,12 +101,7 @@ export function SideBar({
       icon: FileText,
       label: m.admin_sidebar_posts(),
       exact: false,
-    },
-    {
-      path: "/admin/tags",
-      icon: Tag,
-      label: m.admin_sidebar_tags(),
-      exact: false,
+      alsoActiveOn: "/admin/tags",
     },
     {
       path: "/admin/media",
@@ -112,12 +113,6 @@ export function SideBar({
       path: "/admin/friend-links",
       icon: Link2,
       label: m.admin_sidebar_friend_links(),
-      exact: false,
-    },
-    {
-      path: "/admin/muted-users",
-      icon: Ban,
-      label: m.admin_sidebar_muted_users(),
       exact: false,
     },
     {
@@ -197,7 +192,7 @@ export function SideBar({
             >
               {({ isActive }) => (
                 <div
-                  className={`admin-sidebar-row admin-sidebar-item ${isActive ? "is-active" : ""}`}
+                  className={`admin-sidebar-row admin-sidebar-item ${isActive || (item.alsoActiveOn && pathname.startsWith(item.alsoActiveOn)) ? "is-active" : ""}`}
                 >
                   <span className="admin-sidebar-icon">
                     <item.icon size={19} strokeWidth={1.5} />

@@ -20,6 +20,8 @@ import {
   DEFAULT_CONFIG,
   type SystemConfig,
 } from "@/features/config/config.schema";
+import { m } from "@/paraglide/messages";
+import { Route as LegacyMutedUsersRoute } from "@/routes/admin/muted-users/index";
 import { Route as SettingsRoute } from "@/routes/admin/settings/route";
 import { settingsSectionFromPath } from "./settings-pages";
 
@@ -146,3 +148,65 @@ it.each(["site", "notifications"])(
     expect(caught).toEqual([]);
   },
 );
+
+it("shows the muted users list as a settings tab without a save bar", async () => {
+  const root = createRootRoute({
+    component: () =>
+      createElement(AdminChromeProvider, null, createElement(Outlet)),
+  });
+  const settings = createRoute({
+    getParentRoute: () => root,
+    path: "/admin/settings",
+    component: SettingsRoute.options.component as RouteComponent,
+  });
+  const mutedUsers = createRoute({
+    getParentRoute: () => settings,
+    path: "muted-users",
+    component: () => createElement("h2", null, "Muted list"),
+  });
+  const router = createRouter({
+    routeTree: root.addChildren([settings.addChildren([mutedUsers])]),
+    history: createMemoryHistory({
+      initialEntries: ["/admin/settings/muted-users"],
+    }),
+    context: { queryClient: new QueryClient() },
+  });
+  render(createElement(RouterProvider, { router }));
+  await screen.findByRole("heading", { name: "Muted list" });
+  expect(
+    screen
+      .getByRole("link", { name: m.muted_users_title() })
+      .getAttribute("aria-current"),
+  ).toBe("page");
+  expect(document.querySelector(".settings-savebar")).toBeNull();
+});
+
+it("redirects the old muted users page into settings and keeps its query", async () => {
+  const root = createRootRoute();
+  const legacy = createRoute({
+    getParentRoute: () => root,
+    path: "/admin/muted-users",
+    beforeLoad: LegacyMutedUsersRoute.options.beforeLoad as () => void,
+  });
+  const target = createRoute({
+    getParentRoute: () => root,
+    path: "/admin/settings/muted-users",
+    component: () => createElement("h1", null, "Muted list"),
+  });
+  const router = createRouter({
+    routeTree: root.addChildren([legacy, target]),
+    history: createMemoryHistory({
+      initialEntries: ["/admin/muted-users?from=dashboard"],
+    }),
+  });
+  render(createElement(RouterProvider, { router }));
+  await screen.findByRole("heading", { name: "Muted list" });
+  expect(router.state.location.pathname).toBe("/admin/settings/muted-users");
+  expect(router.state.location.search).toEqual({ from: "dashboard" });
+});
+
+it("maps the muted users path to its settings tab", () => {
+  expect(settingsSectionFromPath("/admin/settings/muted-users/")).toBe(
+    "muted-users",
+  );
+});

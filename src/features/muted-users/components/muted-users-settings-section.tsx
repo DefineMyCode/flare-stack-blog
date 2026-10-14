@@ -3,8 +3,9 @@ import { ClientOnly } from "@tanstack/react-router";
 import { Search, ShieldCheck, UserRound } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import ConfirmationModal from "@/components/ui/confirmation-modal";
-import { PageHeader } from "@/components/ui/page-heading";
+import { SectionHeading } from "@/components/ui/page-heading";
 import { SearchField } from "@/components/ui/search-field";
 import { Select } from "@/components/ui/select";
 import { useContentMotion } from "@/hooks/use-motion";
@@ -17,7 +18,7 @@ import { m } from "@/paraglide/messages";
 import { MutedUsersListSkeleton } from "./muted-users-skeleton";
 import "./muted-users.css";
 
-export function MutedUsersPage() {
+export function MutedUsersSettingsSection() {
   const { data, isPending, isError, refetch } = useQuery({
     ...mutedUsersQuery,
     refetchOnMount: "always",
@@ -57,17 +58,17 @@ export function MutedUsersPage() {
     searchRef.current?.focus();
   };
   return (
-    <div className="muted-workspace admin-workspace fuwari-card-base">
-      <PageHeader
-        className="muted-heading"
+    <div className="muted-users">
+      <SectionHeading
+        className="settings-section-heading"
         title={m.muted_users_title()}
         description={m.muted_manager_hint()}
         actions={
-          <span className="muted-count">
+          <Badge tone="primary">
             {isPending || isError
               ? "—"
               : m.muted_manager_count({ count: data?.length ?? 0 })}
-          </span>
+          </Badge>
         }
       />
       <div className="muted-toolbar">
@@ -135,7 +136,7 @@ export function MutedUsersPage() {
                 <li key={user.id} className="muted-row">
                   <Avatar image={user.image} />
                   <div className="muted-user">
-                    <h2>{user.name}</h2>
+                    <h3>{user.name}</h3>
                     <p>
                       <ClientOnly fallback="—">
                         {m.muted_users_muted_at({

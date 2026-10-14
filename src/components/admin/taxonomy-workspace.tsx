@@ -1,7 +1,8 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { MoreHorizontal, Plus } from "lucide-react";
+import { Link } from "@tanstack/react-router";
+import { ArrowLeft, MoreHorizontal, Plus } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Button } from "@/components/ui/button";
+import { Button, buttonClass } from "@/components/ui/button";
 import ConfirmationModal from "@/components/ui/confirmation-modal";
 import { IconButton } from "@/components/ui/icon-button";
 import { PageHeader } from "@/components/ui/page-heading";
@@ -16,6 +17,7 @@ import {
 } from "@/features/tags/components/tag-manager";
 import { tagsWithCountAdminQueryOptions } from "@/features/tags/queries";
 import { useDeletePost } from "@/features/posts/components/post-manager/hooks/use-posts";
+import { readPostListLocation } from "@/features/posts/components/post-manager/list-position";
 import type { AdminPostListItem } from "@/features/posts/components/post-manager/types";
 import { orpc } from "@/lib/orpc";
 import { m } from "@/paraglide/messages";
@@ -67,6 +69,7 @@ export function TaxonomyWorkspace({
     null,
   );
   const postDeleteTrigger = useRef<HTMLButtonElement | null>(null);
+  const [postListLocation] = useState(readPostListLocation);
 
   useEffect(() => {
     if (navigationReady && missingTaxonomySelection(state, selection))
@@ -127,13 +130,23 @@ export function TaxonomyWorkspace({
         title={m.taxonomy_manager_title()}
         description={m.taxonomy_workspace_hint()}
         actions={
-          <Button
-            variant="primary"
-            icon={<Plus size={17} />}
-            onClick={openCreate}
-          >
-            {m.taxonomy_manager_create_category()}
-          </Button>
+          <>
+            <Link
+              to="/admin/posts"
+              search={postListLocation}
+              className={buttonClass({ variant: "text" })}
+            >
+              <ArrowLeft size={17} />
+              {m.admin_posts_title()}
+            </Link>
+            <Button
+              variant="primary"
+              icon={<Plus size={17} />}
+              onClick={openCreate}
+            >
+              {m.taxonomy_manager_create_category()}
+            </Button>
+          </>
         }
       />
 

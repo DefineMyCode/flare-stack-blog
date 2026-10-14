@@ -1,5 +1,5 @@
 import { ChevronDown } from "lucide-react";
-import type { ReactNode } from "react";
+import type { ComponentProps, ReactNode } from "react";
 import { Menu, MenuItem } from "./menu";
 import "./field.css";
 
@@ -18,6 +18,8 @@ interface DropdownMenuProps {
   trigger?: ReactNode;
   /** Replaces the default field look of the trigger. */
   triggerClassName?: string;
+  /** Where the menu opens; filters at a row's start open from their left edge. */
+  placement?: ComponentProps<typeof Menu>["placement"];
 }
 
 /** A trigger showing the chosen option, opening a menu to pick another. */
@@ -28,6 +30,7 @@ export default function DropdownMenu({
   ariaLabel,
   trigger,
   triggerClassName = "group fuwari-input inline-flex w-auto items-center gap-2 text-left",
+  placement,
 }: DropdownMenuProps) {
   const selected =
     options.find((option) => option.value === value) ?? options[0];
@@ -47,6 +50,7 @@ export default function DropdownMenu({
         )
       }
       triggerClassName={triggerClassName}
+      placement={placement}
     >
       {options.map((option) => (
         <MenuItem

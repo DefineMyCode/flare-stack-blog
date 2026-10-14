@@ -1,12 +1,13 @@
 import { Link } from "@tanstack/react-router";
-import { ArrowLeft, Check } from "lucide-react";
+import { ArrowLeft, Check, ExternalLink, EyeOff, Trash2 } from "lucide-react";
 import { useRef, useState } from "react";
 import { usePostEditorReturn } from "./post-editor-return";
-import { ActionMenu } from "@/components/ui/action-menu";
+import { ActionMenu, type ActionMenuItem } from "@/components/ui/action-menu";
 import { Button } from "@/components/ui/button";
 import ConfirmationModal from "@/components/ui/confirmation-modal";
 import { Spinner } from "@/components/ui/spinner";
 import { readPostListLocation } from "../post-manager/list-position";
+import { openPublicPost } from "@/features/posts/utils/open-public-post";
 import { m } from "@/paraglide/messages";
 import { cn } from "@/lib/utils";
 import type { SaveStatus } from "./types";
@@ -17,8 +18,12 @@ interface PostEditorHeaderProps {
   processState: "IDLE" | "PROCESSING" | "SUCCESS";
   canPublish: boolean;
   hasPublicSnapshot: boolean;
+  publicSlug: string | null;
+  title: string;
   onPublish: () => void;
   onUnpublish: () => void;
+  onDelete: () => void;
+  isDeleting: boolean;
   onOpenInfo: () => void;
   infoOpen: boolean;
   onOpenHistory: () => void;
@@ -51,8 +56,12 @@ export function PostEditorHeader({
   processState,
   canPublish,
   hasPublicSnapshot,
+  publicSlug,
+  title,
   onPublish,
   onUnpublish,
+  onDelete,
+  isDeleting,
   onOpenInfo,
   infoOpen,
   onOpenHistory,
@@ -61,7 +70,37 @@ export function PostEditorHeader({
   const [returnLocation] = useState(readPostListLocation);
   const menuTriggerRef = useRef<HTMLButtonElement | null>(null);
   const [confirmingUnpublish, setConfirmingUnpublish] = useState(false);
+  const [confirmingDelete, setConfirmingDelete] = useState(false);
   const busy = processState !== "IDLE";
+  const actions: Array<ActionMenuItem> = [];
+  if (publicSlug)
+    actions.push({
+      label: m.admin_posts_action_view_live(),
+      icon: ExternalLink,
+      onSelect: () => openPublicPost(publicSlug),
+    });
+  if (hasPublicSnapshot)
+    actions.push({
+      label: m.editor_header_unpublish(),
+      icon: EyeOff,
+      danger: true,
+      disabled: busy,
+      onSelect: (trigger) => {
+        menuTriggerRef.current = trigger;
+        setConfirmingUnpublish(true);
+      },
+    });
+  actions.push({
+    label: m.admin_posts_action_delete_post(),
+    icon: Trash2,
+    danger: true,
+    separator: actions.length > 0,
+    disabled: busy,
+    onSelect: (trigger) => {
+      menuTriggerRef.current = trigger;
+      setConfirmingDelete(true);
+    },
+  });
   const publishLabel =
     processState === "PROCESSING"
       ? m.editor_header_processing()
@@ -131,22 +170,7 @@ export function PostEditorHeader({
         >
           {publishLabel}
         </Button>
-        {hasPublicSnapshot && (
-          <ActionMenu
-            label={m.editor_more_actions()}
-            items={[
-              {
-                label: m.editor_header_unpublish(),
-                danger: true,
-                disabled: busy,
-                onSelect: (trigger) => {
-                  menuTriggerRef.current = trigger;
-                  setConfirmingUnpublish(true);
-                },
-              },
-            ]}
-          />
-        )}
+        <ActionMenu label={m.editor_more_actions()} items={actions} />
       </div>
       <ConfirmationModal
         isOpen={confirmingUnpublish}
@@ -159,6 +183,19 @@ export function PostEditorHeader({
           setConfirmingUnpublish(false);
           onUnpublish();
         }}
+        returnFocus={() => menuTriggerRef.current}
+      />
+      <ConfirmationModal
+        isOpen={confirmingDelete}
+        title={m.admin_posts_delete_confirm_title()}
+        message={m.admin_posts_delete_confirm_desc({
+          title: title.trim() || m.common_untitled(),
+        })}
+        confirmLabel={m.admin_posts_delete_confirm_btn()}
+        isDanger
+        isLoading={isDeleting}
+        onClose={() => setConfirmingDelete(false)}
+        onConfirm={onDelete}
         returnFocus={() => menuTriggerRef.current}
       />
     </header>
