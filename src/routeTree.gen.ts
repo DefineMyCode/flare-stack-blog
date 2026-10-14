@@ -49,6 +49,7 @@ import { Route as AdminPostsIndexRouteImport } from './routes/admin/posts/index'
 import { Route as AdminSettingsIndexRouteImport } from './routes/admin/settings/index'
 import { Route as AdminSettingsApiKeysRouteImport } from './routes/admin/settings/api-keys'
 import { Route as AdminSettingsMaintenanceRouteImport } from './routes/admin/settings/maintenance'
+import { Route as AdminSettingsMutedUsersRouteImport } from './routes/admin/settings/muted-users'
 import { Route as AdminSettingsNotificationsRouteImport } from './routes/admin/settings/notifications'
 import { Route as AdminSettingsSiteRouteImport } from './routes/admin/settings/site'
 import { Route as AdminTagsIndexRouteImport } from './routes/admin/tags/index'
@@ -258,6 +259,11 @@ const AdminSettingsMaintenanceRoute =
     path: '/maintenance',
     getParentRoute: () => AdminSettingsRouteRoute,
   } as any)
+const AdminSettingsMutedUsersRoute = AdminSettingsMutedUsersRouteImport.update({
+  id: '/muted-users',
+  path: '/muted-users',
+  getParentRoute: () => AdminSettingsRouteRoute,
+} as any)
 const AdminSettingsNotificationsRoute =
   AdminSettingsNotificationsRouteImport.update({
     id: '/notifications',
@@ -334,6 +340,7 @@ export interface FileRoutesByFullPath {
   '/post/$slug': typeof PublicPostSlugRoute
   '/admin/settings/api-keys': typeof AdminSettingsApiKeysRoute
   '/admin/settings/maintenance': typeof AdminSettingsMaintenanceRoute
+  '/admin/settings/muted-users': typeof AdminSettingsMutedUsersRoute
   '/admin/settings/notifications': typeof AdminSettingsNotificationsRoute
   '/admin/settings/site': typeof AdminSettingsSiteRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
@@ -378,6 +385,7 @@ export interface FileRoutesByTo {
   '/post/$slug': typeof PublicPostSlugRoute
   '/admin/settings/api-keys': typeof AdminSettingsApiKeysRoute
   '/admin/settings/maintenance': typeof AdminSettingsMaintenanceRoute
+  '/admin/settings/muted-users': typeof AdminSettingsMutedUsersRoute
   '/admin/settings/notifications': typeof AdminSettingsNotificationsRoute
   '/admin/settings/site': typeof AdminSettingsSiteRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
@@ -428,6 +436,7 @@ export interface FileRoutesById {
   '/_public/post/$slug': typeof PublicPostSlugRoute
   '/admin/settings/api-keys': typeof AdminSettingsApiKeysRoute
   '/admin/settings/maintenance': typeof AdminSettingsMaintenanceRoute
+  '/admin/settings/muted-users': typeof AdminSettingsMutedUsersRoute
   '/admin/settings/notifications': typeof AdminSettingsNotificationsRoute
   '/admin/settings/site': typeof AdminSettingsSiteRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
@@ -477,6 +486,7 @@ export interface FileRouteTypes {
     | '/post/$slug'
     | '/admin/settings/api-keys'
     | '/admin/settings/maintenance'
+    | '/admin/settings/muted-users'
     | '/admin/settings/notifications'
     | '/admin/settings/site'
     | '/api/auth/$'
@@ -521,6 +531,7 @@ export interface FileRouteTypes {
     | '/post/$slug'
     | '/admin/settings/api-keys'
     | '/admin/settings/maintenance'
+    | '/admin/settings/muted-users'
     | '/admin/settings/notifications'
     | '/admin/settings/site'
     | '/api/auth/$'
@@ -570,6 +581,7 @@ export interface FileRouteTypes {
     | '/_public/post/$slug'
     | '/admin/settings/api-keys'
     | '/admin/settings/maintenance'
+    | '/admin/settings/muted-users'
     | '/admin/settings/notifications'
     | '/admin/settings/site'
     | '/api/auth/$'
@@ -883,6 +895,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminSettingsMaintenanceRouteImport
       parentRoute: typeof AdminSettingsRouteRoute
     }
+    '/admin/settings/muted-users': {
+      id: '/admin/settings/muted-users'
+      path: '/muted-users'
+      fullPath: '/admin/settings/muted-users'
+      preLoaderRoute: typeof AdminSettingsMutedUsersRouteImport
+      parentRoute: typeof AdminSettingsRouteRoute
+    }
     '/admin/settings/notifications': {
       id: '/admin/settings/notifications'
       path: '/notifications'
@@ -1039,6 +1058,7 @@ const AdminPostsRouteRouteWithChildren = AdminPostsRouteRoute._addFileChildren(
 interface AdminSettingsRouteRouteChildren {
   AdminSettingsApiKeysRoute: typeof AdminSettingsApiKeysRoute
   AdminSettingsMaintenanceRoute: typeof AdminSettingsMaintenanceRoute
+  AdminSettingsMutedUsersRoute: typeof AdminSettingsMutedUsersRoute
   AdminSettingsNotificationsRoute: typeof AdminSettingsNotificationsRoute
   AdminSettingsSiteRoute: typeof AdminSettingsSiteRoute
   AdminSettingsIndexRoute: typeof AdminSettingsIndexRoute
@@ -1047,6 +1067,7 @@ interface AdminSettingsRouteRouteChildren {
 const AdminSettingsRouteRouteChildren: AdminSettingsRouteRouteChildren = {
   AdminSettingsApiKeysRoute: AdminSettingsApiKeysRoute,
   AdminSettingsMaintenanceRoute: AdminSettingsMaintenanceRoute,
+  AdminSettingsMutedUsersRoute: AdminSettingsMutedUsersRoute,
   AdminSettingsNotificationsRoute: AdminSettingsNotificationsRoute,
   AdminSettingsSiteRoute: AdminSettingsSiteRoute,
   AdminSettingsIndexRoute: AdminSettingsIndexRoute,

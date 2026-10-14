@@ -7,7 +7,6 @@ import {
 } from "@tanstack/react-router";
 import {
   ArrowUpRight,
-  Ban,
   FileText,
   Home,
   Image as ImageIcon,
@@ -114,12 +113,6 @@ export function SideBar({
       path: "/admin/friend-links",
       icon: Link2,
       label: m.admin_sidebar_friend_links(),
-      exact: false,
-    },
-    {
-      path: "/admin/muted-users",
-      icon: Ban,
-      label: m.admin_sidebar_muted_users(),
       exact: false,
     },
     {
