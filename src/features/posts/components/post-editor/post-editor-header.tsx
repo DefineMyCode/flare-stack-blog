@@ -1,7 +1,8 @@
 import { Link } from "@tanstack/react-router";
-import { ArrowLeft, Check, Loader2, MoreHorizontal } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { ArrowLeft, Check, Loader2 } from "lucide-react";
+import { useRef, useState } from "react";
 import { usePostEditorReturn } from "./post-editor-return";
+import { ActionMenu } from "@/components/ui/action-menu";
 import ConfirmationModal from "@/components/ui/confirmation-modal";
 import { readPostListLocation } from "../post-manager/list-position";
 import { m } from "@/paraglide/messages";
@@ -56,16 +57,8 @@ export function PostEditorHeader({
 }: PostEditorHeaderProps) {
   const taxonomyReturn = usePostEditorReturn();
   const [returnLocation] = useState(readPostListLocation);
-  const menuRef = useRef<HTMLDetailsElement>(null);
+  const menuTriggerRef = useRef<HTMLButtonElement | null>(null);
   const [confirmingUnpublish, setConfirmingUnpublish] = useState(false);
-  useEffect(() => {
-    const closeOutside = (event: MouseEvent) => {
-      if (menuRef.current && !menuRef.current.contains(event.target as Node))
-        menuRef.current.open = false;
-    };
-    document.addEventListener("mousedown", closeOutside);
-    return () => document.removeEventListener("mousedown", closeOutside);
-  }, []);
   const busy = processState !== "IDLE";
   const publishLabel =
     processState === "PROCESSING"
@@ -144,36 +137,20 @@ export function PostEditorHeader({
           {publishLabel}
         </button>
         {hasPublicSnapshot && (
-          <details
-            ref={menuRef}
-            className="post-editor-more"
-            onKeyDown={(event) => {
-              if (event.key === "Escape") {
-                event.currentTarget.open = false;
-                event.currentTarget.querySelector("summary")?.focus();
-              }
-            }}
-          >
-            <summary
-              className="post-editor-icon-button"
-              aria-label={m.editor_more_actions()}
-              title={m.editor_more_actions()}
-            >
-              <MoreHorizontal size={19} />
-            </summary>
-            <div className="post-editor-more-menu">
-              <button
-                type="button"
-                disabled={busy}
-                onClick={() => {
-                  if (menuRef.current) menuRef.current.open = false;
+          <ActionMenu
+            label={m.editor_more_actions()}
+            items={[
+              {
+                label: m.editor_header_unpublish(),
+                danger: true,
+                disabled: busy,
+                onSelect: (trigger) => {
+                  menuTriggerRef.current = trigger;
                   setConfirmingUnpublish(true);
-                }}
-              >
-                {m.editor_header_unpublish()}
-              </button>
-            </div>
-          </details>
+                },
+              },
+            ]}
+          />
         )}
       </div>
       <ConfirmationModal
@@ -187,7 +164,7 @@ export function PostEditorHeader({
           setConfirmingUnpublish(false);
           onUnpublish();
         }}
-        returnFocus={() => menuRef.current?.querySelector("summary") ?? null}
+        returnFocus={() => menuTriggerRef.current}
       />
     </header>
   );

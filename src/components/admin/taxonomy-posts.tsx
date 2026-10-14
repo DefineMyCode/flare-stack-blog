@@ -225,7 +225,6 @@ function TaxonomyPostControls({
           <DropdownMenu
             value={state.sortBy}
             ariaLabel={m.admin_posts_sort_label()}
-            triggerClassName="taxonomy-sort-trigger"
             options={[
               {
                 value: "updatedAt",

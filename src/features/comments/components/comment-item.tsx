@@ -1,5 +1,6 @@
 import { ClientOnly } from "@tanstack/react-router";
 import { memo } from "react";
+import { ActionMenu, type ActionMenuItem } from "@/components/ui/action-menu";
 import type { CommentWithUser } from "@/features/comments/comments.schema";
 import { isMuted } from "@/features/muted-users/muted-users";
 import { authClient } from "@/lib/auth/auth-client";
@@ -7,7 +8,6 @@ import { cn, formatDate } from "@/lib/utils";
 import { m } from "@/paraglide/messages";
 import { ExpandableContent } from "./expandable-content";
 import { CommentAvatar } from "./comment-avatar";
-import { CommentActions } from "./comment-actions";
 
 interface CommentItemProps {
   comment: CommentWithUser;
@@ -40,7 +40,7 @@ export const CommentItem = memo(
     const authorName = comment.user?.name || m.comments_item_unknown_user();
     const isAdmin = session?.user.role === "admin";
     const authorMuted = isMuted(comment.user?.mutedAt);
-    const actions = [];
+    const actions: Array<ActionMenuItem> = [];
     if (
       !deleted &&
       (session?.user.id === comment.userId || isAdmin) &&
@@ -126,10 +126,7 @@ export const CommentItem = memo(
         </div>
         {actions.length > 0 && (
           <div className="comment-management">
-            <CommentActions
-              actions={actions}
-              ariaLabel={m.comments_more_actions()}
-            />
+            <ActionMenu items={actions} label={m.comments_more_actions()} />
           </div>
         )}
       </article>
