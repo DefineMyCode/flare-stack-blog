@@ -12,18 +12,10 @@
   width: 78vw;
   max-width: 20rem;
   overflow: visible;
-  visibility: hidden;
-  transform: translateX(calc(-100% - 1rem));
   transition:
     width 340ms var(--sidebar-motion),
-    transform 300ms var(--sidebar-motion),
-    visibility 300ms,
     background-color 300ms,
     color 300ms;
-}
-.admin-sidebar.is-open {
-  visibility: visible;
-  transform: translateX(0);
 }
 .admin-sidebar-header {
   position: relative;
@@ -186,7 +178,6 @@
     height: 100%;
     max-width: none;
     visibility: visible;
-    transform: none;
   }
   .admin-sidebar.is-collapsed {
     width: 5.75rem;
