@@ -1,7 +1,7 @@
 import { standardSchemaResolver } from "@hookform/resolvers/standard-schema";
 import { ClientOnly } from "@tanstack/react-router";
-import { Loader2 } from "lucide-react";
 import { useEffect } from "react";
+import { Button } from "@/components/ui/button";
 import { FormField } from "@/components/ui/form-field";
 import { FuwariModal } from "@/components/ui/fuwari-modal";
 import { Input } from "@/components/ui/input";
@@ -131,24 +131,19 @@ function FriendLinkFormDialogInternal({
             />
           </FormField>
           <div className="flex justify-end gap-2 pt-2">
-            <button
-              type="button"
-              onClick={onClose}
-              disabled={isSaving}
-              className="fuwari-btn-regular rounded-xl h-10 px-4 text-sm font-medium disabled:opacity-50"
-            >
+            <Button onClick={onClose} disabled={isSaving}>
               {m.common_cancel()}
-            </button>
-            <button
+            </Button>
+            <Button
               type="submit"
-              disabled={isSaving || !siteName.trim() || !siteUrl.trim()}
-              className="fuwari-btn-primary rounded-xl h-10 px-4 text-sm font-medium disabled:opacity-50 inline-flex items-center gap-2"
+              variant="primary"
+              loading={isSaving}
+              disabled={!siteName.trim() || !siteUrl.trim()}
             >
-              {isSaving ? <Loader2 size={14} className="animate-spin" /> : null}
               {editing
                 ? m.friend_links_edit_modal_save()
                 : m.friend_links_add_modal_submit()}
-            </button>
+            </Button>
           </div>
         </form>
       </div>

@@ -1,6 +1,6 @@
 import { ClientOnly } from "@tanstack/react-router";
-import { Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
+import { Button } from "@/components/ui/button";
 import { FormField } from "@/components/ui/form-field";
 import { FuwariModal } from "@/components/ui/fuwari-modal";
 import { Textarea } from "@/components/ui/input";
@@ -61,25 +61,19 @@ function FriendLinkRejectDialogInternal({
           />
         </FormField>
         <div className="mt-5 flex justify-end gap-2">
-          <button
-            type="button"
-            onClick={onClose}
-            disabled={isSaving}
-            className="fuwari-btn-regular rounded-xl h-10 px-4 text-sm font-medium disabled:opacity-50"
-          >
+          <Button onClick={onClose} disabled={isSaving}>
             {m.common_cancel()}
-          </button>
-          <button
-            type="button"
+          </Button>
+          {/* Rejecting is a warning, not a deletion, so it keeps the warning colours. */}
+          <Button
             onClick={() => onConfirm(reason.trim() || undefined)}
-            disabled={isSaving}
-            className="rounded-xl h-10 px-4 text-sm font-medium bg-(--fuwari-warning-bg) text-(--fuwari-warning-fg) disabled:opacity-50 inline-flex items-center gap-2"
+            loading={isSaving}
+            className="bg-(--fuwari-warning-bg) text-(--fuwari-warning-fg)"
           >
-            {isSaving ? <Loader2 size={14} className="animate-spin" /> : null}
             {removing
               ? m.friend_links_remove_confirm()
               : m.friend_links_action_reject()}
-          </button>
+          </Button>
         </div>
       </div>
     </FuwariModal>

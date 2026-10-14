@@ -7,6 +7,7 @@ import { ClientOnly, Link, useNavigate } from "@tanstack/react-router";
 import { ArrowRight, FileText, Pin, Plus } from "lucide-react";
 import { useEffect } from "react";
 import { useAdminChrome } from "@/components/admin/admin-chrome";
+import { Button, buttonClass } from "@/components/ui/button";
 import type { DashboardOverview } from "@/features/dashboard/dashboard.schema";
 import { dashboardOverviewQuery } from "@/features/dashboard/queries";
 import { orpc, orpcClient } from "@/lib/orpc";
@@ -78,15 +79,13 @@ export function DashboardPage() {
           <h1>{m.admin_overview_title()}</h1>
           <p>{m.dashboard_intro()}</p>
         </div>
-        <button
-          type="button"
+        <Button
           onClick={() => createPost()}
-          disabled={isCreating}
-          className="dashboard-button fuwari-btn-regular"
+          loading={isCreating}
+          icon={<Plus size={18} />}
         >
-          <Plus size={18} />
           {createLabel}
-        </button>
+        </Button>
       </header>
       <div className="dashboard-layout">
         <section
@@ -113,7 +112,7 @@ export function DashboardPage() {
               <Link
                 to="/admin/posts/edit/$id"
                 params={{ id: String(latest.id) }}
-                className="dashboard-button fuwari-btn-primary"
+                className={buttonClass({ variant: "primary" })}
               >
                 {m.dashboard_resume()}
                 <ArrowRight size={18} />
@@ -125,15 +124,14 @@ export function DashboardPage() {
                 <h2>{m.dashboard_first_post()}</h2>
                 <p>{m.admin_posts_empty_library()}</p>
               </div>
-              <button
-                type="button"
+              <Button
+                variant="primary"
                 onClick={() => createPost()}
-                disabled={isCreating}
-                className="dashboard-button fuwari-btn-primary"
+                loading={isCreating}
+                icon={<Plus size={18} />}
               >
-                <Plus size={18} />
                 {createLabel}
-              </button>
+              </Button>
             </>
           )}
         </section>
@@ -141,7 +139,10 @@ export function DashboardPage() {
           <section className="dashboard-recent">
             <div className="dashboard-section-heading">
               <h2>{m.dashboard_recent_edits()}</h2>
-              <Link to="/admin/posts" className="dashboard-text-link">
+              <Link
+                to="/admin/posts"
+                className={buttonClass({ variant: "text", size: "sm" })}
+              >
                 {m.admin_overview_all_posts()}
                 <ArrowRight size={16} />
               </Link>
@@ -240,7 +241,11 @@ export function DashboardPage() {
                       <Link
                         to="/admin/friend-links"
                         search={{ status: "pending", page: 1 }}
-                        className="dashboard-text-link dashboard-review-all"
+                        className={buttonClass({
+                          variant: "text",
+                          size: "sm",
+                          className: "dashboard-review-all",
+                        })}
                       >
                         {m.admin_overview_review_friend_links()}
                         <ArrowRight size={16} />

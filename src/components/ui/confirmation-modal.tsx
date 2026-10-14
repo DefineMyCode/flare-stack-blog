@@ -1,8 +1,7 @@
 import { ClientOnly } from "@tanstack/react-router";
-import { Loader2 } from "lucide-react";
 import { useId } from "react";
+import { Button } from "./button";
 import { FuwariModal } from "./fuwari-modal";
-import { cn } from "@/lib/utils";
 import { m } from "@/paraglide/messages";
 import "./confirmation-modal.css";
 
@@ -46,23 +45,17 @@ function ConfirmationModalInternal(props: ConfirmationModalProps) {
       <h2 id={titleId}>{title}</h2>
       <p id={messageId}>{message}</p>
       <div className="fuwari-confirmation-actions">
-        <button
-          type="button"
-          disabled={!isOpen || isLoading}
-          onClick={onClose}
-          className="fuwari-btn-regular"
-        >
+        <Button disabled={!isOpen || isLoading} onClick={onClose}>
           {m.common_cancel()}
-        </button>
-        <button
-          type="button"
-          disabled={!isOpen || isLoading}
+        </Button>
+        <Button
+          variant={isDanger ? "danger" : "primary"}
+          disabled={!isOpen}
+          loading={isLoading}
           onClick={onConfirm}
-          className={cn(isDanger ? "fuwari-btn-danger" : "fuwari-btn-primary")}
         >
-          {isLoading ? <Loader2 size={16} className="animate-spin" /> : null}
           <span>{isLoading ? m.common_processing() : confirmLabel}</span>
-        </button>
+        </Button>
       </div>
     </FuwariModal>
   );

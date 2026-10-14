@@ -1,7 +1,9 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { MoreHorizontal, Plus } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { Button } from "@/components/ui/button";
 import ConfirmationModal from "@/components/ui/confirmation-modal";
+import { IconButton } from "@/components/ui/icon-button";
 import {
   CategoryManager,
   type CategoryEdit,
@@ -103,10 +105,9 @@ export function TaxonomyWorkspace({
   });
   const action =
     selected && selected.kind !== "uncategorized" ? (
-      <button
-        type="button"
-        className="taxonomy-context-action"
-        aria-label={
+      <IconButton
+        size="md"
+        label={
           selected.kind === "category"
             ? m.category_manager_rename()
             : m.tag_manager_edit()
@@ -115,7 +116,7 @@ export function TaxonomyWorkspace({
         onClick={manage}
       >
         <MoreHorizontal size={20} />
-      </button>
+      </IconButton>
     ) : null;
 
   return (
@@ -125,14 +126,13 @@ export function TaxonomyWorkspace({
           <h1>{m.taxonomy_manager_title()}</h1>
           <p>{m.taxonomy_workspace_hint()}</p>
         </div>
-        <button
-          type="button"
-          className="fuwari-btn-primary taxonomy-create"
+        <Button
+          variant="primary"
+          icon={<Plus size={17} />}
           onClick={openCreate}
         >
-          <Plus size={17} />
           {m.taxonomy_manager_create_category()}
-        </button>
+        </Button>
       </header>
 
       <div className="taxonomy-browser">

@@ -9,6 +9,9 @@
   color: var(--fuwari-fg-90);
   --fuwari-field-height: calc(44 * var(--friend-unit));
   --fuwari-field-font-size: calc(14 * var(--friend-unit));
+  --fuwari-button-height: calc(40 * var(--friend-unit));
+  --fuwari-button-font-size: calc(14 * var(--friend-unit));
+  --fuwari-button-padding-x: calc(18 * var(--friend-unit));
 }
 .friend-header {
   display: flex;
@@ -26,13 +29,6 @@
   color: var(--fuwari-fg-50);
   font-size: calc(13 * var(--friend-unit));
   margin-top: 8px;
-}
-.friend-button {
-  min-height: calc(40 * var(--friend-unit));
-  padding: 8px calc(18 * var(--friend-unit));
-  border-radius: 12px;
-  font-size: calc(14 * var(--friend-unit));
-  font-weight: 500;
 }
 .friend-tabs {
   display: flex;
@@ -233,30 +229,14 @@
   color: var(--fuwari-fg-50);
   font-size: 12px;
 }
-.friend-step button {
-  display: grid;
-  place-items: center;
-  width: 36px;
-  height: 36px;
-  border-radius: 10px;
-  background: var(--fuwari-btn-regular-bg);
-}
-.friend-workspace button:disabled {
+.friend-workspace button:not(.fuwari-button, .fuwari-icon-button):disabled {
   opacity: 0.45;
   cursor: not-allowed;
 }
-.friend-workspace button:focus-visible,
-.friend-workspace a:focus-visible {
+.friend-workspace
+  :is(button:not(.fuwari-button, .fuwari-icon-button), a):focus-visible {
   outline: 2px solid var(--fuwari-primary);
   outline-offset: 2px;
-}
-.friend-danger {
-  color: var(--fuwari-fg-50);
-  font-size: 13px;
-  padding: 10px;
-}
-.friend-danger:hover {
-  color: var(--fuwari-danger-fg);
 }
 .friend-pagination {
   padding: 8px calc(24 * var(--friend-unit));
@@ -362,14 +342,11 @@
   .friend-step {
     gap: 5px;
   }
-  .friend-step button {
-    width: 30px;
-  }
   .friend-decisions {
     gap: 6px;
   }
-  .friend-button {
-    padding: 8px 12px;
+  .friend-workspace {
+    --fuwari-button-padding-x: 12px;
   }
   .friend-pagination {
     padding: 4px 16px;

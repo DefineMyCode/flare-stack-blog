@@ -1,6 +1,8 @@
 import { X } from "lucide-react";
 import { useEffect, useId, useRef } from "react";
 import type { ReactNode } from "react";
+import { Button } from "@/components/ui/button";
+import { IconButton } from "@/components/ui/icon-button";
 import { MOTION, useMotionPresence } from "@/hooks/use-motion";
 import { m } from "@/paraglide/messages";
 
@@ -59,25 +61,18 @@ export function PostEditorInfoPanel({
       >
         <header className="post-editor-panel-heading">
           <h2 id={titleId}>{m.editor_info_title()}</h2>
-          <button
+          <IconButton
             ref={closeRef}
-            type="button"
+            size="md"
             onClick={onClose}
-            className="post-editor-icon-button"
-            aria-label={m.common_close()}
+            label={m.common_close()}
           >
             <X size={18} />
-          </button>
+          </IconButton>
         </header>
         {children}
         <footer className="post-editor-info-footer">
-          <button
-            type="button"
-            onClick={onClose}
-            className="fuwari-btn-regular h-9 rounded-lg px-4 text-sm"
-          >
-            {m.editor_info_done()}
-          </button>
+          <Button onClick={onClose}>{m.editor_info_done()}</Button>
         </footer>
       </aside>
     </>

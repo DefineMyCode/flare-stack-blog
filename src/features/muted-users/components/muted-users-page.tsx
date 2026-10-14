@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { ClientOnly } from "@tanstack/react-router";
 import { Search, ShieldCheck, UserRound } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { Button } from "@/components/ui/button";
 import ConfirmationModal from "@/components/ui/confirmation-modal";
 import { SearchField } from "@/components/ui/search-field";
 import { Select } from "@/components/ui/select";
@@ -95,13 +96,9 @@ export function MutedUsersPage() {
           {isError ? (
             <div className="muted-empty" role="alert">
               <p>{m.muted_users_toast_error()}</p>
-              <button
-                type="button"
-                className="muted-action fuwari-btn-regular"
-                onClick={() => void refetch()}
-              >
+              <Button onClick={() => void refetch()}>
                 {m.muted_manager_retry()}
-              </button>
+              </Button>
             </div>
           ) : isPending ? (
             <MutedUsersListSkeleton />
@@ -123,13 +120,7 @@ export function MutedUsersPage() {
                   : m.muted_manager_empty_hint()}
               </p>
               {search && (
-                <button
-                  type="button"
-                  className="muted-action fuwari-btn-regular"
-                  onClick={clearSearch}
-                >
-                  {m.muted_manager_clear()}
-                </button>
+                <Button onClick={clearSearch}>{m.muted_manager_clear()}</Button>
               )}
             </div>
           ) : (
@@ -147,9 +138,7 @@ export function MutedUsersPage() {
                       </ClientOnly>
                     </p>
                   </div>
-                  <button
-                    type="button"
-                    className="muted-action fuwari-btn-regular"
+                  <Button
                     disabled={isUnmuting}
                     onClick={() => setPending(user)}
                     aria-label={m.muted_manager_unmute_named({
@@ -157,7 +146,7 @@ export function MutedUsersPage() {
                     })}
                   >
                     {m.muted_users_unmute()}
-                  </button>
+                  </Button>
                 </li>
               ))}
             </ul>

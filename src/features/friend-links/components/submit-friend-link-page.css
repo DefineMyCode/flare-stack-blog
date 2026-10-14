@@ -84,25 +84,11 @@
   margin-top: 24px;
   flex-wrap: wrap;
 }
-.friend-application-actions > a,
-.friend-application-actions > button,
-.friend-application-message > button {
-  min-height: 44px;
-  border-radius: 12px;
-  padding: 10px 20px;
-  gap: 8px;
-  font-size: 14px;
-  font-weight: 700;
-}
 .friend-application-submit {
   flex: 1;
 }
-.friend-application button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-.friend-application a:focus-visible,
-.friend-application button:focus-visible {
+.friend-application
+  :is(a, button):not(.fuwari-button, .fuwari-icon-button):focus-visible {
   outline: 2px solid var(--fuwari-primary);
   outline-offset: 3px;
 }

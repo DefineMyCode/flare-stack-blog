@@ -1,6 +1,6 @@
-import { Loader2 } from "lucide-react";
 import type { ComponentProps } from "react";
 import { cn } from "@/lib/utils";
+import { Spinner } from "./spinner";
 import "./field.css";
 
 /**
@@ -35,7 +35,7 @@ export function Switch({
       {label ? <span>{label}</span> : null}
       <span className="fuwari-switch-track" aria-hidden="true">
         <span className="fuwari-switch-thumb">
-          {loading ? <Loader2 size={12} className="animate-spin" /> : null}
+          {loading ? <Spinner size={12} /> : null}
         </span>
       </span>
     </button>

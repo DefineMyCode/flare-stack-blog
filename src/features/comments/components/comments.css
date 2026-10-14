@@ -13,11 +13,12 @@
   color: var(--fuwari-fg-50);
   font-weight: 500;
 }
-.comments-section :is(button, a):focus-visible {
+.comments-section
+  :is(button, a):not(.fuwari-button, .fuwari-icon-button):focus-visible {
   outline: 2px solid var(--fuwari-primary);
   outline-offset: 3px;
 }
-.comments-section button:disabled {
+.comments-section button:not(.fuwari-button, .fuwari-icon-button):disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
@@ -33,13 +34,6 @@
 .comments-login p {
   flex: 1;
   min-width: 140px;
-}
-.comments-login > a {
-  min-height: 44px;
-  padding: 10px 16px;
-  border-radius: 12px;
-  gap: 8px;
-  font-size: 14px;
 }
 .comments-muted,
 .comments-empty {
@@ -156,8 +150,7 @@
   font-style: italic;
   padding-block: 4px;
 }
-.comment-reply-button,
-.comment-text-button {
+.comment-reply-button {
   min-height: 40px;
   padding-inline: 4px;
   border-radius: 6px;
@@ -168,8 +161,7 @@
 .comment-reply-button {
   margin-left: -4px;
 }
-.comment-reply-button:hover,
-.comment-text-button:hover {
+.comment-reply-button:hover {
   color: var(--fuwari-primary);
 }
 .comment-highlighted {
@@ -192,11 +184,8 @@
   padding-top: 20px;
 }
 .comment-thread-toggle {
+  display: flex;
   min-height: 40px;
-  border-radius: 6px;
-  color: var(--fuwari-primary);
-  font-size: 13px;
-  display: block;
 }
 .comment-reveal {
   display: grid;
@@ -287,13 +276,6 @@
   align-items: center;
   gap: 16px;
 }
-.comment-composer-actions > .fuwari-btn-primary {
-  min-height: 44px;
-  padding: 10px 16px;
-  border-radius: 12px;
-  font-size: 14px;
-  gap: 8px;
-}
 .comment-challenge {
   min-width: 0;
   max-width: 100%;
@@ -316,10 +298,6 @@
   font-size: 13px;
   padding-block: 16px;
 }
-.comment-load-error button {
-  min-height: 40px;
-  color: var(--fuwari-primary);
-}
 .comment-load-state {
   color: var(--fuwari-fg-50);
   font-size: 13px;
@@ -329,12 +307,6 @@
   display: flex;
   justify-content: center;
   padding-top: 20px;
-}
-.comments-pagination button {
-  min-height: 44px;
-  padding: 10px 20px;
-  border-radius: 12px;
-  font-size: 14px;
 }
 .comment-body-height {
   overflow: hidden;
@@ -404,8 +376,7 @@
   .comment-item,
   .comment-body-height,
   .comment-composer-input,
-  .comment-reply-button,
-  .comment-text-button {
+  .comment-reply-button {
     transition: none;
   }
 }

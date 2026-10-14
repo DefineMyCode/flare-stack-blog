@@ -1,6 +1,7 @@
 import { CircleAlert } from "lucide-react";
 import { useEffect, useRef, type ReactNode } from "react";
 import { useAdminChrome } from "@/components/admin/admin-chrome";
+import { Button } from "@/components/ui/button";
 import { useContentMotion } from "@/hooks/use-motion";
 import { SettingsNav } from "./settings-nav";
 import type { SettingsPageId } from "./settings-pages";
@@ -70,23 +71,18 @@ export function SettingsShell({
           )}
           <div>
             {save.dirty && (
-              <button
-                type="button"
-                disabled={save.busy}
-                onClick={save.onDiscard}
-                className="settings-button fuwari-btn-regular"
-              >
+              <Button disabled={save.busy} onClick={save.onDiscard}>
                 {m.settings_design_discard()}
-              </button>
+              </Button>
             )}
-            <button
+            <Button
               type="submit"
               form={FORM_ID}
+              variant="primary"
               disabled={save.disabled || save.busy}
-              className="settings-button fuwari-btn-primary"
             >
               {saveLabel}
-            </button>
+            </Button>
           </div>
         </footer>
       )}

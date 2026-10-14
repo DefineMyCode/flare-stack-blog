@@ -1,6 +1,8 @@
 import { ClientOnly } from "@tanstack/react-router";
 import { ArrowLeft, ArrowRight, ExternalLink, Globe } from "lucide-react";
 import { useEffect, useRef, useState, type ReactNode } from "react";
+import { Button } from "@/components/ui/button";
+import { IconButton } from "@/components/ui/icon-button";
 import { SearchField } from "@/components/ui/search-field";
 import type { FriendLinkWithUser } from "@/features/friend-links/friend-links.schema";
 import { useContentMotion } from "@/hooks/use-motion";
@@ -236,55 +238,48 @@ export function FriendLinkReview({
               </div>
               <footer className="friend-actions">
                 <div className="friend-step">
-                  <button
-                    type="button"
+                  <IconButton
+                    size="md"
+                    label={m.friend_review_previous()}
                     disabled={index <= 0 || busy}
                     onClick={() => choose(items[index - 1])}
-                    aria-label={m.friend_review_previous()}
-                    title={m.friend_review_previous()}
                   >
                     <ArrowLeft size={18} />
-                  </button>
+                  </IconButton>
                   <span>
                     {index + 1} / {items.length}
                   </span>
-                  <button
-                    type="button"
+                  <IconButton
+                    size="md"
+                    label={m.friend_review_next()}
                     disabled={index >= items.length - 1 || busy}
                     onClick={() => choose(items[index + 1])}
-                    aria-label={m.friend_review_next()}
-                    title={m.friend_review_next()}
                   >
                     <ArrowRight size={18} />
-                  </button>
+                  </IconButton>
                 </div>
                 <div className="friend-decisions">
                   {selected.status !== "pending" && (
-                    <button
-                      type="button"
+                    <Button
+                      variant="plain"
+                      tone="danger"
+                      size="sm"
                       disabled={busy}
-                      className="friend-danger"
                       onClick={() => onDelete(selected)}
                     >
                       {m.friend_links_action_delete()}
-                    </button>
+                    </Button>
                   )}
                   {selected.status !== "rejected" && (
-                    <button
-                      type="button"
-                      disabled={busy}
-                      className="fuwari-btn-regular friend-button"
-                      onClick={() => onReject(selected)}
-                    >
+                    <Button disabled={busy} onClick={() => onReject(selected)}>
                       {selected.status === "approved"
                         ? m.friend_links_action_remove()
                         : m.friend_links_action_reject()}
-                    </button>
+                    </Button>
                   )}
-                  <button
-                    type="button"
+                  <Button
+                    variant="primary"
                     disabled={busy}
-                    className="fuwari-btn-primary friend-button"
                     onClick={() =>
                       selected.status === "approved"
                         ? onEdit(selected)
@@ -294,7 +289,7 @@ export function FriendLinkReview({
                     {selected.status === "approved"
                       ? m.friend_links_action_edit()
                       : m.friend_links_action_pass()}
-                  </button>
+                  </Button>
                 </div>
               </footer>
             </>

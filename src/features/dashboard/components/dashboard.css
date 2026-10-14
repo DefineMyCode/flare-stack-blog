@@ -1,6 +1,9 @@
 .dashboard-workspace {
   --dashboard-unit: clamp(1px, 0.07vw, 1.5px);
   --dashboard-rule: color-mix(in srgb, var(--fuwari-fg-50) 20%, transparent);
+  --fuwari-button-height: calc(42 * var(--dashboard-unit));
+  --fuwari-button-font-size: calc(14 * var(--dashboard-unit));
+  --fuwari-button-padding-x: calc(20 * var(--dashboard-unit));
   padding: calc(28 * var(--dashboard-unit));
   color: var(--fuwari-fg-90);
   min-width: 0;
@@ -21,22 +24,6 @@
   margin-top: 8px;
   color: var(--fuwari-fg-50);
   font-size: calc(14 * var(--dashboard-unit));
-}
-.dashboard-button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  min-height: calc(42 * var(--dashboard-unit));
-  padding: 10px calc(20 * var(--dashboard-unit));
-  border-radius: 12px;
-  flex-shrink: 0;
-  font-size: calc(14 * var(--dashboard-unit));
-  font-weight: 500;
-}
-.dashboard-button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
 }
 .dashboard-layout {
   display: flex;
@@ -108,14 +95,6 @@
 }
 .dashboard-recent .dashboard-section-heading h2 {
   font-size: calc(14 * var(--dashboard-unit));
-}
-.dashboard-text-link {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  color: var(--fuwari-primary);
-  font-size: calc(13 * var(--dashboard-unit));
-  flex-shrink: 0;
 }
 .dashboard-posts {
   display: grid;
@@ -270,8 +249,7 @@
   line-height: 1.6;
   font-size: calc(13 * var(--dashboard-unit));
 }
-.dashboard-workspace a,
-.dashboard-workspace button {
+.dashboard-workspace :is(a, button):not(.fuwari-button) {
   transition:
     background-color 0.22s ease,
     color 0.22s ease;
@@ -282,7 +260,7 @@
 .dashboard-task-summary:hover {
   background: var(--fuwari-btn-regular-bg);
 }
-.dashboard-workspace :is(a, button):focus-visible {
+.dashboard-workspace :is(a, button):not(.fuwari-button):focus-visible {
   outline: 2px solid var(--fuwari-primary);
   outline-offset: 3px;
 }
@@ -333,7 +311,7 @@
   .dashboard-resume h2 {
     font-size: 21px;
   }
-  .dashboard-resume .dashboard-button {
+  .dashboard-resume > .fuwari-button {
     align-self: flex-end;
   }
   .dashboard-comment-byline {
@@ -348,8 +326,7 @@
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  .dashboard-workspace a,
-  .dashboard-workspace button {
+  .dashboard-workspace :is(a, button):not(.fuwari-button) {
     transition: none;
   }
 }

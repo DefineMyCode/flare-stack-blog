@@ -5,6 +5,7 @@ import { LogIn } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { Turnstile, useTurnstile } from "@/components/common/turnstile";
+import { Button, buttonClass } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useComments } from "@/features/comments/hooks/use-comments";
 import { useCommentComposer } from "@/features/comments/hooks/use-comment-composer";
@@ -205,17 +206,13 @@ export function CommentSection({ postId }: CommentSectionProps) {
         <Link
           to="/login"
           search={{ redirectTo: loginReturn(replyTarget.commentId) }}
-          className="fuwari-btn-regular"
+          className={buttonClass({ size: "lg" })}
         >
           {m.comments_login()}
         </Link>
-        <button
-          type="button"
-          className="comment-text-button"
-          onClick={replyComposer.onCancel}
-        >
+        <Button variant="plain" size="sm" onClick={replyComposer.onCancel}>
           {m.comments_editor_cancel()}
-        </button>
+        </Button>
       </div>
     )
   ) : null;
@@ -227,13 +224,14 @@ export function CommentSection({ postId }: CommentSectionProps) {
         <h2>{m.comments_heading()}</h2>
         <div className="comment-load-error" role="alert">
           <span>{m.comments_load_failed()}</span>
-          <button
-            type="button"
+          <Button
+            variant="text"
+            size="sm"
             onClick={() => void listQuery.refetch()}
             disabled={listQuery.isFetching}
           >
             {m.comments_retry()}
-          </button>
+          </Button>
         </div>
       </section>
     );
@@ -290,7 +288,7 @@ export function CommentSection({ postId }: CommentSectionProps) {
           <Link
             to="/login"
             search={{ redirectTo: loginReturn() }}
-            className="fuwari-btn-regular"
+            className={buttonClass({ size: "lg" })}
           >
             <LogIn size={16} />
             {m.comments_login()}
@@ -323,8 +321,9 @@ export function CommentSection({ postId }: CommentSectionProps) {
       {listQuery.isError && (
         <div className="comment-load-error" role="alert">
           <span>{m.comments_load_failed()}</span>
-          <button
-            type="button"
+          <Button
+            variant="text"
+            size="sm"
             onClick={() =>
               void (listQuery.isFetchNextPageError
                 ? fetchNextPage()
@@ -333,19 +332,18 @@ export function CommentSection({ postId }: CommentSectionProps) {
             disabled={listQuery.isFetching}
           >
             {m.comments_retry()}
-          </button>
+          </Button>
         </div>
       )}
       {hasNextPage && !listQuery.isError && (
         <div className="comments-pagination">
-          <button
-            type="button"
-            className="fuwari-btn-regular"
+          <Button
+            size="lg"
             onClick={() => void fetchNextPage()}
             disabled={isFetchingNextPage}
           >
             {isFetchingNextPage ? m.comments_loading() : m.comments_load_more()}
-          </button>
+          </Button>
         </div>
       )}
 

@@ -3,6 +3,7 @@ import { useEffect, useState, type ReactNode } from "react";
 import { remainingPublishedReplies } from "@/features/comments/comment-thread";
 import type { RootCommentWithReplyCount } from "@/features/comments/comments.schema";
 import { repliesByRootIdInfiniteQuery } from "@/features/comments/queries";
+import { Button } from "@/components/ui/button";
 import { m } from "@/paraglide/messages";
 import { CommentItem } from "./comment-item";
 import { CommentReveal } from "./comment-reveal";
@@ -132,8 +133,9 @@ function CommentThread({
           {expanded && query.isError && (
             <div className="comment-load-error" role="alert">
               <span>{m.comments_replies_failed()}</span>
-              <button
-                type="button"
+              <Button
+                variant="text"
+                size="sm"
                 onClick={() =>
                   void (query.isFetchNextPageError
                     ? query.fetchNextPage()
@@ -142,7 +144,7 @@ function CommentThread({
                 disabled={query.isFetching}
               >
                 {m.comments_retry()}
-              </button>
+              </Button>
             </div>
           )}
           {expanded && !query.isError && query.isFetching && (
@@ -151,18 +153,20 @@ function CommentThread({
             </p>
           )}
           {expanded && remaining > 0 && query.hasNextPage && !query.isError && (
-            <button
-              type="button"
+            <Button
+              variant="text"
+              size="sm"
               className="comment-thread-toggle"
               onClick={() => void query.fetchNextPage()}
               disabled={query.isFetching}
             >
               {m.comments_list_load_more_replies()}
-            </button>
+            </Button>
           )}
           {(expanded || remaining > 0) && (
-            <button
-              type="button"
+            <Button
+              variant="text"
+              size="sm"
               className="comment-thread-toggle"
               aria-expanded={expanded}
               onClick={() => setExpanded((value) => !value)}
@@ -170,7 +174,7 @@ function CommentThread({
               {expanded
                 ? m.comments_list_collapse_replies()
                 : m.comments_list_expand_replies({ count: remaining })}
-            </button>
+            </Button>
           )}
         </div>
       )}

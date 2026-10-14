@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
-import { Check, Loader2 } from "lucide-react";
+import { Check } from "lucide-react";
 import { type ReactNode } from "react";
+import { Button } from "@/components/ui/button";
 import { FormField } from "@/components/ui/form-field";
 import { Input } from "@/components/ui/input";
 import { PasswordInput } from "@/components/ui/password-input";
@@ -45,21 +46,19 @@ export function LoginPage({
         <h1>{m.login_title()}</h1>
         <p>{m.login_welcome_back()}</p>
       </header>
-      <button
-        type="button"
+      <Button
+        variant={isEmailConfigured ? "regular" : "primary"}
+        size="lg"
         onClick={socialLogin.handleGithubLogin}
         disabled={busy}
-        className={`auth-action ${isEmailConfigured ? "fuwari-btn-regular" : "fuwari-btn-primary"}`}
+        loading={socialLogin.isLoading}
+        icon={<GithubIcon size={18} />}
+        className="auth-action"
       >
-        {socialLogin.isLoading ? (
-          <Loader2 size={18} className="animate-spin" />
-        ) : (
-          <GithubIcon size={18} />
-        )}
         {socialLogin.isLoading
           ? m.login_social_connecting()
           : m.login_github_continue()}
-      </button>
+      </Button>
       {socialLogin.errorMessage && (
         <p className="auth-error" role="alert">
           {socialLogin.errorMessage}
@@ -107,16 +106,15 @@ export function LoginPage({
               <div className="auth-feedback" role="alert">
                 <p>{loginError.message}</p>
                 {loginError.unverified && (
-                  <button
-                    type="button"
+                  <Button
+                    variant="text"
+                    size="sm"
                     onClick={resendVerification}
                     disabled={busy || turnstilePending}
+                    loading={isResending}
                   >
-                    {isResending ? (
-                      <Loader2 size={14} className="animate-spin" />
-                    ) : null}
                     {m.login_resend_verification()}
-                  </button>
+                  </Button>
                 )}
               </div>
             )}
@@ -126,22 +124,21 @@ export function LoginPage({
               </p>
             )}
             <div className="auth-verification">{turnstileElement}</div>
-            <button
+            <Button
               type="submit"
-              className="auth-action fuwari-btn-primary"
+              variant="primary"
+              size="lg"
+              className="auth-action"
               disabled={busy || turnstilePending}
+              loading={loginStep === "VERIFYING"}
+              icon={loginStep === "SUCCESS" ? <Check size={16} /> : null}
             >
-              {loginStep === "VERIFYING" ? (
-                <Loader2 size={16} className="animate-spin" />
-              ) : loginStep === "SUCCESS" ? (
-                <Check size={16} />
-              ) : null}
               {loginStep === "VERIFYING"
                 ? m.login_submitting()
                 : loginStep === "SUCCESS"
                   ? m.login_toast_success()
                   : m.login_email_submit()}
-            </button>
+            </Button>
           </form>
           <footer className="auth-register">
             {m.login_no_account()}{" "}

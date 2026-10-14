@@ -5,6 +5,7 @@ import { ChevronDown } from "lucide-react";
 import type React from "react";
 import { useLayoutEffect, useRef, useState } from "react";
 import { ActionMenu } from "@/components/ui/action-menu";
+import { Button, buttonClass } from "@/components/ui/button";
 import { IconButton } from "@/components/ui/icon-button";
 import { MOTION, useMotionPresence } from "@/hooks/use-motion";
 import { cn } from "@/lib/utils";
@@ -26,19 +27,6 @@ type ControlState = ReturnType<typeof tableControlState>;
 
 const TOOLBAR_CLASS =
   "pointer-events-auto flex items-center gap-0.5 rounded-xl bg-(--fuwari-card-bg) p-1 shadow-md ring-1 ring-(--fuwari-input-border)";
-
-const DESTRUCTIVE_CLASS =
-  "hover:bg-(--fuwari-danger-bg) hover:text-(--fuwari-danger-fg)";
-
-function textButtonClass(size: Size, destructive?: boolean) {
-  return cn(
-    "flex shrink-0 items-center gap-1.5 rounded-lg text-sm whitespace-nowrap transition-colors duration-200 fuwari-text-75",
-    size === "md" ? "h-10 px-3" : "h-8 px-2",
-    destructive
-      ? DESTRUCTIVE_CLASS
-      : "hover:bg-(--fuwari-btn-regular-bg) hover:text-(--fuwari-primary)",
-  );
-}
 
 const Separator = () => (
   <div className="mx-1 h-4 w-px shrink-0 bg-(--fuwari-meta-divider)" />
@@ -70,7 +58,7 @@ function TableActionMenu({
       }
       triggerClassName={cn(
         "group",
-        textButtonClass(size),
+        buttonClass({ variant: "plain", size }),
         "aria-expanded:bg-(--fuwari-btn-regular-bg) aria-expanded:text-(--fuwari-primary)",
       )}
       items={group.actions
@@ -106,28 +94,27 @@ function TableActionButton({
         label={action.label()}
         active={active}
         onClick={() => action.run(editor)}
-        className={cn(
-          size === "md" && "h-10 w-10",
-          action.destructive && DESTRUCTIVE_CLASS,
-        )}
+        size={size === "md" ? "lg" : "sm"}
+        tone={action.destructive ? "danger" : undefined}
       >
         <Icon size={size === "md" ? 16 : 14} strokeWidth={active ? 2.5 : 2} />
       </IconButton>
     );
   }
   return (
-    <button
-      type="button"
+    <Button
+      variant="plain"
+      size={size}
+      tone={action.destructive ? "danger" : undefined}
       aria-pressed={active}
       onClick={() => action.run(editor)}
+      icon={<Icon size={14} aria-hidden />}
       className={cn(
-        textButtonClass(size, action.destructive),
         active && "bg-(--fuwari-btn-regular-bg) text-(--fuwari-primary)",
       )}
     >
-      <Icon size={14} aria-hidden />
       {action.label()}
-    </button>
+    </Button>
   );
 }
 

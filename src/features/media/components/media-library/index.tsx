@@ -13,6 +13,7 @@ import {
 import { m } from "@/paraglide/messages";
 import { MediaDetail, MediaToolbar } from "./components";
 import { MediaCollection } from "./components/media-collection";
+import { Button } from "@/components/ui/button";
 import ConfirmationModal from "@/components/ui/confirmation-modal";
 import { useMediaLibrary, useMediaUpload } from "./hooks";
 import { useMediaScroll } from "./hooks/use-media-scroll";
@@ -162,16 +163,15 @@ export function MediaLibrary() {
               : "—"}
           </p>
         </div>
-        <button
+        <Button
           ref={uploadRef}
-          type="button"
-          className="fuwari-btn-primary"
+          variant="primary"
+          icon={<Upload size={17} />}
           disabled={isUploading}
           onClick={openFilePicker}
         >
-          <Upload size={17} />
           {m.media_upload()}
-        </button>
+        </Button>
       </header>
       <MediaToolbar
         unusedOnly={unusedOnly}
@@ -211,13 +211,9 @@ export function MediaLibrary() {
             ) : isError && !mediaItems.length ? (
               <div className="media-empty" role="alert">
                 <p>{m.media_load_fail()}</p>
-                <button
-                  type="button"
-                  className="fuwari-btn-regular"
-                  onClick={() => void refetch()}
-                >
+                <Button onClick={() => void refetch()}>
                   {m.media_load_retry()}
-                </button>
+                </Button>
               </div>
             ) : isEmpty ? (
               <div className="media-empty">
@@ -225,15 +221,13 @@ export function MediaLibrary() {
                   {unusedOnly ? m.media_unreferenced_empty() : m.media_empty()}
                 </p>
                 <span>{!unusedOnly ? m.media_empty_hint() : null}</span>
-                <button
-                  type="button"
-                  className="fuwari-btn-regular"
+                <Button
                   onClick={
                     unusedOnly ? () => setUnusedOnly(false) : openFilePicker
                   }
                 >
                   {unusedOnly ? m.media_filter_all() : m.media_choose()}
-                </button>
+                </Button>
               </div>
             ) : (
               <>
@@ -249,37 +243,30 @@ export function MediaLibrary() {
                 />
                 <footer className="media-browser-footer">
                   {isError && !isFetchNextPageError ? (
-                    <button
-                      type="button"
-                      className="fuwari-btn-regular"
-                      onClick={() => void refetch()}
-                    >
+                    <Button onClick={() => void refetch()}>
                       {m.media_load_retry()}
-                    </button>
+                    </Button>
                   ) : hasMore || isFetchNextPageError ? (
-                    <button
-                      type="button"
-                      className="fuwari-btn-regular"
-                      disabled={isLoadingMore}
-                      onClick={loadMore}
-                    >
+                    <Button loading={isLoadingMore} onClick={loadMore}>
                       {isLoadingMore
                         ? m.media_grid_loading()
                         : isFetchNextPageError
                           ? m.media_load_retry()
                           : m.media_load_more()}
-                    </button>
+                    </Button>
                   ) : (
                     <span>{m.media_grid_end()}</span>
                   )}
                   {unusedOnly && !!stats?.unusedCount ? (
-                    <button
-                      type="button"
+                    <Button
+                      variant="text"
+                      size="sm"
+                      tone="danger"
                       className="media-cleanup"
                       onClick={() => setDeleteTarget({ kind: "unused" })}
                     >
                       {m.media_unused_cleanup()}
-                    </button>
+                    </Button>
                   ) : null}
                 </footer>
               </>

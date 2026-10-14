@@ -1,7 +1,8 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Check, Hash, Loader2, Plus, X } from "lucide-react";
+import { Check, Hash, Plus, X } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
+import { Spinner } from "@/components/ui/spinner";
 import { tagsAdminQueryOptions } from "@/features/tags/queries";
 import { orpcClient } from "@/lib/orpc";
 import type { Tag } from "@/lib/db/schema";
@@ -261,9 +262,7 @@ export function TagSelector({
 
         {/* Loading Spinner */}
         {(isInitialLoading || createTagMutation.isPending) && (
-          <div className="mr-1 animate-spin fuwari-text-50">
-            <Loader2 size={12} />
-          </div>
+          <Spinner size={12} className="mr-1 fuwari-text-50" />
         )}
       </div>
 

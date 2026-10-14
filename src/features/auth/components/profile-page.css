@@ -82,13 +82,6 @@
   color: var(--fuwari-fg-75);
   font-weight: 500;
 }
-.account-field-action {
-  font-size: 13px;
-  color: var(--fuwari-primary);
-}
-.account-field-action:hover {
-  text-decoration: underline;
-}
 .account-email p {
   font-size: 14px;
   margin-top: 6px;
@@ -100,14 +93,6 @@
   align-items: center;
   gap: 12px;
 }
-.account-save > button {
-  min-height: 44px;
-  padding: 10px 20px;
-  border-radius: 12px;
-  gap: 8px;
-  font-size: 14px;
-  font-weight: 700;
-}
 .account-feedback {
   font-size: 13px;
   line-height: 1.6;
@@ -116,12 +101,13 @@
 .account-feedback[data-error="true"] {
   color: var(--fuwari-danger-fg);
 }
-.account-page button:not(.fuwari-switch):disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-.account-page a:focus-visible,
-.account-page button:not(.fuwari-field-button, .fuwari-switch):focus-visible {
+.account-page
+  :is(a, button):not(
+    .fuwari-field-button,
+    .fuwari-switch,
+    .fuwari-button,
+    .fuwari-icon-button
+  ):focus-visible {
   outline: 2px solid var(--fuwari-primary);
   outline-offset: 3px;
 }
@@ -144,16 +130,6 @@
   font-size: 14px;
   line-height: 1.65;
   margin-top: 6px;
-}
-.account-text-button {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-shrink: 0;
-  min-height: 44px;
-  color: var(--fuwari-primary);
-  font-size: 14px;
-  border-radius: 8px;
 }
 .account-text-button svg {
   transition: transform 320ms var(--fuwari-motion-ease);
@@ -191,23 +167,6 @@
   display: flex;
   justify-content: center;
 }
-.account-footer button {
-  padding-inline: 12px;
-  transition:
-    background-color 180ms,
-    color 180ms;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  min-height: 44px;
-  color: var(--fuwari-danger-fg);
-  border-radius: 8px;
-  font-size: 14px;
-}
-.account-footer button:hover {
-  color: var(--fuwari-danger-fg);
-  background: var(--fuwari-danger-bg);
-}
 @media (max-width: 639px) {
   .account-page {
     padding: 24px;
@@ -237,9 +196,6 @@
   .account-setting-row {
     padding: 22px 0;
     gap: 16px;
-  }
-  .account-text-button {
-    font-size: 13px;
   }
   .account-password-form {
     padding: 0 0 24px;

@@ -1,7 +1,9 @@
 import { ClientOnly } from "@tanstack/react-router";
 import { X } from "lucide-react";
 import { useRef } from "react";
+import { Button } from "@/components/ui/button";
 import { FuwariModal } from "@/components/ui/fuwari-modal";
+import { IconButton } from "@/components/ui/icon-button";
 import { Input } from "@/components/ui/input";
 import { m } from "@/paraglide/messages";
 
@@ -46,14 +48,13 @@ export function TaxonomyNameDialog({
       >
         <header>
           <h2>{title}</h2>
-          <button
-            type="button"
-            aria-label={m.common_close()}
+          <IconButton
+            label={m.common_close()}
             disabled={busy}
             onClick={onClose}
           >
             <X size={18} />
-          </button>
+          </IconButton>
         </header>
         {description ? <p>{description}</p> : null}
         <form
@@ -73,30 +74,27 @@ export function TaxonomyNameDialog({
           />
           <footer>
             {onDelete ? (
-              <button
-                type="button"
+              <Button
+                variant="text"
+                tone="danger"
                 className="taxonomy-delete"
                 disabled={busy}
                 onClick={onDelete}
               >
                 {m.category_manager_delete()}
-              </button>
+              </Button>
             ) : null}
-            <button
-              type="button"
-              className="fuwari-btn-regular"
-              disabled={busy}
-              onClick={onClose}
-            >
+            <Button disabled={busy} onClick={onClose}>
               {m.category_manager_cancel()}
-            </button>
-            <button
+            </Button>
+            <Button
               type="submit"
-              className="fuwari-btn-primary"
-              disabled={busy || !name.trim()}
+              variant="primary"
+              loading={busy}
+              disabled={!name.trim()}
             >
               {busy ? m.common_processing() : submitLabel}
-            </button>
+            </Button>
           </footer>
         </form>
       </FuwariModal>

@@ -45,10 +45,10 @@ export function ActionMenu({
       trigger={trigger ?? <Ellipsis size={18} aria-hidden />}
       triggerClassName={
         triggerClassName ??
-        iconButtonClass(
-          false,
-          "pointer-coarse:size-10 aria-expanded:bg-(--fuwari-btn-regular-bg) aria-expanded:text-(--fuwari-primary)",
-        )
+        iconButtonClass({
+          className:
+            "pointer-coarse:size-10 aria-expanded:bg-(--fuwari-btn-regular-bg) aria-expanded:text-(--fuwari-primary)",
+        })
       }
       triggerTitle={trigger ? undefined : label}
       disabled={disabled}

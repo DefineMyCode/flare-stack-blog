@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { Loader2 } from "lucide-react";
+import { Button, buttonClass } from "@/components/ui/button";
 import { FormField } from "@/components/ui/form-field";
 import { PasswordInput } from "@/components/ui/password-input";
 import type { useResetPasswordForm } from "../hooks/use-reset-password-form";
@@ -30,7 +30,14 @@ export function ResetPasswordPage({
             : m.reset_password_error_missing_token_desc()
         }
       >
-        <Link to="/forgot-password" className="auth-action fuwari-btn-primary">
+        <Link
+          to="/forgot-password"
+          className={buttonClass({
+            variant: "primary",
+            size: "lg",
+            className: "auth-action",
+          })}
+        >
           {m.reset_password_request_new_link()}
         </Link>
         <Link to="/login" className="auth-status-link">
@@ -45,7 +52,14 @@ export function ResetPasswordPage({
         title={m.reset_password_toast_success()}
         description={m.reset_password_toast_success_desc()}
       >
-        <Link to="/login" className="auth-action fuwari-btn-primary">
+        <Link
+          to="/login"
+          className={buttonClass({
+            variant: "primary",
+            size: "lg",
+            className: "auth-action",
+          })}
+        >
           {m.forgot_password_back_to_login()}
         </Link>
       </AuthStatus>
@@ -89,16 +103,17 @@ export function ResetPasswordPage({
             </Link>
           </div>
         )}
-        <button
+        <Button
           type="submit"
-          className="auth-action fuwari-btn-primary"
-          disabled={form.isSubmitting}
+          variant="primary"
+          size="lg"
+          className="auth-action"
+          loading={form.isSubmitting}
         >
-          {form.isSubmitting && <Loader2 size={16} className="animate-spin" />}
           {form.isSubmitting
             ? m.reset_password_submitting()
             : m.reset_password_submit()}
-        </button>
+        </Button>
       </form>
     </div>
   );
