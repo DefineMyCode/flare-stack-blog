@@ -11,10 +11,13 @@ export function SecretControl({
   kind,
   stored,
   label,
+  canGenerate = false,
 }: {
   kind: "email" | "webhook";
   stored: boolean;
   label: string;
+  /** Offers a random value, for a signing key the admin makes up. */
+  canGenerate?: boolean;
 }) {
   const { watch, setValue } = useFormContext<ConfigFormValues>();
   const name =
@@ -92,7 +95,7 @@ export function SecretControl({
           {m.settings_design_replace_secret()}
         </button>
       )}
-      {kind === "webhook" && !cleared && showInput && (
+      {canGenerate && !cleared && showInput && (
         <button
           type="button"
           className="settings-text-action"
