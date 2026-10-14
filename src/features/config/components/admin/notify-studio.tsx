@@ -2,7 +2,7 @@ import { SettingsDisclosure } from "./settings-disclosure";
 import { useMediaQuery } from "@/hooks/use-motion";
 import { SecretControl } from "./secret-control";
 import { useConfigEditing, type ConfigFormValues } from "./config-editing";
-import { Loader2, MessageCircle, Send } from "lucide-react";
+import { Loader2, MessageCircle, Search, Send } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import {
   useEffect,
@@ -19,7 +19,20 @@ import type { SystemConfig } from "@/features/config/config.schema";
 import type { AdminTestEmailConnectionInput } from "@/features/email/email.schema";
 import { useEmailConnection } from "@/features/email/hooks/use-email-connection";
 import { emailTestStatusQuery } from "@/features/email/queries";
+import type { TelegramChat } from "@/features/webhook/api/telegram";
 import { useWebhookConnection } from "@/features/webhook/hooks/use-webhook-connection";
+import {
+  missingWebhookField,
+  presetRequestTemplate,
+  WEBHOOK_TEMPLATE_VARIABLES,
+  webhookSecretUse,
+} from "@/features/webhook/webhook.providers";
+import {
+  WEBHOOK_PROVIDERS,
+  type WebhookEndpoint,
+  type WebhookProvider,
+} from "@/features/webhook/webhook.schema";
+import { Select } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import { m } from "@/paraglide/messages";
 
@@ -323,28 +336,159 @@ function sameEmailInput(
   );
 }
 
-function WebhookChannel() {
-  const { register, watch, getValues, formState } =
-    useFormContext<ConfigFormValues>();
-  const { testWebhook, isTesting } = useWebhookConnection();
-  const { secrets, revisions } = useConfigEditing();
-  const clearSecret = watch("clearWebhookSecret");
-  const url = watch("notification.webhook.url") ?? "";
-  const secret = watch("notification.webhook.secret") ?? "";
-  const canTest = Boolean(
-    url.trim() && !clearSecret && (secret || secrets.webhookSecretConfigured),
+const PROVIDER_COPY: Record<
+  WebhookProvider,
+  {
+    label: () => string;
+    hint: () => string;
+    urlLabel: () => string;
+    urlPlaceholder: string;
+  }
+> = {
+  generic: {
+    label: m.settings_webhook_provider_generic,
+    hint: m.settings_webhook_hint_generic,
+    urlLabel: m.settings_webhook_endpoint_field_url,
+    urlPlaceholder: "https://hooks.example.com/notify",
+  },
+  telegram: {
+    label: () => "Telegram",
+    hint: m.settings_webhook_hint_telegram,
+    urlLabel: m.settings_webhook_endpoint_field_url,
+    urlPlaceholder: "",
+  },
+  discord: {
+    label: () => "Discord",
+    hint: m.settings_webhook_hint_discord,
+    urlLabel: m.settings_webhook_field_webhook_url,
+    urlPlaceholder: "https://discord.com/api/webhooks/…",
+  },
+  feishu: {
+    label: m.settings_webhook_provider_feishu,
+    hint: m.settings_webhook_hint_feishu,
+    urlLabel: m.settings_webhook_field_webhook_url,
+    urlPlaceholder: "https://open.feishu.cn/open-apis/bot/v2/hook/…",
+  },
+  dingtalk: {
+    label: m.settings_webhook_provider_dingtalk,
+    hint: m.settings_webhook_hint_dingtalk,
+    urlLabel: m.settings_webhook_field_webhook_url,
+    urlPlaceholder: "https://oapi.dingtalk.com/robot/send?access_token=…",
+  },
+  wecom: {
+    label: m.settings_webhook_provider_wecom,
+    hint: m.settings_webhook_hint_wecom,
+    urlLabel: m.settings_webhook_field_webhook_url,
+    urlPlaceholder: "https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=…",
+  },
+  bark: {
+    label: () => "Bark",
+    hint: m.settings_webhook_hint_bark,
+    urlLabel: m.settings_webhook_field_bark_url,
+    urlPlaceholder: "https://api.day.app/…",
+  },
+  ntfy: {
+    label: () => "ntfy",
+    hint: m.settings_webhook_hint_ntfy,
+    urlLabel: m.settings_webhook_field_ntfy_url,
+    urlPlaceholder: "https://ntfy.sh/…",
+  },
+  custom: {
+    label: m.settings_webhook_provider_custom,
+    hint: m.settings_webhook_hint_custom,
+    urlLabel: m.settings_webhook_endpoint_field_url,
+    urlPlaceholder: "https://hooks.example.com/notify",
+  },
+};
+
+const WEBHOOK_DOCS_URL =
+  "https://github.com/du2333/flare-stack-blog/blob/main/docs/webhook.md";
+
+const GENERIC_STARTER =
+  '{"title": "{{title}}", "message": "{{message}}", "url": "{{url}}"}';
+
+/** Where "custom" starts: what the channel the admin leaves would send. */
+function customStarter(
+  from: WebhookProvider,
+  webhook: WebhookEndpoint | undefined,
+) {
+  const url = webhook?.url?.trim() ?? "";
+  if (from === "generic" || from === "custom")
+    return { url, template: GENERIC_STARTER };
+  return presetRequestTemplate(
+    from,
+    { url, chatId: webhook?.chatId },
+    webhook?.secret?.trim() || "<BOT_TOKEN>",
   );
+}
+
+function chatTypeLabel(type: string) {
+  return type === "private"
+    ? m.settings_webhook_chat_private()
+    : type === "channel"
+      ? m.settings_webhook_chat_channel()
+      : m.settings_webhook_chat_group();
+}
+
+function WebhookChannel() {
+  const { register, getValues, setValue, control, formState } =
+    useFormContext<ConfigFormValues>();
+  const { testWebhook, isTesting, findTelegramChats, isFindingChats } =
+    useWebhookConnection();
+  const { secrets, revisions } = useConfigEditing();
+  const clearSecret = useWatch({ control, name: "clearWebhookSecret" });
+  const webhook = useWatch({ control, name: "notification.webhook" });
+  const provider = webhook?.provider ?? "generic";
+  const savedProvider =
+    formState.defaultValues?.notification?.webhook?.provider ?? "generic";
+  // A saved secret belongs to the channel it was saved for.
+  const stored = secrets.webhookSecretConfigured && provider === savedProvider;
+  const secretUse = webhookSecretUse(provider);
+  const typedSecret = webhook?.secret?.trim() ?? "";
+  const hasSecret = !clearSecret && Boolean(typedSecret || stored);
+  const [chats, setChats] = useState<Array<TelegramChat> | null>(null);
+  const copy = PROVIDER_COPY[provider];
+  const canTest =
+    missingWebhookField({
+      provider,
+      url: webhook?.url ?? "",
+      secret: hasSecret ? typedSecret || "saved" : "",
+      chatId: webhook?.chatId,
+      template: webhook?.template,
+    }) === null;
   const fieldError = formState.errors.notification?.webhook;
+  const savedSecret = () =>
+    typedSecret
+      ? { action: "replace" as const, value: typedSecret }
+      : { action: "keep" as const, expectedRevision: revisions.notifications };
+
+  const changeProvider = (next: WebhookProvider) => {
+    if (next === provider) return;
+    const current = getValues("notification.webhook");
+    if (next === "custom" && !current?.template?.trim()) {
+      const starter = customStarter(provider, current);
+      setValue("notification.webhook.url", starter.url, { shouldDirty: true });
+      setValue("notification.webhook.template", starter.template, {
+        shouldDirty: true,
+      });
+    }
+    setValue("notification.webhook.provider", next, { shouldDirty: true });
+    // The secret field means something else on the new channel.
+    setValue("notification.webhook.secret", "", { shouldDirty: true });
+    setValue("clearWebhookSecret", false, { shouldDirty: true });
+    setChats(null);
+  };
 
   const handleTest = async () => {
+    if (!canTest) return;
     const endpoint = getValues("notification.webhook");
-    if (!endpoint?.url.trim() || !canTest) return;
     try {
       await testWebhook({
-        url: endpoint.url.trim(),
-        secret: endpoint.secret
-          ? { action: "replace", value: endpoint.secret }
-          : { action: "keep", expectedRevision: revisions.notifications },
+        provider,
+        url: provider === "telegram" ? "" : (endpoint?.url.trim() ?? ""),
+        chatId: endpoint?.chatId?.trim() || undefined,
+        template: provider === "custom" ? endpoint?.template : undefined,
+        secret: hasSecret ? savedSecret() : undefined,
       });
       toast.success(m.settings_webhook_toast_test_sent());
     } catch (error) {
@@ -358,6 +502,27 @@ function WebhookChannel() {
     }
   };
 
+  const handleFindChats = async () => {
+    if (!hasSecret) return;
+    try {
+      const result = await findTelegramChats({ token: savedSecret() });
+      setChats(result.chats);
+      if (result.chats.length === 1)
+        setValue("notification.webhook.chatId", result.chats[0].id, {
+          shouldDirty: true,
+        });
+    } catch (error) {
+      toast.error(
+        m.settings_webhook_toast_chats_fail({
+          message: error instanceof Error ? error.message : String(error),
+        }),
+      );
+    }
+  };
+
+  const summary =
+    provider === "telegram" ? webhook?.chatId?.trim() : webhook?.url?.trim();
+
   return (
     <SettingsDisclosure
       className="notify-webhook"
@@ -365,32 +530,154 @@ function WebhookChannel() {
         <>
           {m.settings_webhook_endpoint_title()}
           <span className="settings-muted">
-            {url || m.settings_connection_unconfigured()}
+            {summary
+              ? `${copy.label()} · ${summary}`
+              : m.settings_connection_unconfigured()}
           </span>
         </>
       }
     >
       <div className="notify-webhook-content">
-        <Field label={m.settings_webhook_endpoint_field_url()}>
-          <input
-            {...register("notification.webhook.url")}
-            placeholder={m.settings_webhook_endpoint_field_url_ph()}
-            className={SETTINGS_FIELD_CLASS}
+        <Field label={m.settings_webhook_provider()}>
+          <Select
+            className="w-56 max-w-full"
+            value={provider}
+            onChange={(next) => changeProvider(next as WebhookProvider)}
+            options={WEBHOOK_PROVIDERS.map((value) => ({
+              value,
+              label: PROVIDER_COPY[value].label(),
+            }))}
           />
-          {fieldError?.url?.message ? (
-            <p className="text-xs text-(--fuwari-danger-fg)">
-              {fieldError.url.message}
-            </p>
-          ) : null}
+          <p className="text-xs fuwari-text-50 leading-relaxed">
+            {copy.hint()}
+            {provider === "generic" || provider === "custom" ? (
+              <>
+                {" "}
+                <a
+                  href={WEBHOOK_DOCS_URL}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-(--fuwari-primary) hover:underline"
+                >
+                  {m.settings_webhook_docs_link()}
+                </a>
+              </>
+            ) : null}
+          </p>
         </Field>
 
-        <Field label={m.settings_webhook_endpoint_field_secret()}>
-          <SecretControl
-            kind="webhook"
-            stored={secrets.webhookSecretConfigured}
-            label={m.settings_webhook_endpoint_field_secret()}
-          />
-        </Field>
+        {provider === "telegram" ? (
+          <>
+            <Field label={m.settings_webhook_field_bot_token()}>
+              <SecretControl
+                kind="webhook"
+                stored={stored}
+                label={m.settings_webhook_field_bot_token()}
+              />
+            </Field>
+            <Field label={m.settings_webhook_field_chat_id()}>
+              <input
+                {...register("notification.webhook.chatId")}
+                placeholder={m.settings_webhook_field_chat_id_ph()}
+                className={SETTINGS_FIELD_CLASS}
+              />
+              <div className="flex flex-wrap items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => void handleFindChats()}
+                  disabled={!hasSecret || isFindingChats}
+                  className="fuwari-btn-regular rounded-xl h-8 px-3 text-sm font-medium gap-1.5 disabled:opacity-50"
+                >
+                  {isFindingChats ? (
+                    <Loader2 size={14} className="animate-spin" />
+                  ) : (
+                    <Search size={14} />
+                  )}
+                  {m.settings_webhook_find_chats()}
+                </button>
+                {chats?.map((chat) => (
+                  <button
+                    key={chat.id}
+                    type="button"
+                    onClick={() =>
+                      setValue("notification.webhook.chatId", chat.id, {
+                        shouldDirty: true,
+                      })
+                    }
+                    className={cn(
+                      "rounded-xl h-8 px-3 text-sm border border-(--settings-rule) fuwari-text-75 hover:bg-(--fuwari-btn-regular-bg)",
+                      webhook?.chatId === chat.id &&
+                        "border-(--fuwari-primary) fuwari-text-90",
+                    )}
+                  >
+                    {chat.name}
+                    <span className="ml-1.5 text-xs fuwari-text-50">
+                      {chatTypeLabel(chat.type)}
+                    </span>
+                  </button>
+                ))}
+              </div>
+              {chats?.length === 0 ? (
+                <p className="text-xs fuwari-text-50">
+                  {m.settings_webhook_chats_empty()}
+                </p>
+              ) : null}
+            </Field>
+          </>
+        ) : (
+          <Field label={copy.urlLabel()}>
+            <input
+              {...register("notification.webhook.url")}
+              placeholder={copy.urlPlaceholder}
+              className={SETTINGS_FIELD_CLASS}
+            />
+            {fieldError?.url?.message ? (
+              <p className="text-xs text-(--fuwari-danger-fg)">
+                {fieldError.url.message}
+              </p>
+            ) : null}
+          </Field>
+        )}
+
+        {provider === "custom" ? (
+          <Field label={m.settings_webhook_field_template()}>
+            <textarea
+              {...register("notification.webhook.template")}
+              rows={6}
+              spellCheck={false}
+              className={cn(
+                SETTINGS_FIELD_CLASS,
+                "h-auto py-2 font-mono text-xs leading-relaxed",
+              )}
+            />
+            <p className="text-xs fuwari-text-50 leading-relaxed">
+              {m.settings_webhook_template_variables()}
+              {": "}
+              {WEBHOOK_TEMPLATE_VARIABLES.map((name) => (
+                <code key={name} className="mx-1 font-mono">
+                  {`{{${name}}}`}
+                </code>
+              ))}
+            </p>
+          </Field>
+        ) : null}
+
+        {provider === "generic" || provider === "custom" ? (
+          <Field
+            label={
+              secretUse === "optional"
+                ? m.settings_webhook_field_secret_optional()
+                : m.settings_webhook_endpoint_field_secret()
+            }
+          >
+            <SecretControl
+              kind="webhook"
+              stored={stored}
+              label={m.settings_webhook_endpoint_field_secret()}
+              canGenerate
+            />
+          </Field>
+        ) : null}
 
         <button
           type="button"
