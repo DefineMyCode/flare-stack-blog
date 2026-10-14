@@ -33,6 +33,11 @@ const boundary = vi.hoisted(() => ({
       create: vi.fn<Client["comments"]["create"]>(),
       remove: vi.fn<Client["comments"]["remove"]>(),
       mine: vi.fn<Client["comments"]["mine"]>(),
+      admin: {
+        markHandled: vi.fn<Client["comments"]["admin"]["markHandled"]>(),
+        unmarkHandled: vi.fn<Client["comments"]["admin"]["unmarkHandled"]>(),
+        markAllHandled: vi.fn<Client["comments"]["admin"]["markAllHandled"]>(),
+      },
     },
     mutedUsers: {
       list: vi.fn<Client["mutedUsers"]["list"]>(),

@@ -100,4 +100,23 @@ export const DashboardOverviewSchema = z.object({
   }),
 });
 
+export const UnrepliedCommentsInputSchema = z.object({
+  limit: z.number().int().min(1).max(50).default(20),
+  /** Continue after this Comment: the previous page's `nextBeforeId`. */
+  beforeId: z.number().int().positive().optional(),
+});
+
+export const UnrepliedCommentsPageSchema = z.object({
+  items: z.array(DashboardCommentSchema),
+  /** Every unreplied Comment, not only this page's. */
+  total: count,
+  /** Pass as `beforeId` for the next page; null on the last page. */
+  nextBeforeId: z.number().int().positive().nullable(),
+});
+
 export type DashboardOverview = z.infer<typeof DashboardOverviewSchema>;
+export type DashboardComment = z.infer<typeof DashboardCommentSchema>;
+export type UnrepliedCommentsPage = z.infer<typeof UnrepliedCommentsPageSchema>;
+export type UnrepliedCommentsInput = z.infer<
+  typeof UnrepliedCommentsInputSchema
+>;

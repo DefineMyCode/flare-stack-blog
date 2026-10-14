@@ -16,7 +16,11 @@ import {
   siteIdentityIsDefault,
   totalViews,
 } from "@/features/dashboard/dashboard";
-import type { DashboardOverview } from "@/features/dashboard/dashboard.schema";
+import type {
+  DashboardComment,
+  DashboardOverview,
+  UnrepliedCommentsInput,
+} from "@/features/dashboard/dashboard.schema";
 import * as FriendLinkRepo from "@/features/friend-links/data/friend-links.data";
 import { isMuted } from "@/features/muted-users/muted-users";
 import { postPopularityService } from "@/features/post-popularity/service/post-popularity.service";
@@ -95,7 +99,9 @@ export async function getDashboardOverview(
       status: "pending",
       limit: DASHBOARD_PENDING_FRIEND_LINKS_LIMIT,
     }),
-    DashboardRepo.listUnrepliedComments(db, DASHBOARD_UNREPLIED_COMMENTS_LIMIT),
+    DashboardRepo.listUnrepliedComments(db, {
+      limit: DASHBOARD_UNREPLIED_COMMENTS_LIMIT,
+    }),
     DashboardRepo.countUnrepliedComments(db),
     ConfigRepo.getSystemConfig(db),
     DashboardRepo.countWritingEventsByHour(db, writingSince),
@@ -141,24 +147,52 @@ export async function getDashboardOverview(
     },
     unrepliedComments: {
       total: unrepliedTotal,
-      items: unrepliedItems.flatMap((comment) => {
-        if (!comment.postSlug) return [];
-        return [
-          {
-            id: comment.id,
-            postId: comment.postId,
-            rootId: comment.rootId,
-            userId: comment.userId,
-            userName: comment.userName,
-            userImage: comment.userImage,
-            userMuted: isMuted(comment.userMutedAt),
-            postTitle: comment.postTitle,
-            postSlug: comment.postSlug,
-            snippet: commentSnippet(comment.content),
-            createdAt: comment.createdAt,
-          },
-        ];
-      }),
+      items: toDashboardComments(unrepliedItems),
     },
+  };
+}
+
+function toDashboardComments(
+  rows: Awaited<ReturnType<typeof DashboardRepo.listUnrepliedComments>>,
+): Array<DashboardComment> {
+  return rows.flatMap((comment) => {
+    if (!comment.postSlug) return [];
+    return [
+      {
+        id: comment.id,
+        postId: comment.postId,
+        rootId: comment.rootId,
+        userId: comment.userId,
+        userName: comment.userName,
+        userImage: comment.userImage,
+        userMuted: isMuted(comment.userMutedAt),
+        postTitle: comment.postTitle,
+        postSlug: comment.postSlug,
+        snippet: commentSnippet(comment.content),
+        createdAt: comment.createdAt,
+      },
+    ];
+  });
+}
+
+/** One page of every unreplied Comment, newest first, with the total. */
+export async function listUnrepliedComments(
+  context: DbContext,
+  input: UnrepliedCommentsInput,
+) {
+  const [rows, total] = await Promise.all([
+    DashboardRepo.listUnrepliedComments(context.db, {
+      // One extra tells whether another page follows.
+      limit: input.limit + 1,
+      beforeId: input.beforeId,
+    }),
+    DashboardRepo.countUnrepliedComments(context.db),
+  ]);
+  const page = rows.slice(0, input.limit);
+  return {
+    items: toDashboardComments(page),
+    total,
+    nextBeforeId:
+      rows.length > input.limit ? (page[page.length - 1]?.id ?? null) : null,
   };
 }

@@ -9,7 +9,10 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import * as CommentService from "@/features/comments/comments.service";
 import { DEFAULT_CONFIG } from "@/features/config/config.schema";
 import * as ConfigRepo from "@/features/config/data/config.data";
-import { getDashboardOverview } from "@/features/dashboard/service/dashboard.service";
+import {
+  getDashboardOverview,
+  listUnrepliedComments,
+} from "@/features/dashboard/service/dashboard.service";
 import * as FriendLinkRepo from "@/features/friend-links/data/friend-links.data";
 import * as MutedUserService from "@/features/muted-users/service/muted-users.service";
 import { postPopularityService } from "@/features/post-popularity/service/post-popularity.service";
@@ -401,12 +404,18 @@ describe("Dashboard overview", () => {
     unwrap(
       await CommentService.deleteComment(adminContext, { id: deletedReply.id }),
     );
+    // A legacy reply leaves no handled mark; the thread alone answers it.
+    await adminContext.db
+      .update(CommentsTable)
+      .set({ handledAt: null })
+      .where(eq(CommentsTable.id, legacy.id));
 
+    // The reply marked its target handled, so deleting it changes nothing.
     const overview = await getDashboardOverview(adminContext);
     expect(
-      overview.unrepliedComments.items.map((comment) => comment.id).sort(),
-    ).toEqual([open.id, retracted.id].sort());
-    expect(overview.unrepliedComments.total).toBe(2);
+      overview.unrepliedComments.items.map((comment) => comment.id),
+    ).toEqual([open.id]);
+    expect(overview.unrepliedComments.total).toBe(1);
   });
 
   it("caps unreplied comments at five, newest first, with the total", async () => {
@@ -469,6 +478,106 @@ describe("Dashboard overview", () => {
     expect(
       overview.unrepliedComments.items.every((comment) => comment.userMuted),
     ).toBe(true);
+  });
+
+  it("drops handled comments from the unreplied list and count", async () => {
+    const postId = await publishPost("handled");
+    const thanks = unwrap(
+      await CommentService.createComment(userContext, {
+        postId,
+        content: "谢谢up主",
+      }),
+    );
+    const question = unwrap(
+      await CommentService.createComment(userContext, {
+        postId,
+        content: "A real question",
+      }),
+    );
+    const answered = unwrap(
+      await CommentService.createComment(userContext, {
+        postId,
+        content: "Answered then retracted",
+      }),
+    );
+
+    unwrap(await CommentService.markCommentHandled(adminContext, thanks));
+    // The reply handles the comment, so deleting it does not bring it back.
+    const reply = unwrap(
+      await CommentService.createComment(adminContext, {
+        postId,
+        content: "Answer",
+        rootId: answered.id,
+        replyToCommentId: answered.id,
+      }),
+    );
+    unwrap(await CommentService.deleteComment(adminContext, { id: reply.id }));
+
+    let overview = await getDashboardOverview(adminContext);
+    expect(
+      overview.unrepliedComments.items.map((comment) => comment.id),
+    ).toEqual([question.id]);
+    expect(overview.unrepliedComments.total).toBe(1);
+
+    unwrap(await CommentService.unmarkCommentHandled(adminContext, thanks));
+    overview = await getDashboardOverview(adminContext);
+    expect(overview.unrepliedComments.total).toBe(2);
+
+    expect(
+      await CommentService.markAllUnrepliedCommentsHandled(adminContext),
+    ).toEqual({ count: 2 });
+    overview = await getDashboardOverview(adminContext);
+    expect(overview.unrepliedComments.items).toEqual([]);
+    expect(overview.unrepliedComments.total).toBe(0);
+  });
+
+  it("pages through every unreplied comment, stable while comments leave", async () => {
+    const postId = await publishPost("paged");
+    const ids: Array<number> = [];
+    for (let i = 0; i < 5; i++) {
+      const comment = unwrap(
+        await CommentService.createComment(userContext, {
+          postId,
+          content: `Comment ${i}`,
+        }),
+      );
+      // Two share a second, so the id breaks the tie.
+      await adminContext.db
+        .update(CommentsTable)
+        .set({ createdAt: new Date(Date.now() + Math.min(i, 3) * 1_000) })
+        .where(eq(CommentsTable.id, comment.id));
+      ids.push(comment.id);
+    }
+    const newestFirst = [...ids].reverse();
+
+    const first = await listUnrepliedComments(adminContext, { limit: 2 });
+    expect(first.items.map((comment) => comment.id)).toEqual(
+      newestFirst.slice(0, 2),
+    );
+    expect(first.total).toBe(5);
+    expect(first.nextBeforeId).toBe(newestFirst[1]);
+
+    // Handling a Comment already shown does not shift the next page.
+    unwrap(
+      await CommentService.markCommentHandled(adminContext, {
+        id: newestFirst[0],
+      }),
+    );
+    const second = await listUnrepliedComments(adminContext, {
+      limit: 2,
+      beforeId: first.nextBeforeId ?? undefined,
+    });
+    expect(second.items.map((comment) => comment.id)).toEqual(
+      newestFirst.slice(2, 4),
+    );
+    expect(second.total).toBe(4);
+
+    const last = await listUnrepliedComments(adminContext, {
+      limit: 2,
+      beforeId: second.nextBeforeId ?? undefined,
+    });
+    expect(last.items.map((comment) => comment.id)).toEqual([newestFirst[4]]);
+    expect(last.nextBeforeId).toBeNull();
   });
 
   it("ranks the most viewed public posts from the popularity snapshot", async () => {

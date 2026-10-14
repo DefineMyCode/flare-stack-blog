@@ -7,12 +7,15 @@ import {
   inArray,
   isNotNull,
   isNull,
+  lt,
   ne,
   notExists,
   or,
   sql,
+  type SQL,
 } from "drizzle-orm";
 import { alias } from "drizzle-orm/sqlite-core";
+import { keepUpdatedAt } from "@/features/comments/data/comments.data";
 import {
   CommentsTable,
   PostRevisionsTable,
@@ -86,13 +89,15 @@ const AdminReply = alias(CommentsTable, "admin_reply");
 const AdminReplyAuthor = alias(UserTable, "admin_reply_author");
 
 /**
- * A published Comment by a visitor on a public Post that no published Admin
- * Comment answers: none replies to it, and for a root Comment none sits in
- * its thread without a reply target (rows written before reply targets).
+ * A published Comment by a visitor on a public Post that no Admin has
+ * handled (replied to or marked handled) and no published Admin Comment
+ * answers: none replies to it, and for a root Comment none sits in its
+ * thread without a reply target (rows written before reply targets).
  */
 function unrepliedVisitorComment(db: DB) {
   return and(
     eq(CommentsTable.status, "published"),
+    isNull(CommentsTable.handledAt),
     postIsPublic,
     or(isNull(UserTable.role), ne(UserTable.role, "admin")),
     notExists(
@@ -119,7 +124,31 @@ function unrepliedVisitorComment(db: DB) {
   );
 }
 
-export async function listUnrepliedComments(db: DB, limit: number) {
+/**
+ * Unreplied Comments, newest first; `beforeId` continues after that Comment,
+ * so a page stays put while Comments above it leave the list.
+ */
+export async function listUnrepliedComments(
+  db: DB,
+  options: { limit: number; beforeId?: number },
+) {
+  let after: SQL | undefined;
+  if (options.beforeId !== undefined) {
+    const [cursor] = await db
+      .select({ createdAt: CommentsTable.createdAt })
+      .from(CommentsTable)
+      .where(eq(CommentsTable.id, options.beforeId))
+      .limit(1);
+    after = cursor
+      ? or(
+          lt(CommentsTable.createdAt, cursor.createdAt),
+          and(
+            eq(CommentsTable.createdAt, cursor.createdAt),
+            lt(CommentsTable.id, options.beforeId),
+          ),
+        )
+      : lt(CommentsTable.id, options.beforeId);
+  }
   return db
     .select({
       id: CommentsTable.id,
@@ -137,9 +166,9 @@ export async function listUnrepliedComments(db: DB, limit: number) {
     .from(CommentsTable)
     .innerJoin(PostsTable, eq(CommentsTable.postId, PostsTable.id))
     .leftJoin(UserTable, eq(CommentsTable.userId, UserTable.id))
-    .where(unrepliedVisitorComment(db))
+    .where(and(unrepliedVisitorComment(db), after))
     .orderBy(desc(CommentsTable.createdAt), desc(CommentsTable.id))
-    .limit(limit);
+    .limit(options.limit);
 }
 
 export async function countUnrepliedComments(db: DB) {
@@ -150,6 +179,22 @@ export async function countUnrepliedComments(db: DB) {
     .leftJoin(UserTable, eq(CommentsTable.userId, UserTable.id))
     .where(unrepliedVisitorComment(db));
   return row?.total ?? 0;
+}
+
+/** Marks every unreplied Comment handled; returns how many there were. */
+export async function markUnrepliedCommentsHandled(db: DB, handledAt: Date) {
+  const unreplied = db
+    .select({ id: CommentsTable.id })
+    .from(CommentsTable)
+    .innerJoin(PostsTable, eq(CommentsTable.postId, PostsTable.id))
+    .leftJoin(UserTable, eq(CommentsTable.userId, UserTable.id))
+    .where(unrepliedVisitorComment(db));
+  const marked = await db
+    .update(CommentsTable)
+    .set({ handledAt, ...keepUpdatedAt })
+    .where(inArray(CommentsTable.id, unreplied))
+    .returning({ id: CommentsTable.id });
+  return marked.length;
 }
 
 /**
