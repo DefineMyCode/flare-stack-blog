@@ -14,7 +14,7 @@ import {
   commentThreadQuery,
   rootCommentsByPostIdInfiniteQuery,
 } from "@/features/comments/queries";
-import { authClient } from "@/lib/auth/auth.client";
+import { authClient } from "@/lib/auth/auth-client";
 import { m } from "@/paraglide/messages";
 import { CommentConfirmationModal } from "./comment-confirmation-modal";
 import { CommentEditor } from "./comment-editor";
