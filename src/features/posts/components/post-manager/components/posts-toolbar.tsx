@@ -108,6 +108,7 @@ export function PostsToolbar({
             value={category === undefined ? "" : String(category)}
             ariaLabel={m.admin_posts_filter_category()}
             triggerClassName={FILTER_TRIGGER}
+            placement="bottom-start"
             onChange={(value) =>
               onCategoryChange(
                 value === "" ? undefined : value === "none" ? value : +value,
@@ -126,6 +127,7 @@ export function PostsToolbar({
             value={tag === undefined ? "" : String(tag)}
             ariaLabel={m.admin_posts_filter_tag()}
             triggerClassName={FILTER_TRIGGER}
+            placement="bottom-start"
             onChange={(value) => onTagChange(value === "" ? undefined : +value)}
             options={[
               { value: "", label: m.admin_posts_filter_tag_all() },
