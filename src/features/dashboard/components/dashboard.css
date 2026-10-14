@@ -180,6 +180,22 @@
 .dashboard-comment {
   align-items: flex-start;
 }
+.dashboard-comment-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 2px;
+}
+.dashboard-comment-row > .dashboard-comment {
+  flex: 1;
+  min-width: 0;
+}
+.dashboard-comment-actions {
+  flex-shrink: 0;
+  padding-top: calc(12 * var(--admin-unit));
+}
+.dashboard-comment-reply {
+  padding: 0 10px calc(16 * var(--admin-unit));
+}
 .dashboard-comment-byline {
   display: flex;
   justify-content: space-between;

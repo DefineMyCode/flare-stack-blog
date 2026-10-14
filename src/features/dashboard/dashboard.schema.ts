@@ -20,8 +20,12 @@ const DashboardPendingFriendLinkSchema = z.object({
 
 const DashboardRecentCommentSchema = z.object({
   id: z.number().int().positive(),
+  postId: z.number().int().positive(),
+  rootId: z.number().int().positive().nullable(),
+  userId: z.string().nullable(),
   userName: z.string().nullable(),
   userImage: z.string().nullable(),
+  userMuted: z.boolean(),
   postTitle: z.string(),
   postSlug: z.string(),
   snippet: z.string(),
