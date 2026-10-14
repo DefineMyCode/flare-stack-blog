@@ -110,6 +110,19 @@
           }
         }
       },
+      "videoMeta": {
+        "~orpc": {
+          "errorMap": {},
+          "meta": {},
+          "route": {
+            "method": "GET",
+            "path": "/admin/posts/video-meta",
+            "summary": "Look up an embedded video's title, cover and length",
+            "description": "Asks the video's provider once, when the editor embeds it. Returns null when the provider has nothing to give or cannot be reached.",
+            "tags": ["Admin Posts"]
+          }
+        }
+      },
       "create": {
         "~orpc": {
           "errorMap": {},

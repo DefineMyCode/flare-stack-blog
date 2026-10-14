@@ -288,3 +288,17 @@ export type PublishPostInput = z.infer<typeof PublishPostInputSchema>;
 export type UnpublishPostInput = z.infer<typeof UnpublishPostInputSchema>;
 export type PostItem = z.infer<typeof PostItemSchema>;
 export type PostWithToc = z.infer<typeof PostWithTocSchema>;
+
+export const VideoMetaInputSchema = z.object({
+  provider: z.enum(["bilibili", "youtube"]),
+  videoId: z.string().max(32),
+  page: z.number().int().positive().nullable().optional(),
+});
+
+export const VideoMetaSchema = z
+  .object({
+    title: z.string().nullable(),
+    cover: z.string().nullable(),
+    duration: z.number().int().nullable(),
+  })
+  .nullable();
