@@ -5,7 +5,12 @@ import {
   seedAdminApiKey,
 } from "tests/test-utils";
 import { describe, expect, it } from "vitest";
-import { PostsTable } from "@/lib/db/schema";
+import {
+  CategoriesTable,
+  PostsTable,
+  PostTagsTable,
+  TagsTable,
+} from "@/lib/db/schema";
 import { createApiContext } from "@/lib/orpc/create-context";
 import { openAPIHandler } from "@/lib/orpc/openapi-handler";
 import { unwrap } from "@/lib/errors";
@@ -452,5 +457,42 @@ describe("Admin posts list for external editors", () => {
 
     expect(ascending.items.map((item) => item.id)).toEqual(ids);
     expect(descending.items.map((item) => item.id)).toEqual([...ids].reverse());
+  });
+
+  it("filters by category, uncategorized and tag from the query string", async () => {
+    const apiKey = await seedAdminApiKey();
+    const context = createAdminTestContext();
+    const [category] = await context.db
+      .insert(CategoriesTable)
+      .values({ name: "Notes" })
+      .returning();
+    const [tag] = await context.db
+      .insert(TagsTable)
+      .values({ name: "Rust" })
+      .returning();
+    const [inCategory, tagged] = await context.db
+      .insert(PostsTable)
+      .values([
+        { title: "In category", slug: "in-category", categoryId: category.id },
+        { title: "Tagged", slug: "tagged" },
+      ])
+      .returning();
+    await context.db
+      .insert(PostTagsTable)
+      .values({ postId: tagged.id, tagId: tag.id });
+
+    const byCategory = await listPosts(apiKey, `categoryId=${category.id}`);
+    const byTag = await listPosts(apiKey, `tagId=${tag.id}`);
+    const uncategorized = await listPosts(apiKey, "uncategorized=true");
+    const both = await listPosts(
+      apiKey,
+      `categoryId=${category.id}&tagId=${tag.id}`,
+    );
+
+    expect(byCategory.items.map((item) => item.id)).toEqual([inCategory.id]);
+    expect(byTag.items.map((item) => item.id)).toEqual([tagged.id]);
+    expect(uncategorized.items.map((item) => item.id)).toEqual([tagged.id]);
+    expect(both.total).toBe(0);
+    expect(both.statusCounts).toEqual({ draft: 0, published: 0 });
   });
 });
