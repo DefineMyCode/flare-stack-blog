@@ -206,18 +206,12 @@ button.post-editor-summary:hover {
   position: absolute;
   z-index: 35;
   inset: var(--post-editor-header-height) 0 0;
-  background: rgb(20 35 50 / 0.12);
 }
 .post-editor-info-panel {
   position: absolute;
   z-index: 40;
-  right: 0;
   top: var(--post-editor-header-height);
-  bottom: 0;
-  display: flex;
-  flex-direction: column;
   width: 23rem;
-  background: var(--fuwari-card-bg);
   border-left: 1px solid var(--post-editor-rule);
   box-shadow: -6px 0 24px rgb(0 0 0 / 0.05);
 }
@@ -442,45 +436,8 @@ button.post-editor-summary:hover {
   animation: fuwari-content-in var(--fuwari-motion-content)
     var(--fuwari-motion-ease) both;
 }
-.post-editor-info-panel[data-state="open"] {
-  animation: post-info-in var(--fuwari-motion-panel) var(--fuwari-motion-ease)
-    both;
-}
-.post-editor-info-panel[data-state="closing"] {
-  animation: post-info-out var(--fuwari-motion-panel) var(--fuwari-motion-ease)
-    both;
-}
-.post-editor-info-backdrop[data-state="open"] {
-  animation: fuwari-backdrop-in var(--fuwari-motion-panel) ease-out both;
-}
-.post-editor-info-backdrop[data-state="closing"] {
-  animation: fuwari-backdrop-out var(--fuwari-motion-panel) ease-out both;
-  pointer-events: none;
-}
-@keyframes post-info-in {
-  from {
-    opacity: 0;
-    transform: translateX(24px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-@keyframes post-info-out {
-  from {
-    opacity: 1;
-    transform: translateX(0);
-  }
-  to {
-    opacity: 0;
-    transform: translateX(24px);
-  }
-}
 @media (prefers-reduced-motion: reduce) {
-  .post-editor-document,
-  .post-editor-info-panel,
-  .post-editor-info-backdrop {
+  .post-editor-document {
     animation: none !important;
   }
 }
