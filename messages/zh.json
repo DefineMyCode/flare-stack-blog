@@ -393,8 +393,6 @@
   "admin_sidebar_logout_failed": "注销失败",
   "admin_sidebar_logout_failed_desc": "请重试。",
   "admin_overview_title": "概览",
-  "admin_overview_continue_writing": "接着写",
-  "admin_overview_recent_comments": "新评论",
   "admin_overview_popularity_failed": "热度同步失败",
   "admin_overview_popularity_expired": "热度数据已过期",
   "admin_overview_activity_anonymous": "匿名用户",
@@ -1080,12 +1078,8 @@
   "friend_review_preview_hint": "通过后将以这些资料展示在前台友链页",
   "friend_review_previous": "上一条",
   "friend_review_next": "下一条",
-  "dashboard_intro": "专注创作，记录和分享生活中的思考",
-  "dashboard_resume": "继续编辑",
   "dashboard_first_post": "从第一篇文章开始",
   "dashboard_recent_edits": "最近编辑",
-  "dashboard_tasks": "待办事项",
-  "dashboard_pending_links": "{count} 条友链申请待审核",
   "muted_manager_hint": "管理被禁言的用户，必要时恢复其评论权限。",
   "muted_manager_count": "{count} 人",
   "muted_manager_search": "搜索用户名",
@@ -1189,5 +1183,166 @@
   "comments_send_failed_keep_draft": "发送未成功，草稿已保留，请稍后重试。",
   "comments_load_failed": "评论暂时无法加载。",
   "comments_replies_failed": "回复暂时无法加载。",
-  "comments_retry": "重试"
+  "comments_retry": "重试",
+  "admin_overview_email_needs_setup_desc": "新评论和友链申请不会发邮件提醒你",
+  "admin_overview_popularity_failed_desc": "去维护页查看原因并重新同步",
+  "admin_overview_popularity_expired_desc": "超过 7 天没有同步，首页热门已改用置顶和最新文章",
+  "admin_overview_default_site_identity_desc": "换成你自己的站点名称和作者",
+  "admin_overview_update_available": "有新版本 {version}",
+  "admin_overview_update_available_desc": "当前是 v{current}，看看更新了什么",
+  "dashboard_stats_label": "博客数据",
+  "dashboard_stat_posts": "文章",
+  "dashboard_stat_drafts": [
+    {
+      "declarations": ["input count", "local formattedCountZh = count: number"],
+      "match": {
+        "count=*": "{formattedCountZh} 篇草稿"
+      }
+    }
+  ],
+  "dashboard_stat_no_drafts": "没有草稿",
+  "dashboard_stat_views": "近 30 天访问",
+  "dashboard_stat_views_unconfigured": "未接入 Umami",
+  "dashboard_stat_views_missing": "还没有同步数据",
+  "dashboard_stat_views_expired": "数据已过期",
+  "dashboard_stat_comments": "评论",
+  "dashboard_stat_comments_recent": [
+    {
+      "declarations": ["input count", "local formattedCountZh = count: number"],
+      "match": {
+        "count=*": "近 7 天 +{formattedCountZh}"
+      }
+    }
+  ],
+  "dashboard_stat_comments_none_recent": "近 7 天没有新评论",
+  "dashboard_stat_friend_links": "友链",
+  "dashboard_stat_friend_links_pending": [
+    {
+      "declarations": ["input count", "local formattedCountZh = count: number"],
+      "match": {
+        "count=*": "{formattedCountZh} 个待审核"
+      }
+    }
+  ],
+  "dashboard_stat_friend_links_none_pending": "没有待审核",
+  "dashboard_popular_title": "近 30 天热门",
+  "dashboard_popular_expired": "已过期",
+  "dashboard_popular_open_public": "打开公开页面",
+  "dashboard_popular_unconfigured_title": "还没接入 Umami",
+  "dashboard_popular_unconfigured_desc": "接入后，这里会按近 30 天的阅读量列出最受欢迎的文章",
+  "dashboard_popular_missing_title": "还没有热度数据",
+  "dashboard_popular_missing_desc": "热度每天自动同步一次，也可以现在手动同步",
+  "dashboard_popular_sync": "去同步",
+  "dashboard_popular_no_views": "近 30 天还没有文章被阅读",
+  "dashboard_unreplied_title": "待回复评论",
+  "dashboard_unreplied_more": [
+    {
+      "declarations": ["input count", "local formattedCountZh = count: number"],
+      "match": {
+        "count=*": "还有 {formattedCountZh} 条待回复"
+      }
+    }
+  ],
+  "dashboard_unreplied_empty_title": "都回复完了",
+  "dashboard_unreplied_empty_desc": "新的访客评论会出现在这里",
+  "dashboard_comment_mark_handled": "标为已处理",
+  "dashboard_comment_marked_handled": "已标为已处理",
+  "dashboard_comment_handled_undo": "撤销",
+  "dashboard_comment_handled_error": "操作失败，请重试",
+  "dashboard_unreplied_handle_all": [
+    {
+      "declarations": ["input count", "local formattedCountZh = count: number"],
+      "match": {
+        "count=*": "全部标为已处理（{formattedCountZh}）"
+      }
+    }
+  ],
+  "dashboard_unreplied_handle_all_title": "全部标为已处理？",
+  "dashboard_unreplied_handle_all_desc": [
+    {
+      "declarations": ["input count", "local formattedCountZh = count: number"],
+      "match": {
+        "count=*": "这 {formattedCountZh} 条评论会离开待回复列表。评论本身不受影响，也不会通知评论者。"
+      }
+    }
+  ],
+  "dashboard_unreplied_handle_all_confirm": "全部标为已处理",
+  "dashboard_unreplied_handled_all": [
+    {
+      "declarations": ["input count", "local formattedCountZh = count: number"],
+      "match": {
+        "count=*": "已将 {formattedCountZh} 条评论标为已处理"
+      }
+    }
+  ],
+  "dashboard_unreplied_load_more": "加载更多",
+  "dashboard_unreplied_load_error": "待回复评论加载失败",
+  "dashboard_pending_links_title": "待审核友链",
+  "dashboard_pending_links_more": [
+    {
+      "declarations": ["input count", "local formattedCountZh = count: number"],
+      "match": {
+        "count=*": "还有 {formattedCountZh} 条申请"
+      }
+    }
+  ],
+  "dashboard_greeting_morning": "上午好，{name}",
+  "dashboard_greeting_afternoon": "下午好，{name}",
+  "dashboard_greeting_evening": "晚上好，{name}",
+  "dashboard_summary_views": [
+    {
+      "declarations": ["input count", "local formattedCountZh = count: number"],
+      "match": {
+        "count=*": "近 30 天 {formattedCountZh} 次访问"
+      }
+    }
+  ],
+  "dashboard_summary_unreplied": [
+    {
+      "declarations": ["input count", "local formattedCountZh = count: number"],
+      "match": {
+        "count=*": "{formattedCountZh} 条评论等你回复"
+      }
+    }
+  ],
+  "dashboard_summary_pending_links": [
+    {
+      "declarations": ["input count", "local formattedCountZh = count: number"],
+      "match": {
+        "count=*": "{formattedCountZh} 个友链待审核"
+      }
+    }
+  ],
+  "dashboard_summary_clear": "都处理好了，今天适合写点什么",
+  "dashboard_hero_continue": "继续写《{title}》",
+  "dashboard_writing_title": "写作记录",
+  "dashboard_writing_days": [
+    {
+      "declarations": ["input count", "local formattedCountZh = count: number"],
+      "match": {
+        "count=*": "近半年写作 {formattedCountZh} 天"
+      }
+    }
+  ],
+  "dashboard_writing_streak": [
+    {
+      "declarations": ["input count", "local formattedCountZh = count: number"],
+      "match": {
+        "count=*": "最长连续 {formattedCountZh} 天"
+      }
+    }
+  ],
+  "dashboard_writing_none": "近半年还没有写作记录",
+  "dashboard_writing_basis": "按新建文章、发布和保存的版本统计，以本地日期分天",
+  "dashboard_writing_less": "少",
+  "dashboard_writing_more": "多",
+  "dashboard_writing_day": [
+    {
+      "declarations": ["input count", "local formattedCountZh = count: number", "input date"],
+      "match": {
+        "count=*": "{date}：{formattedCountZh} 次写作"
+      }
+    }
+  ],
+  "dashboard_writing_day_none": "{date}：没有写作"
 }

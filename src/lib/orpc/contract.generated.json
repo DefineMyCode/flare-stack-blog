@@ -486,6 +486,47 @@
           "tags": ["Comments"]
         }
       }
+    },
+    "admin": {
+      "markHandled": {
+        "~orpc": {
+          "errorMap": {},
+          "meta": {},
+          "route": {
+            "method": "PUT",
+            "path": "/admin/comments/{id}/handled",
+            "summary": "Mark a comment handled",
+            "description": "Takes the Comment off the dashboard's unreplied list without replying. An Admin reply marks the Comment it answers handled too.",
+            "tags": ["Admin Comments"]
+          }
+        }
+      },
+      "unmarkHandled": {
+        "~orpc": {
+          "errorMap": {},
+          "meta": {},
+          "route": {
+            "method": "DELETE",
+            "path": "/admin/comments/{id}/handled",
+            "summary": "Unmark a handled comment",
+            "description": "Undoes marking the Comment handled. It returns to the unreplied list unless an Admin Comment still answers it.",
+            "tags": ["Admin Comments"]
+          }
+        }
+      },
+      "markAllHandled": {
+        "~orpc": {
+          "errorMap": {},
+          "meta": {},
+          "route": {
+            "method": "POST",
+            "path": "/admin/comments/handled",
+            "summary": "Mark all unreplied comments handled",
+            "description": "Marks every Comment on the dashboard's unreplied list handled and returns how many it marked.",
+            "tags": ["Admin Comments"]
+          }
+        }
+      }
     }
   },
   "media": {
@@ -1013,6 +1054,19 @@
           "method": "GET",
           "path": "/admin/dashboard",
           "summary": "Get admin dashboard overview",
+          "tags": ["Admin Dashboard"]
+        }
+      }
+    },
+    "unrepliedComments": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/admin/dashboard/unreplied-comments",
+          "summary": "List unreplied comments",
+          "description": "Every visitor Comment on a public Post that no Admin has replied to or marked handled, newest first. Pass the previous page's nextBeforeId as beforeId to continue; pages stay stable while Comments leave the list.",
           "tags": ["Admin Dashboard"]
         }
       }

@@ -400,8 +400,6 @@
   "admin_sidebar_logout_failed": "Sign out failed",
   "admin_sidebar_logout_failed_desc": "Please try again.",
   "admin_overview_title": "Overview",
-  "admin_overview_continue_writing": "Continue writing",
-  "admin_overview_recent_comments": "New comments",
   "admin_overview_popularity_failed": "Popularity sync failed",
   "admin_overview_popularity_expired": "Popularity data expired",
   "admin_overview_activity_anonymous": "Anonymous",
@@ -1087,12 +1085,8 @@
   "friend_review_preview_hint": "Once approved, these details appear on your friend links page.",
   "friend_review_previous": "Previous",
   "friend_review_next": "Next",
-  "dashboard_intro": "A place to write, connect, and share.",
-  "dashboard_resume": "Continue editing",
   "dashboard_first_post": "Start with your first post",
   "dashboard_recent_edits": "Recently edited",
-  "dashboard_tasks": "Needs attention",
-  "dashboard_pending_links": "{count} friend link applications to review",
   "muted_manager_hint": "Manage muted users and restore their ability to comment.",
   "muted_manager_count": "{count} users",
   "muted_manager_search": "Search usernames",
@@ -1196,5 +1190,180 @@
   "comments_send_failed_keep_draft": "Could not send your comment. Your draft is preserved; please try again.",
   "comments_load_failed": "Comments could not be loaded.",
   "comments_replies_failed": "Replies could not be loaded.",
-  "comments_retry": "Retry"
+  "comments_retry": "Retry",
+  "admin_overview_email_needs_setup_desc": "You won't get emails about new comments or friend link requests",
+  "admin_overview_popularity_failed_desc": "See why on the maintenance page and sync again",
+  "admin_overview_popularity_expired_desc": "Not synced for over 7 days; the homepage shows pinned and recent posts instead",
+  "admin_overview_default_site_identity_desc": "Set your own site title and author",
+  "admin_overview_update_available": "Version {version} is available",
+  "admin_overview_update_available_desc": "You're on v{current}. See what's new",
+  "dashboard_stats_label": "Blog at a glance",
+  "dashboard_stat_posts": "Posts",
+  "dashboard_stat_drafts": [
+    {
+      "declarations": ["input count", "local formattedCountEn = count: number"],
+      "match": {
+        "count=1": "{formattedCountEn} draft",
+        "count=*": "{formattedCountEn} drafts"
+      }
+    }
+  ],
+  "dashboard_stat_no_drafts": "No drafts",
+  "dashboard_stat_views": "Views, last 30 days",
+  "dashboard_stat_views_unconfigured": "Umami not connected",
+  "dashboard_stat_views_missing": "Not synced yet",
+  "dashboard_stat_views_expired": "Data is out of date",
+  "dashboard_stat_comments": "Comments",
+  "dashboard_stat_comments_recent": [
+    {
+      "declarations": ["input count", "local formattedCountEn = count: number"],
+      "match": {
+        "count=1": "+{formattedCountEn} in the last 7 days",
+        "count=*": "+{formattedCountEn} in the last 7 days"
+      }
+    }
+  ],
+  "dashboard_stat_comments_none_recent": "None in the last 7 days",
+  "dashboard_stat_friend_links": "Friend links",
+  "dashboard_stat_friend_links_pending": [
+    {
+      "declarations": ["input count", "local formattedCountEn = count: number"],
+      "match": {
+        "count=1": "{formattedCountEn} awaiting review",
+        "count=*": "{formattedCountEn} awaiting review"
+      }
+    }
+  ],
+  "dashboard_stat_friend_links_none_pending": "None awaiting review",
+  "dashboard_popular_title": "Popular in the last 30 days",
+  "dashboard_popular_expired": "Out of date",
+  "dashboard_popular_open_public": "Open public page",
+  "dashboard_popular_unconfigured_title": "Umami isn't connected",
+  "dashboard_popular_unconfigured_desc": "Once connected, your most-read posts of the last 30 days show up here",
+  "dashboard_popular_missing_title": "No popularity data yet",
+  "dashboard_popular_missing_desc": "Popularity syncs once a day, or you can sync it now",
+  "dashboard_popular_sync": "Sync now",
+  "dashboard_popular_no_views": "No post was read in the last 30 days",
+  "dashboard_unreplied_title": "Awaiting your reply",
+  "dashboard_unreplied_more": [
+    {
+      "declarations": ["input count", "local formattedCountEn = count: number"],
+      "match": {
+        "count=1": "{formattedCountEn} more awaiting reply",
+        "count=*": "{formattedCountEn} more awaiting reply"
+      }
+    }
+  ],
+  "dashboard_unreplied_empty_title": "All caught up",
+  "dashboard_unreplied_empty_desc": "New visitor comments will show up here",
+  "dashboard_comment_mark_handled": "Mark as handled",
+  "dashboard_comment_marked_handled": "Marked as handled",
+  "dashboard_comment_handled_undo": "Undo",
+  "dashboard_comment_handled_error": "Couldn't update the comment. Try again.",
+  "dashboard_unreplied_handle_all": [
+    {
+      "declarations": ["input count", "local formattedCountEn = count: number"],
+      "match": {
+        "count=1": "Mark all as handled ({formattedCountEn})",
+        "count=*": "Mark all as handled ({formattedCountEn})"
+      }
+    }
+  ],
+  "dashboard_unreplied_handle_all_title": "Mark all as handled?",
+  "dashboard_unreplied_handle_all_desc": [
+    {
+      "declarations": ["input count", "local formattedCountEn = count: number"],
+      "match": {
+        "count=1": "This comment will leave the list awaiting reply. The comment itself stays, and no one is notified.",
+        "count=*": "These {formattedCountEn} comments will leave the list awaiting reply. The comments themselves stay, and no one is notified."
+      }
+    }
+  ],
+  "dashboard_unreplied_handle_all_confirm": "Mark all as handled",
+  "dashboard_unreplied_handled_all": [
+    {
+      "declarations": ["input count", "local formattedCountEn = count: number"],
+      "match": {
+        "count=1": "Marked {formattedCountEn} comment as handled",
+        "count=*": "Marked {formattedCountEn} comments as handled"
+      }
+    }
+  ],
+  "dashboard_unreplied_load_more": "Load more",
+  "dashboard_unreplied_load_error": "Couldn't load comments awaiting reply",
+  "dashboard_pending_links_title": "Friend links to review",
+  "dashboard_pending_links_more": [
+    {
+      "declarations": ["input count", "local formattedCountEn = count: number"],
+      "match": {
+        "count=1": "{formattedCountEn} more request",
+        "count=*": "{formattedCountEn} more requests"
+      }
+    }
+  ],
+  "dashboard_greeting_morning": "Good morning, {name}",
+  "dashboard_greeting_afternoon": "Good afternoon, {name}",
+  "dashboard_greeting_evening": "Good evening, {name}",
+  "dashboard_summary_views": [
+    {
+      "declarations": ["input count", "local formattedCountEn = count: number"],
+      "match": {
+        "count=1": "{formattedCountEn} visit in 30 days",
+        "count=*": "{formattedCountEn} visits in 30 days"
+      }
+    }
+  ],
+  "dashboard_summary_unreplied": [
+    {
+      "declarations": ["input count", "local formattedCountEn = count: number"],
+      "match": {
+        "count=1": "{formattedCountEn} comment awaits your reply",
+        "count=*": "{formattedCountEn} comments await your reply"
+      }
+    }
+  ],
+  "dashboard_summary_pending_links": [
+    {
+      "declarations": ["input count", "local formattedCountEn = count: number"],
+      "match": {
+        "count=1": "{formattedCountEn} friend link to review",
+        "count=*": "{formattedCountEn} friend links to review"
+      }
+    }
+  ],
+  "dashboard_summary_clear": "All caught up — a good day to write",
+  "dashboard_hero_continue": "Continue “{title}”",
+  "dashboard_writing_title": "Writing",
+  "dashboard_writing_days": [
+    {
+      "declarations": ["input count", "local formattedCountEn = count: number"],
+      "match": {
+        "count=1": "Wrote on {formattedCountEn} day in 6 months",
+        "count=*": "Wrote on {formattedCountEn} days in 6 months"
+      }
+    }
+  ],
+  "dashboard_writing_streak": [
+    {
+      "declarations": ["input count", "local formattedCountEn = count: number"],
+      "match": {
+        "count=1": "longest streak {formattedCountEn} day",
+        "count=*": "longest streak {formattedCountEn} days"
+      }
+    }
+  ],
+  "dashboard_writing_none": "No writing in the last 6 months",
+  "dashboard_writing_basis": "Counts new posts, publishes and saved revisions by local day",
+  "dashboard_writing_less": "Less",
+  "dashboard_writing_more": "More",
+  "dashboard_writing_day": [
+    {
+      "declarations": ["input count", "local formattedCountEn = count: number", "input date"],
+      "match": {
+        "count=1": "{date}: {formattedCountEn} writing event",
+        "count=*": "{date}: {formattedCountEn} writing events"
+      }
+    }
+  ],
+  "dashboard_writing_day_none": "{date}: no writing"
 }
