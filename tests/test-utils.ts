@@ -4,14 +4,15 @@ import {
 } from "cloudflare:test";
 import { env } from "cloudflare:workers";
 import { vi } from "vitest";
+import { getAuth } from "@/lib/auth/auth.server";
 import { getDb } from "@/lib/db";
 import * as schema from "@/lib/db/schema";
 
-export function createTestDb() {
+function createTestDb() {
   return getDb(env);
 }
 
-export function createMockAuth() {
+function createMockAuth() {
   return {
     api: {
       getSession: vi.fn(async () => null),
@@ -35,6 +36,7 @@ export function createMockSession(
     banned: false,
     banReason: null,
     banExpires: null,
+    mutedAt: null,
     createdAt: new Date(),
     updatedAt: new Date(),
   };
@@ -69,6 +71,7 @@ export function createMockAdminSession(): AuthContext["session"] {
       banned: false,
       banReason: null,
       banExpires: null,
+      mutedAt: null,
       createdAt: new Date(),
       updatedAt: new Date(),
     },
@@ -108,33 +111,6 @@ export function createTestContext(
     ...overrides,
   };
 
-  // Mock Workflow create methods
-  const mockWorkflowInstance = { id: "mock-id" };
-
-  vi.spyOn(context.env.COMMENT_MODERATION_WORKFLOW, "create").mockResolvedValue(
-    mockWorkflowInstance as unknown as Awaited<
-      ReturnType<Env["COMMENT_MODERATION_WORKFLOW"]["create"]>
-    >,
-  );
-
-  vi.spyOn(context.env.POST_PROCESS_WORKFLOW, "create").mockResolvedValue(
-    mockWorkflowInstance as unknown as Awaited<
-      ReturnType<Env["POST_PROCESS_WORKFLOW"]["create"]>
-    >,
-  );
-
-  vi.spyOn(context.env.POST_AUTO_SNAPSHOT_WORKFLOW, "create").mockResolvedValue(
-    mockWorkflowInstance as unknown as Awaited<
-      ReturnType<Env["POST_AUTO_SNAPSHOT_WORKFLOW"]["create"]>
-    >,
-  );
-  vi.spyOn(
-    context.env.POST_AUTO_SNAPSHOT_WORKFLOW,
-    "createBatch",
-  ).mockResolvedValue([mockWorkflowInstance] as unknown as Awaited<
-    ReturnType<Env["POST_AUTO_SNAPSHOT_WORKFLOW"]["createBatch"]>
-  >);
-
   vi.spyOn(context.env.QUEUE, "send").mockResolvedValue({
     metadata: {
       metrics: {
@@ -143,25 +119,6 @@ export function createTestContext(
       },
     },
   });
-
-  vi.spyOn(context.env.SCHEDULED_PUBLISH_WORKFLOW, "get").mockResolvedValue({
-    ...mockWorkflowInstance,
-    terminate: vi.fn(),
-  } as unknown as Awaited<
-    ReturnType<Env["SCHEDULED_PUBLISH_WORKFLOW"]["get"]>
-  >);
-
-  vi.spyOn(context.env.SCHEDULED_PUBLISH_WORKFLOW, "create").mockResolvedValue(
-    mockWorkflowInstance as unknown as Awaited<
-      ReturnType<Env["SCHEDULED_PUBLISH_WORKFLOW"]["create"]>
-    >,
-  );
-  vi.spyOn(
-    context.env.SCHEDULED_PUBLISH_WORKFLOW,
-    "createBatch",
-  ).mockResolvedValue([mockWorkflowInstance] as unknown as Awaited<
-    ReturnType<Env["SCHEDULED_PUBLISH_WORKFLOW"]["createBatch"]>
-  >);
 
   return context;
 }
@@ -207,20 +164,16 @@ export async function seedUser(
 }
 
 /**
- * Helper to make requests to the Hono app with a mock ExecutionContext
+ * 创建一个可用于 `x-api-key` 的 Admin API Key，
+ * 用于模拟外部编辑器（脚本、agent、桌面客户端）调用 Admin HTTP API。
  */
-export async function testRequest<TEnv extends Env = Env>(
-  app: {
-    request: (
-      path: string,
-      options?: RequestInit,
-      env?: TEnv,
-      executionCtx?: ExecutionContext,
-    ) => Promise<Response> | Response;
-  },
-  path: string,
-  options: RequestInit = {},
-  customEnv: TEnv = env as unknown as TEnv,
-) {
-  return app.request(path, options, customEnv, createMockExecutionCtx());
+export async function seedAdminApiKey(name = "external-editor") {
+  const db = createTestDb();
+  const admin = createMockAdminSession().user;
+  await seedUser(db, admin);
+  const auth = getAuth({ db, env });
+  const created = await auth.api.createApiKey({
+    body: { name, userId: admin.id },
+  });
+  return created.key;
 }

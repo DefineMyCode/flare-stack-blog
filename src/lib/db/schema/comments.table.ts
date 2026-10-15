@@ -1,4 +1,3 @@
-import type { JSONContent } from "@tiptap/react";
 import type { AnySQLiteColumn } from "drizzle-orm/sqlite-core";
 import {
   index,
@@ -11,18 +10,13 @@ import { user } from "./auth.table";
 import { createdAt, id, updatedAt } from "./helper";
 import { PostsTable } from "./posts.table";
 
-export const COMMENT_STATUSES = [
-  "pending",
-  "published",
-  "deleted",
-  "verifying",
-] as const;
+export const COMMENT_STATUSES = ["published", "deleted"] as const;
 
 export const CommentsTable = sqliteTable(
   "comments",
   {
     id,
-    content: text({ mode: "json" }).$type<JSONContent>(),
+    content: text(),
     rootId: integer("root_id").references(
       (): AnySQLiteColumn => CommentsTable.id,
       {
@@ -35,13 +29,17 @@ export const CommentsTable = sqliteTable(
     ),
     status: text("status", { enum: COMMENT_STATUSES })
       .notNull()
-      .default("verifying"),
-    aiReason: text("ai_reason"),
+      .default("published"),
 
     postId: integer("post_id")
       .notNull()
       .references(() => PostsTable.id, { onDelete: "cascade" }),
     userId: text("user_id").references(() => user.id, { onDelete: "set null" }),
+    /**
+     * When an Admin dealt with the Comment, by replying or by marking it
+     * handled; it then no longer waits for a reply. Admin-only.
+     */
+    handledAt: integer("handled_at", { mode: "timestamp" }),
 
     createdAt,
     updatedAt,

@@ -1,30 +1,46 @@
 import { z } from "zod";
-import type { NotificationEvent } from "@/features/notification/notification.schema";
-import { ADMIN_NOTIFICATION_EVENTS } from "@/features/notification/notification.schema";
 
-export const NOTIFICATION_WEBHOOK_EVENTS = ADMIN_NOTIFICATION_EVENTS;
+/**
+ * Where admin notifications are pushed. `generic` posts the signed Flare JSON
+ * body for a receiver the admin runs; the others speak a chat or push
+ * service's own format, and `custom` fills a body template.
+ */
+export const WEBHOOK_PROVIDERS = [
+  "generic",
+  "telegram",
+  "discord",
+  "feishu",
+  "dingtalk",
+  "wecom",
+  "bark",
+  "ntfy",
+  "custom",
+] as const;
 
-export const notificationWebhookEventTypeSchema = z.enum(
-  NOTIFICATION_WEBHOOK_EVENTS,
-);
+export const webhookProviderSchema = z.enum(WEBHOOK_PROVIDERS);
+export type WebhookProvider = z.infer<typeof webhookProviderSchema>;
 
-export type NotificationWebhookEventType =
-  (typeof NOTIFICATION_WEBHOOK_EVENTS)[number];
-
-export function isNotificationWebhookEventType(
-  event: NotificationEvent,
-): event is Extract<
-  NotificationEvent,
-  { type: (typeof NOTIFICATION_WEBHOOK_EVENTS)[number] }
-> {
-  return NOTIFICATION_WEBHOOK_EVENTS.some((type) => type === event.type);
-}
-
+/**
+ * `secret` holds the generic and custom signing key, or Telegram's bot
+ * token. A missing provider is `generic`, the only kind before providers.
+ */
 export const webhookEndpointSchema = z.object({
-  id: z.string(),
-  name: z.string().min(1),
-  url: z.url(),
-  enabled: z.boolean(),
-  secret: z.string().min(1),
-  events: z.array(notificationWebhookEventTypeSchema),
+  provider: webhookProviderSchema.optional(),
+  url: z.string(),
+  secret: z.string(),
+  chatId: z.string().optional(),
+  template: z.string().optional(),
 });
+
+export const WEBHOOK_TEMPLATE_MAX_LENGTH = 4000;
+
+export const legacyWebhookEndpointSchema = z.object({
+  id: z.string().optional(),
+  name: z.string().optional(),
+  url: z.string().optional(),
+  enabled: z.boolean().optional(),
+  secret: z.string().optional(),
+  events: z.array(z.string()).optional(),
+});
+
+export type WebhookEndpoint = z.infer<typeof webhookEndpointSchema>;
