@@ -1,5 +1,9 @@
-import { createEmailMessageFromNotification } from "@/features/email/service/email-message.mapper";
 import type { NotificationEvent } from "@/features/notification/notification.schema";
+import {
+  buildWebhookRequest,
+  providerOf,
+  webhookResponseError,
+} from "@/features/webhook/webhook.providers";
 import { serverEnv } from "@/lib/env/server.env";
 import type { Locale } from "@/lib/i18n";
 import type { WebhookMessage } from "@/lib/queue/queue.schema";
@@ -15,16 +19,6 @@ function createPlainTextMessage(event: NotificationEvent, locale: Locale) {
           commentUrl: event.data.commentUrl,
           commenterName: event.data.commenterName,
           postTitle: event.data.postTitle,
-        },
-        { locale },
-      );
-    case "comment.admin_pending_review":
-      return m.email_webhook_comment_admin_pending_message(
-        {
-          commentPreview: event.data.commentPreview,
-          commenterName: event.data.commenterName,
-          postTitle: event.data.postTitle,
-          reviewUrl: event.data.reviewUrl,
         },
         { locale },
       );
@@ -73,14 +67,32 @@ function createPlainTextMessage(event: NotificationEvent, locale: Locale) {
   }
 }
 
-function createRenderedEmail(event: NotificationEvent, locale: Locale) {
-  const email = createEmailMessageFromNotification(event, locale);
+function createTitle(event: NotificationEvent, locale: Locale) {
+  switch (event.type) {
+    case "comment.admin_root_created":
+      return m.webhook_title_comment({}, { locale });
+    case "comment.reply_to_admin_published":
+    case "comment.reply_to_user_published":
+      return m.webhook_title_reply({}, { locale });
+    case "friend_link.submitted":
+      return m.webhook_title_friend_link_submitted({}, { locale });
+    case "friend_link.approved":
+    case "friend_link.rejected":
+      return m.webhook_title_friend_link_reviewed({}, { locale });
+    default: {
+      event satisfies never;
+      throw new Error("Unknown notification event");
+    }
+  }
+}
 
-  return {
-    subject: email.subject,
-    message: createPlainTextMessage(event, locale),
-    html: email.html,
-  };
+/** Where the notification takes the Admin: the comment, or the review page. */
+function linkOf(event: NotificationEvent) {
+  const data = event.data;
+  if ("commentUrl" in data) return data.commentUrl;
+  if ("reviewUrl" in data) return data.reviewUrl;
+  if ("blogUrl" in data) return data.blogUrl;
+  return "";
 }
 
 export function createWebhookBody(
@@ -95,31 +107,10 @@ export function createWebhookBody(
     id: messageId,
     type: event.type,
     timestamp: new Date().toISOString(),
-    source: "flare-stack-blog",
     test: options?.isTest ?? false,
     data: event.data,
-    ...createRenderedEmail(event, locale),
+    message: createPlainTextMessage(event, locale),
   };
-}
-
-async function signPayload(secret: string, payload: string, timestamp: string) {
-  const encoder = new TextEncoder();
-  const key = await crypto.subtle.importKey(
-    "raw",
-    encoder.encode(secret),
-    { name: "HMAC", hash: "SHA-256" },
-    false,
-    ["sign"],
-  );
-  const signature = await crypto.subtle.sign(
-    "HMAC",
-    key,
-    encoder.encode(`${timestamp}.${payload}`),
-  );
-
-  return Array.from(new Uint8Array(signature))
-    .map((byte) => byte.toString(16).padStart(2, "0"))
-    .join("");
 }
 
 export async function sendWebhookRequest(
@@ -132,41 +123,45 @@ export async function sendWebhookRequest(
 ): Promise<void> {
   const locale = serverEnv(context.env).LOCALE;
   const body = createWebhookBody(messageId, data.event, options, locale);
-  const payload = JSON.stringify(body);
-  const timestamp = body.timestamp;
-  const signature = await signPayload(data.secret, payload, timestamp);
+  const { event: _, ...endpoint } = data;
+  const request = await buildWebhookRequest(
+    endpoint,
+    {
+      ...body,
+      title: createTitle(data.event, locale),
+      url: linkOf(data.event),
+      data: body.data,
+    },
+    JSON.stringify(body),
+  );
 
-  const response = await fetch(data.url, {
+  const response = await fetch(request.url, {
     method: "POST",
     signal: AbortSignal.timeout(10_000),
-    headers: {
-      "Content-Type": "application/json",
-      "User-Agent": "flare-stack-blog/webhook",
-      "X-Flare-Event": data.event.type,
-      "X-Flare-Timestamp": timestamp,
-      "X-Flare-Signature": `sha256=${signature}`,
-    },
-    body: payload,
+    headers: { "User-Agent": "flare-stack-blog/webhook", ...request.headers },
+    body: request.body,
   });
 
-  if (!response.ok) {
-    let errorDetail = "";
-    try {
-      errorDetail = await response.text();
-    } catch {
-      // Ignored
-    }
-
-    const errorMessage = m.settings_webhook_delivery_failed(
-      {
-        detail: errorDetail.slice(0, 1000),
-        status: String(response.status),
-        statusText: response.statusText,
-      },
-      { locale },
+  let text = "";
+  try {
+    text = await response.text();
+  } catch {
+    // Ignored
+  }
+  const detail = webhookResponseError(providerOf(endpoint), response.ok, text);
+  if (detail !== null) {
+    const status = {
+      status: String(response.status),
+      statusText: response.statusText,
+    };
+    throw new Error(
+      detail.trim()
+        ? m.settings_webhook_delivery_failed_detail(
+            { ...status, detail: detail.trim().slice(0, 1000) },
+            { locale },
+          )
+        : m.settings_webhook_delivery_failed(status, { locale }),
     );
-
-    throw new Error(errorMessage);
   }
 }
 

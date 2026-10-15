@@ -1,157 +1,198 @@
-import * as CacheService from "@/features/cache/cache.service";
-import type {
-  DashboardRange,
-  DashboardResponse,
-} from "@/features/dashboard/dashboard.schema";
-import { ALL_RANGES } from "@/features/dashboard/dashboard.schema";
+import { resolveSystemConfig } from "@/features/config/config.resolve";
+import * as ConfigRepo from "@/features/config/data/config.data";
 import * as DashboardRepo from "@/features/dashboard/data/dashboard.data";
-import * as MediaRepo from "@/features/media/data/media.data";
-import * as PageviewRepo from "@/features/pageview/data/pageview.data";
 import {
-  CachedAllRangesSchema,
-  PAGEVIEW_CACHE_KEYS,
-  type TrafficRangeData,
-} from "@/features/pageview/pageview.schema";
-import { m } from "@/paraglide/messages";
+  adminEmailNeedsSetup,
+  commentSnippet,
+  DASHBOARD_PENDING_FRIEND_LINKS_LIMIT,
+  DASHBOARD_RECENT_COMMENT_DAYS,
+  DASHBOARD_RECENT_POSTS_LIMIT,
+  DASHBOARD_TOP_POST_CANDIDATES,
+  DASHBOARD_UNREPLIED_COMMENTS_LIMIT,
+  DASHBOARD_WRITING_LOOKBACK_DAYS,
+  popularityAlertFromStatus,
+  popularityState,
+  rankTopPosts,
+  siteIdentityIsDefault,
+  totalViews,
+} from "@/features/dashboard/dashboard";
+import type {
+  DashboardComment,
+  DashboardOverview,
+  UnrepliedCommentsInput,
+} from "@/features/dashboard/dashboard.schema";
+import * as FriendLinkRepo from "@/features/friend-links/data/friend-links.data";
+import { isMuted } from "@/features/muted-users/muted-users";
+import { postPopularityService } from "@/features/post-popularity/service/post-popularity.service";
+import * as PostRepo from "@/features/posts/data/posts.data";
+import { versionChecker } from "@/features/version/service/version.service";
 
-function getTimeRange(range: DashboardRange) {
-  const now = new Date();
-  const endAt = now;
+const DAY_MS = 24 * 60 * 60 * 1000;
 
-  let startAt: Date;
-  let prevStartAt: Date;
-
-  if (range === "24h") {
-    startAt = new Date(now);
-    startAt.setHours(startAt.getHours() - 24, 0, 0, 0);
-    prevStartAt = new Date(startAt);
-    prevStartAt.setHours(prevStartAt.getHours() - 24);
-  } else {
-    const days = range === "7d" ? 7 : range === "30d" ? 30 : 90;
-    startAt = new Date(now);
-    startAt.setDate(startAt.getDate() - days);
-    startAt.setHours(0, 0, 0, 0);
-    prevStartAt = new Date(startAt);
-    prevStartAt.setDate(prevStartAt.getDate() - days);
+async function getPopularity(context: DbContext) {
+  const { status, snapshot } =
+    await postPopularityService.getStatusWithSnapshot(context);
+  const state = popularityState(status, snapshot !== null);
+  if (state === "unconfigured" || state === "missing" || !snapshot) {
+    return {
+      alert: popularityAlertFromStatus(status),
+      popularity: {
+        state,
+        windowStart: null,
+        windowEnd: null,
+        totalViews: 0,
+        topPosts: [],
+      },
+    };
   }
 
-  return { startAt, endAt, prevStartAt };
-}
-
-async function fetchTrafficDataForRange(
-  db: DbContext["db"],
-  range: DashboardRange,
-): Promise<TrafficRangeData> {
-  const { startAt, endAt, prevStartAt } = getTimeRange(range);
-  const unit = range === "24h" ? "hour" : "day";
-
-  const [stats, prevStats, traffic, topPages] = await Promise.all([
-    PageviewRepo.getStats(db, startAt, endAt),
-    PageviewRepo.getStats(db, prevStartAt, startAt),
-    PageviewRepo.getTrafficTrend(db, startAt, endAt, unit),
-    PageviewRepo.getTopPages(db, startAt, endAt, 5),
-  ]);
-
+  const candidates = snapshot.entries.slice(0, DASHBOARD_TOP_POST_CANDIDATES);
+  const publicPosts = await DashboardRepo.listPublicPostsByIds(
+    context.db,
+    candidates.map((entry) => entry.postId),
+  );
   return {
-    overview: {
-      pageViews: { value: stats.pv, prev: prevStats.pv },
-      visitors: { value: stats.uv, prev: prevStats.uv },
+    alert: popularityAlertFromStatus(status),
+    popularity: {
+      state,
+      windowStart: snapshot.windowStart,
+      windowEnd: snapshot.windowEnd,
+      totalViews: totalViews(snapshot.entries),
+      topPosts: rankTopPosts(candidates, publicPosts),
     },
-    traffic,
-    topPages,
-    lastUpdated: Date.now(),
   };
 }
 
-export async function getDashboardStats(
-  context: DbContext & { executionCtx: ExecutionContext },
-) {
+export async function getDashboardOverview(
+  context: DbContext,
+): Promise<DashboardOverview> {
   const { db } = context;
+  const now = Date.now();
+  const recentCommentsSince = new Date(
+    now - DASHBOARD_RECENT_COMMENT_DAYS * DAY_MS,
+  );
+  const writingSince = new Date(now - DASHBOARD_WRITING_LOOKBACK_DAYS * DAY_MS);
 
   const [
-    pendingComments,
-    publishedPosts,
-    drafts,
-    mediaSize,
-    recentComments,
+    { alert, popularity },
+    cachedUpdate,
+    postCounts,
+    commentCounts,
+    friendLinkCounts,
+    latestDraft,
     recentPosts,
-    recentUsers,
+    pendingItems,
+    unrepliedItems,
+    unrepliedTotal,
+    storedConfig,
+    writingActivity,
   ] = await Promise.all([
-    DashboardRepo.getPendingCommentsCount(db),
-    DashboardRepo.getPublishedPostsCount(db),
-    DashboardRepo.getDraftsCount(db),
-    MediaRepo.getTotalMediaSize(db),
-    DashboardRepo.getRecentComments(db, 10),
-    DashboardRepo.getRecentPosts(db, 10),
-    DashboardRepo.getRecentUsers(db, 10),
+    getPopularity(context),
+    versionChecker.cached(context),
+    PostRepo.getAdminPostStatusCounts(db),
+    DashboardRepo.countPublicComments(db, recentCommentsSince),
+    FriendLinkRepo.getFriendLinkStatusCounts(db),
+    DashboardRepo.findLatestDraft(db),
+    // One extra so the list stays full after leaving out the latest draft.
+    DashboardRepo.listRecentPosts(db, DASHBOARD_RECENT_POSTS_LIMIT + 1),
+    FriendLinkRepo.getAllFriendLinks(db, {
+      status: "pending",
+      limit: DASHBOARD_PENDING_FRIEND_LINKS_LIMIT,
+    }),
+    DashboardRepo.listUnrepliedComments(db, {
+      limit: DASHBOARD_UNREPLIED_COMMENTS_LIMIT,
+    }),
+    DashboardRepo.countUnrepliedComments(db),
+    ConfigRepo.getSystemConfig(db),
+    DashboardRepo.countWritingEventsByHour(db, writingSince),
   ]);
-
-  // Fetch traffic data from self-hosted pageview stats
-  const fetcher = async () => {
-    const results = await Promise.all(
-      ALL_RANGES.map(async (range) => ({
-        range,
-        data: await fetchTrafficDataForRange(db, range),
-      })),
-    );
-
-    return Object.fromEntries(
-      results.map(({ range, data }) => [range, data]),
-    ) as NonNullable<DashboardResponse["trafficByRange"]>;
-  };
-
-  const trafficByRange = await CacheService.get(
-    context,
-    PAGEVIEW_CACHE_KEYS.traffic,
-    CachedAllRangesSchema,
-    fetcher,
-    { ttl: "3h" },
-  );
-
-  const activities = [
-    ...recentComments
-      .filter((c) => c.posts !== null)
-      .map((c) => ({
-        type: "comment" as const,
-        text: m.admin_overview_activity_comment({
-          userName: c.user?.name || m.admin_overview_activity_anonymous(),
-          postTitle: c.posts!.title,
-        }),
-        time: c.comments.createdAt,
-        link: `/post/${c.posts!.slug}?highlightCommentId=${c.comments.id}&rootId=${c.comments.rootId ?? c.comments.id}#comment-${c.comments.id}`,
-        rootId: c.comments.rootId ?? c.comments.id,
-      })),
-    ...recentPosts.map((p) => ({
-      type: "post" as const,
-      text: m.admin_overview_activity_post_published({
-        postTitle: p.title,
-      }),
-      time: p.publishedAt,
-      link: `/post/${p.slug}`,
-    })),
-    ...recentUsers.map((u) => ({
-      type: "user" as const,
-      text: m.admin_overview_activity_user_registered({
-        userName: u.name,
-      }),
-      time: u.createdAt,
-    })),
-  ]
-    .sort((a, b) => {
-      const timeA = a.time ? new Date(a.time).getTime() : 0;
-      const timeB = b.time ? new Date(b.time).getTime() : 0;
-      return timeB - timeA;
-    })
-    .slice(0, 10);
+  const config = resolveSystemConfig(storedConfig);
 
   return {
+    popularityAlert: alert,
+    adminEmailNeedsSetup: adminEmailNeedsSetup(config),
+    defaultSiteIdentity: siteIdentityIsDefault(config.site),
+    update: cachedUpdate?.hasUpdate
+      ? {
+          latestVersion: cachedUpdate.latestVersion,
+          releaseUrl: cachedUpdate.releaseUrl,
+        }
+      : null,
     stats: {
-      pendingComments,
-      publishedPosts,
-      drafts,
-      mediaSize,
+      publishedPosts: postCounts.published,
+      draftPosts: postCounts.draft,
+      comments: commentCounts.total,
+      recentComments: commentCounts.recent,
+      approvedFriendLinks: friendLinkCounts.approved,
+      pendingFriendLinks: friendLinkCounts.pending,
     },
-    activities,
-    trafficByRange,
+    popularity,
+    writingActivity,
+    latestDraft,
+    recentPosts: recentPosts
+      .filter((post) => post.id !== latestDraft?.id)
+      .slice(0, DASHBOARD_RECENT_POSTS_LIMIT),
+    pendingFriendLinks: {
+      items: pendingItems.map((item) => ({
+        id: item.id,
+        siteName: item.siteName,
+        siteUrl: item.siteUrl,
+        logoUrl: item.logoUrl,
+        createdAt: item.createdAt,
+      })),
+      remainingCount: Math.max(
+        0,
+        friendLinkCounts.pending - pendingItems.length,
+      ),
+    },
+    unrepliedComments: {
+      total: unrepliedTotal,
+      items: toDashboardComments(unrepliedItems),
+    },
+  };
+}
+
+function toDashboardComments(
+  rows: Awaited<ReturnType<typeof DashboardRepo.listUnrepliedComments>>,
+): Array<DashboardComment> {
+  return rows.flatMap((comment) => {
+    if (!comment.postSlug) return [];
+    return [
+      {
+        id: comment.id,
+        postId: comment.postId,
+        rootId: comment.rootId,
+        userId: comment.userId,
+        userName: comment.userName,
+        userImage: comment.userImage,
+        userMuted: isMuted(comment.userMutedAt),
+        postTitle: comment.postTitle,
+        postSlug: comment.postSlug,
+        snippet: commentSnippet(comment.content),
+        createdAt: comment.createdAt,
+      },
+    ];
+  });
+}
+
+/** One page of every unreplied Comment, newest first, with the total. */
+export async function listUnrepliedComments(
+  context: DbContext,
+  input: UnrepliedCommentsInput,
+) {
+  const [rows, total] = await Promise.all([
+    DashboardRepo.listUnrepliedComments(context.db, {
+      // One extra tells whether another page follows.
+      limit: input.limit + 1,
+      beforeId: input.beforeId,
+    }),
+    DashboardRepo.countUnrepliedComments(context.db),
+  ]);
+  const page = rows.slice(0, input.limit);
+  return {
+    items: toDashboardComments(page),
+    total,
+    nextBeforeId:
+      rows.length > input.limit ? (page[page.length - 1]?.id ?? null) : null,
   };
 }
