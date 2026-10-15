@@ -69,6 +69,8 @@ export default defineConfig((ctx) => {
         App: exports.worker({ cache: { enabled: true } }),
         RateLimiter: exports.durableObject({ storage: "sqlite" }),
         PostPublisher: exports.durableObject({ storage: "sqlite" }),
+        // v1 遗留的 DO 命名空间（v2 起已无此类），声明墓碑注销，勿删
+        PasswordHasher: exports.durableObject({ state: "deleted" }),
       },
     },
   };
