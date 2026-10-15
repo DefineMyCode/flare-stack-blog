@@ -11,6 +11,7 @@ import {
   within,
 } from "@testing-library/react";
 import { createElement } from "react";
+import { findInPopover } from "tests/popover";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { toast } from "sonner";
 import { m } from "@/paraglide/messages";
@@ -144,7 +145,7 @@ async function openRowMenu(name: string, command: string) {
       name: m.taxonomy_sheet_row_actions({ name }),
     }),
   );
-  fireEvent.click(await screen.findByRole("menuitem", { name: command }));
+  fireEvent.click(await findInPopover("menuitem", { name: command }));
 }
 
 it("filters by substring ignoring case, and creates only a new name", () => {

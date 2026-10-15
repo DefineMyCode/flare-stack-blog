@@ -10,6 +10,7 @@ import {
   within,
 } from "@testing-library/react";
 import { createElement, useState } from "react";
+import { findInPopover } from "tests/popover";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { categoriesAdminQueryOptions, categoryOptionsQuery } from "../queries";
 import { PostEditorSummary } from "@/features/posts/components/post-editor/post-editor-summary";
@@ -108,13 +109,13 @@ it("uses lightweight options for selection and summary without replacing the man
   expect(requests.adminList).not.toHaveBeenCalled();
 
   await act(async () => fireEvent.click(picker));
-  fireEvent.click(screen.getByRole("option", { name: "Zeta unused" }));
+  fireEvent.click(await findInPopover("option", { name: "Zeta unused" }));
   expect(within(summary).getByText("Zeta unused")).toBeDefined();
   await act(async () =>
     fireEvent.click(screen.getByRole("button", { name: "Zeta unused" })),
   );
   fireEvent.click(
-    screen.getByRole("option", { name: m.editor_meta_uncategorized() }),
+    await findInPopover("option", { name: m.editor_meta_uncategorized() }),
   );
   expect(
     within(summary).getByText(m.editor_meta_uncategorized()),
@@ -156,7 +157,7 @@ it("creates a category from the picker and selects it", async () => {
   await waitFor(() => expect(picker.hasAttribute("disabled")).toBe(false));
   await act(async () => fireEvent.click(picker));
   fireEvent.click(
-    screen.getByRole("option", { name: m.editor_meta_category_create() }),
+    await findInPopover("option", { name: m.editor_meta_category_create() }),
   );
   expect(onChange).not.toHaveBeenCalled();
   fireEvent.change(
