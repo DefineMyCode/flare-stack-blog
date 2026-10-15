@@ -2,6 +2,7 @@ import { blogConfig } from "@/blog.config";
 import { jsonCommentToPlainText } from "@/features/comments/comment-body";
 import type { SystemConfig } from "@/features/config/config.schema";
 import { isEmailConfigured } from "@/features/email/service/email.service";
+import { DASHBOARD_WRITING_WEEKS } from "@/features/dashboard/writing-calendar";
 
 export const DASHBOARD_RECENT_POSTS_LIMIT = 3;
 export const DASHBOARD_PENDING_FRIEND_LINKS_LIMIT = 5;
@@ -10,8 +11,6 @@ export const DASHBOARD_TOP_POSTS_LIMIT = 5;
 /** Snapshot entries looked up per load; covers Posts unpublished since the sync. */
 export const DASHBOARD_TOP_POST_CANDIDATES = 25;
 export const DASHBOARD_RECENT_COMMENT_DAYS = 7;
-/** Weeks in the writing calendar, ending with the current one. */
-export const DASHBOARD_WRITING_WEEKS = 26;
 /** Every day the calendar can show, plus one for any time zone's offset. */
 export const DASHBOARD_WRITING_LOOKBACK_DAYS = DASHBOARD_WRITING_WEEKS * 7 + 1;
 const DASHBOARD_COMMENT_SNIPPET_LENGTH = 80;

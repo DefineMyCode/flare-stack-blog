@@ -1,4 +1,9 @@
-import { DASHBOARD_WRITING_WEEKS } from "@/features/dashboard/dashboard";
+/**
+ * Weeks in the writing calendar, ending with the current one. Defined here
+ * because this module runs in the browser, and dashboard.ts imports the
+ * server-only email service.
+ */
+export const DASHBOARD_WRITING_WEEKS = 26;
 
 const HOUR_MS = 60 * 60 * 1000;
 
