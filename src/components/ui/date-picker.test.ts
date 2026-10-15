@@ -1,6 +1,7 @@
 // @vitest-environment jsdom
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { createElement, type FormEvent } from "react";
+import { findInPopover } from "tests/popover";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import DatePicker from "./date-picker";
 
@@ -38,9 +39,7 @@ it.each(["Pacific/Kiritimati", "Etc/GMT+12"])(
       }),
     );
     fireEvent.click(screen.getByRole("button", { name: "2026-09-01" }));
-    expect((await screen.findByRole("heading")).textContent).toBe(
-      "September 2026",
-    );
+    expect((await findInPopover("heading")).textContent).toBe("September 2026");
     const calendars = document.querySelectorAll(".grid-cols-7");
     expect(Array.from(calendars[0].children, (day) => day.textContent)).toEqual(
       ["S", "M", "T", "W", "T", "F", "S"],
@@ -69,7 +68,7 @@ it("uses the supplied UTC today, disables future days, and keeps picks date-only
     ),
   );
   fireEvent.click(screen.getByRole("button", { name: "2026-09-01" }));
-  const today = await screen.findByRole("button", { name: "1" });
+  const today = await findInPopover("button", { name: "1" });
   expect(document.activeElement).toBe(today);
   expect(today.getAttribute("aria-current")).toBe("date");
   expect(today.getAttribute("aria-pressed")).toBe("true");
@@ -89,7 +88,7 @@ it("closes on Escape and returns focus to the trigger", async () => {
   render(createElement(DatePicker, { value: "2026-09-01", onChange: vi.fn() }));
   const trigger = screen.getByRole("button", { name: "2026-09-01" });
   fireEvent.click(trigger);
-  const day = await screen.findByRole("button", { name: "1" });
+  const day = await findInPopover("button", { name: "1" });
   fireEvent.keyDown(day, { key: "Escape" });
   expect(trigger.getAttribute("aria-expanded")).toBe("false");
   expect(document.activeElement).toBe(trigger);
@@ -101,9 +100,7 @@ it("defaults today to the UTC date when no server date is supplied", async () =>
   vi.setSystemTime(new Date("2026-09-01T00:30:00Z"));
   render(createElement(DatePicker, { value: "", onChange: vi.fn() }));
   fireEvent.click(screen.getByRole("button"));
-  expect((await screen.findByRole("heading")).textContent).toBe(
-    "September 2026",
-  );
+  expect((await findInPopover("heading")).textContent).toBe("September 2026");
   expect(
     screen.getByRole("button", { name: "1" }).getAttribute("aria-current"),
   ).toBe("date");
@@ -116,14 +113,12 @@ it("follows changed values and resets the visible month when reopened", async ()
     createElement(DatePicker, { value: "2026-09-01", onChange }),
   );
   fireEvent.click(screen.getByRole("button", { name: "2026-09-01" }));
-  await screen.findByRole("heading");
+  await findInPopover("heading");
   rerender(createElement(DatePicker, { value: "2026-12-01", onChange }));
   expect(screen.getByRole("heading").textContent).toBe("December 2026");
   fireEvent.click(screen.getByRole("button", { name: "January 2027" }));
   expect(screen.getByRole("heading").textContent).toBe("January 2027");
   fireEvent.click(screen.getByRole("button", { name: "2026-12-01" }));
   fireEvent.click(screen.getByRole("button", { name: "2026-12-01" }));
-  expect((await screen.findByRole("heading")).textContent).toBe(
-    "December 2026",
-  );
+  expect((await findInPopover("heading")).textContent).toBe("December 2026");
 });

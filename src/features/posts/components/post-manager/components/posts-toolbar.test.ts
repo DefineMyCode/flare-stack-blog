@@ -8,6 +8,7 @@ import {
   waitFor,
 } from "@testing-library/react";
 import { createElement } from "react";
+import { findInPopover } from "tests/popover";
 import { afterEach, expect, it, vi } from "vitest";
 import { m } from "@/paraglide/messages";
 import { PostsToolbar } from "./posts-toolbar";
@@ -66,7 +67,7 @@ function renderToolbar(filters: { category?: number | "none"; tag?: number }) {
 
 async function pick(menu: string, option: string) {
   fireEvent.click(screen.getByRole("button", { name: menu }));
-  fireEvent.click(await screen.findByRole("menuitemradio", { name: option }));
+  fireEvent.click(await findInPopover("menuitemradio", { name: option }));
 }
 
 it("filters by a category, by uncategorized posts and by a tag", async () => {

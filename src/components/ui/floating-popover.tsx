@@ -72,7 +72,10 @@ export interface FloatingPopoverProps extends Omit<
   matchTriggerWidth?: boolean;
   /** At most this tall, and shorter when the room beside the anchor is. */
   maxHeight?: number;
-  /** Focused once the popover is positioned and visible. */
+  /**
+   * Focused in the same commit that positions and shows the popover, so it
+   * is never visible without its focus.
+   */
   initialFocus?: () => HTMLElement | null;
   children: ReactNode;
 }
@@ -85,6 +88,11 @@ const VIEWPORT_PADDING = 8;
  * positioning. It flips and shifts to stay in the viewport, follows the
  * anchor on scroll and resize, and animates in and out with the Fuwari
  * popover motion.
+ *
+ * The panel stays hidden until it is first positioned. It is
+ * `data-state="open"` only from then on, once it shows and holds its initial
+ * focus, so the entrance motion starts when it appears; `"closing"` while it
+ * animates out.
  */
 export function FloatingPopover({
   open,
@@ -173,7 +181,9 @@ export function FloatingPopover({
   }, [present, reference, placement, matchTriggerWidth, maxHeight]);
 
   const positioned = position !== null;
-  useEffect(() => {
+  // A layout effect, so a keystroke can never reach the page between the
+  // popover appearing and its focus moving in.
+  useLayoutEffect(() => {
     if (open && positioned) focusTarget.current?.()?.focus();
   }, [open, positioned]);
 
@@ -223,7 +233,7 @@ export function FloatingPopover({
     <div
       {...rest}
       ref={panelRef}
-      data-state={open ? "open" : "closing"}
+      data-state={open ? (positioned ? "open" : undefined) : "closing"}
       inert={!open}
       aria-hidden={!open || undefined}
       style={{

@@ -1,6 +1,7 @@
 // @vitest-environment jsdom
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { createElement } from "react";
+import { findInPopover } from "tests/popover";
 import { afterEach, expect, it, vi } from "vitest";
 import { ActionMenu, type ActionMenuItem } from "./action-menu";
 
@@ -34,7 +35,7 @@ it("opens on the first or last command from the keyboard, skipping disabled ones
   const trigger = renderMenu(items());
 
   fireEvent.keyDown(trigger, { key: "ArrowUp" });
-  const del = await screen.findByRole("menuitem", { name: "Delete" });
+  const del = await findInPopover("menuitem", { name: "Delete" });
   expect(document.activeElement).toBe(del);
   expect(trigger.getAttribute("aria-expanded")).toBe("true");
 
@@ -49,7 +50,7 @@ it("runs a command after closing, handing it the focused trigger", async () => {
   const trigger = renderMenu(menu);
   fireEvent.click(trigger);
 
-  fireEvent.click(await screen.findByRole("menuitem", { name: "Delete" }));
+  fireEvent.click(await findInPopover("menuitem", { name: "Delete" }));
 
   expect(screen.queryByRole("menu")).toBeNull();
   expect(menu[2].onSelect).toHaveBeenCalledWith(trigger);
@@ -60,7 +61,7 @@ it("runs a command after closing, handing it the focused trigger", async () => {
 it("closes on Tab from the trigger's place in the page", async () => {
   const trigger = renderMenu(items());
   fireEvent.keyDown(trigger, { key: "ArrowDown" });
-  const edit = await screen.findByRole("menuitem", { name: "Edit" });
+  const edit = await findInPopover("menuitem", { name: "Edit" });
 
   fireEvent.keyDown(edit, { key: "Tab" });
 
@@ -74,7 +75,7 @@ it("marks toggles as checkable", async () => {
   ]);
   fireEvent.click(trigger);
 
-  const toggle = await screen.findByRole("menuitemcheckbox", {
+  const toggle = await findInPopover("menuitemcheckbox", {
     name: "Header row",
   });
   expect(toggle.getAttribute("aria-checked")).toBe("true");

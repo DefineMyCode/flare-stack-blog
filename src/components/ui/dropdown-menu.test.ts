@@ -1,6 +1,7 @@
 // @vitest-environment jsdom
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { createElement } from "react";
+import { findInPopover } from "tests/popover";
 import { afterEach, expect, it, vi } from "vitest";
 import DropdownMenu from "./dropdown-menu";
 
@@ -38,7 +39,7 @@ it("opens on the chosen option and moves through the options by key", async () =
   renderMenu();
   fireEvent.click(trigger());
 
-  const oldest = await screen.findByRole("menuitemradio", { name: "Oldest" });
+  const oldest = await findInPopover("menuitemradio", { name: "Oldest" });
   expect(oldest.getAttribute("aria-checked")).toBe("true");
   expect(document.activeElement).toBe(oldest);
 
@@ -55,7 +56,7 @@ it("opens on the chosen option and moves through the options by key", async () =
 it("closes on Escape and returns focus to the trigger", async () => {
   const onChange = renderMenu();
   fireEvent.click(trigger());
-  const menu = await screen.findByRole("menu", { name: "Sort" });
+  const menu = await findInPopover("menu", { name: "Sort" });
 
   fireEvent.keyDown(document.activeElement!, { key: "Escape" });
 
@@ -68,7 +69,7 @@ it("closes on Escape and returns focus to the trigger", async () => {
 it("closes on a click outside but not on one inside", async () => {
   const onChange = renderMenu();
   fireEvent.click(trigger());
-  const menu = await screen.findByRole("menu");
+  const menu = await findInPopover("menu");
 
   fireEvent.mouseDown(menu);
   expect(menu.isConnected).toBe(true);
@@ -82,7 +83,7 @@ it("picks an option and returns focus to the trigger", async () => {
   const onChange = renderMenu();
   fireEvent.click(trigger());
 
-  fireEvent.click(await screen.findByRole("menuitemradio", { name: "Title" }));
+  fireEvent.click(await findInPopover("menuitemradio", { name: "Title" }));
 
   expect(onChange).toHaveBeenCalledWith("title");
   expect(screen.queryByRole("menu")).toBeNull();

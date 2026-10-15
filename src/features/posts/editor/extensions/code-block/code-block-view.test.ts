@@ -10,6 +10,7 @@ import {
 } from "@testing-library/react";
 import { Editor, EditorContent } from "@tiptap/react";
 import { createElement } from "react";
+import { findInPopover } from "tests/popover";
 import { afterEach, expect, it, vi } from "vitest";
 import { createSchemaExtensions } from "@/features/posts/editor/schema";
 import { m } from "@/paraglide/messages";
@@ -50,10 +51,10 @@ function trigger() {
   return screen.getByRole("button", { name: m.editor_code_language() });
 }
 
-/** Opens the picker and waits for it to be positioned and shown. */
+/** Opens the picker and waits until its search box can be typed in. */
 async function openPicker() {
   fireEvent.click(trigger());
-  return screen.findByRole("combobox");
+  return findInPopover("combobox");
 }
 
 function optionLabels() {
