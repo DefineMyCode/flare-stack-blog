@@ -101,7 +101,7 @@ export function withRateLimit(options: RateLimitOptions & { key?: string }) {
     const buckets = session
       ? [
           { name: `user:${session.user.id}:${scope}`, limit: options },
-          { name: `${ip}:${scope}`, limit: IP_BACKSTOP },
+          { name: `${ip}:${scope}:backstop`, limit: IP_BACKSTOP },
         ]
       : [{ name: `${ip}:${scope}`, limit: options }];
 
