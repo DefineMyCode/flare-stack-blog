@@ -7,6 +7,7 @@ import {
 import { useEffect } from "react";
 import { PublicLayout as SitePublicLayout } from "@/components/layout/public-layout";
 import { Toaster } from "@/components/layout/toaster";
+import { NameGate } from "@/features/auth/components/name-gate";
 import { useLogout } from "@/features/auth/hooks/use-logout";
 import { authClient } from "@/lib/auth/auth-client";
 import { CACHE_CONTROL } from "@/lib/constants";
@@ -65,7 +66,7 @@ function PublicLayout() {
       const isToggle = (e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k";
       if (isToggle) {
         e.preventDefault();
-        navigate({ to: "/search" });
+        void navigate({ to: "/search" });
       }
     };
     window.addEventListener("keydown", onKey);
@@ -82,6 +83,7 @@ function PublicLayout() {
       >
         <Outlet />
       </SitePublicLayout>
+      <NameGate user={session?.user} logout={logout} />
       <Toaster />
     </>
   );
