@@ -1,12 +1,17 @@
 import { OpenAPIHandler } from "@orpc/openapi/fetch";
 import { createTestContext } from "tests/test-utils";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { publicProcedure, withRateLimit } from "@/lib/orpc/procedure";
+import {
+  publicProcedure,
+  rateLimitErrors,
+  withRateLimit,
+} from "@/lib/orpc/procedure";
 
 function createClient(capacity: number) {
   const context = createTestContext();
   const handler = new OpenAPIHandler({
     limited: publicProcedure
+      .errors(rateLimitErrors)
       .use(withRateLimit({ capacity, interval: "1h", key: "test:limited" }))
       .route({ method: "GET", path: "/limited" })
       .handler(() => ({ success: true })),
@@ -23,7 +28,7 @@ function createClient(capacity: number) {
     };
     const result = await handler.handle(
       new Request("http://localhost:3000/limited", { headers }),
-      { context: { ...context, auth, headers } as never },
+      { context: { ...context, getAuth: async () => auth, headers } as never },
     );
     if (!result.response) throw new Error("Route was not matched");
     return result.response.status;
