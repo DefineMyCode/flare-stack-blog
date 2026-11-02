@@ -15,6 +15,7 @@ import {
 import {
   inspectApiKeyManagementAccess,
   isApiKeyManagementPath,
+  sendsApiKey,
 } from "@/lib/auth/api-key-guard";
 import { createAuthConfig } from "@/lib/auth/auth.config";
 import { getRateLimiter } from "@/lib/do/rate-limiter-binding";
@@ -108,7 +109,7 @@ export function getAuth({ db, env }: { db: DB; env: Env }) {
         if (!isApiKeyManagementPath(ctx.path)) return;
 
         const headers = ctx.headers ?? ctx.request?.headers ?? null;
-        const hasApiKeyHeader = Boolean(headers?.get("x-api-key"));
+        const hasApiKeyHeader = sendsApiKey(headers);
         let role: string | null = null;
         if (ctx.request && !hasApiKeyHeader) {
           const session = await getSessionFromCtx(ctx);
@@ -198,3 +199,28 @@ export function getAuth({ db, env }: { db: DB; env: Env }) {
 
 export type Auth = ReturnType<typeof getAuth>;
 export type Session = Auth["$Infer"]["Session"];
+
+// Building an instance costs milliseconds of CPU, and SSR evaluates a fresh
+// oRPC context for every procedure call, so instances are keyed by the
+// request's ExecutionContext: each Worker invocation gets its own, and every
+// context and the session query within it share it. An instance never
+// outlives its request, since its hooks hold that request's env and db.
+const authByRequest = new WeakMap<ExecutionContext<unknown>, Auth>();
+
+/** The request's Better Auth instance, built on first use. */
+export function getRequestAuth({
+  db,
+  env,
+  executionCtx,
+}: {
+  db: DB;
+  env: Env;
+  executionCtx: ExecutionContext<unknown>;
+}): Auth {
+  let auth = authByRequest.get(executionCtx);
+  if (!auth) {
+    auth = getAuth({ db, env });
+    authByRequest.set(executionCtx, auth);
+  }
+  return auth;
+}
